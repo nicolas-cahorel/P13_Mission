@@ -14,15 +14,4 @@
     tools:layout="@layout/fragment_settings"
     />
 
-  <fragment
-    android:id="@+id/AddFragment"
-    android:name="com.openclassrooms.hexagonal.games.ui.add.AddFragment"
-    android:label="@string/add_fragment_label"
-    tools:layout="@layout/fragment_add"
-    />
-
-  <action
-    android:id="@+id/action_global_AddFragment"
-    app:destination="@id/AddFragment"
-    />
 </navigation>

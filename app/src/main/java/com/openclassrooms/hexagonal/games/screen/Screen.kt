@@ -7,4 +7,6 @@ sealed class Screen(
   val navArguments: List<NamedNavArgument> = emptyList()
 ) {
   data object Homefeed : Screen("homefeed")
+  
+  data object AddPost : Screen("addPost")
 }
