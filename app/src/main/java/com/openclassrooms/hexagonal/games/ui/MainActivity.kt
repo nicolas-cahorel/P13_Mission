@@ -1,60 +1,54 @@
-package com.openclassrooms.hexagonal.games.ui;
+package com.openclassrooms.hexagonal.games.ui
 
-import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-import com.openclassrooms.hexagonal.games.R;
-import com.openclassrooms.hexagonal.games.databinding.ActivityMainBinding;
-import dagger.hilt.android.AndroidEntryPoint;
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.openclassrooms.hexagonal.games.screen.Screen
+import com.openclassrooms.hexagonal.games.screen.homefeed.HomefeedScreen
+import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Main activity for the application. This activity serves as the entry point and container for the navigation
  * fragment. It handles setting up the toolbar, navigation controller, and action bar behavior.
  */
 @AndroidEntryPoint
-public final class MainActivity
-    extends AppCompatActivity
-{
-
-  /**
-   * Configuration object for the AppBar in the activity.
-   */
-  private AppBarConfiguration appBarConfiguration;
-
-  /**
-   * View binding object for the activity's layout (activity_main.xml).
-   */
-  private ActivityMainBinding binding;
-
-  /**
-   * Navigation controller instance for managing app navigation.
-   */
-  private NavController navController;
-
-  @Override
-  protected void onCreate(Bundle savedInstanceState)
-  {
-    super.onCreate(savedInstanceState);
-
-    binding = ActivityMainBinding.inflate(getLayoutInflater());
-    setContentView(binding.getRoot());
-
-    setSupportActionBar(binding.toolbar);
-
-    navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-    appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-    NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+class MainActivity : ComponentActivity() {
+  
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    
+    setContent {
+      val navController = rememberNavController()
+      
+      HexagonalGamesTheme {
+        HexagonalGamesNavHost(navHostController = navController)
+      }
+    }
   }
+  
+}
 
-  @Override
-  public boolean onSupportNavigateUp()
-  {
-    return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
+@Composable
+fun HexagonalGamesNavHost(navHostController: NavHostController) {
+  NavHost(
+    navController = navHostController,
+    startDestination = Screen.Homefeed.route
+  ) {
+    composable(route = Screen.Homefeed.route) {
+      HomefeedScreen(
+        onPostClick = {
+          //TODO
+        },
+        onFABClick = {
+          //TODO
+        }
+      )
+    }
   }
-
 }

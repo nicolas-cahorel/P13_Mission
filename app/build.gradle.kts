@@ -1,7 +1,8 @@
 plugins {
   alias(libs.plugins.androidApplication)
-  alias(libs.plugins.hilt)
   alias(libs.plugins.kotlin)
+  alias(libs.plugins.ksp)
+  alias(libs.plugins.hilt)
 }
 
 android {
@@ -31,6 +32,9 @@ android {
   composeOptions {
     kotlinCompilerExtensionVersion = "1.5.11"
   }
+  kotlinOptions {
+    jvmTarget = "1.8"
+  }
   buildFeatures {
     compose = true
     viewBinding = true
@@ -51,7 +55,8 @@ dependencies {
 
   //DI
   implementation(libs.hilt)
-  annotationProcessor(libs.hilt.compiler)
+  ksp(libs.hilt.compiler)
+  implementation(libs.hilt.navigation.compose)
 
   //compose
   implementation(platform(libs.compose.bom))
@@ -59,11 +64,14 @@ dependencies {
   implementation(libs.compose.ui.graphics)
   implementation(libs.compose.ui.tooling.preview)
   implementation(libs.material)
+  implementation(libs.compose.material3)
   debugImplementation(libs.compose.ui.tooling)
   debugImplementation(libs.compose.ui.test.manifest)
 
   implementation(libs.activity.compose)
   implementation(libs.navigation.compose)
+  
+  implementation(libs.kotlinx.coroutines.android)
 
   testImplementation(libs.junit)
   androidTestImplementation(libs.ext.junit)

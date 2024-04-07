@@ -1,8 +1,7 @@
-package com.openclassrooms.hexagonal.games;
+package com.openclassrooms.hexagonal.games
 
-import android.app.Application;
-
-import dagger.hilt.android.HiltAndroidApp;
+import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
 /**
  * The application class for the Hexagonal Games application.
@@ -10,7 +9,4 @@ import dagger.hilt.android.HiltAndroidApp;
  * initialization tasks such as dependency injection setup using Hilt.
  */
 @HiltAndroidApp
-public final class HexagonalGamesApplication
-    extends Application
-{
-}
+class HexagonalGamesApplication : Application()

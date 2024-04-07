@@ -1,7 +1,5 @@
 package com.openclassrooms.hexagonal.games.ui.homefeed;
 
-import java.util.ArrayList;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,7 +18,11 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.openclassrooms.hexagonal.games.R;
 import com.openclassrooms.hexagonal.games.databinding.FragmentHomefeedBinding;
 import com.openclassrooms.hexagonal.games.domain.model.Post;
+import com.openclassrooms.hexagonal.games.screen.homefeed.HomefeedViewModel;
 import com.openclassrooms.hexagonal.games.ui.homefeed.HomefeedAdapter.OnPostClickListener;
+
+import java.util.ArrayList;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 /**
@@ -107,9 +109,7 @@ public final class HomefeedFragment
    */
   private void observePosts()
   {
-    viewModel.getPosts().observe(getViewLifecycleOwner(), posts -> {
-      adapter.update(posts);
-    });
+
   }
 
   /**

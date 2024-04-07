@@ -1,12 +1,6 @@
 package com.openclassrooms.hexagonal.games.ui.homefeed;
 
-import java.util.List;
-
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,11 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
-import com.bumptech.glide.Glide;
-import com.openclassrooms.hexagonal.games.R;
 import com.openclassrooms.hexagonal.games.databinding.ItemPostBinding;
 import com.openclassrooms.hexagonal.games.domain.model.Post;
 import com.openclassrooms.hexagonal.games.ui.homefeed.HomefeedAdapter.PostViewHolder;
+
+import java.util.List;
 
 /**
  * This adapter class manages the data displayed in the home feed list. It extends the RecyclerView.Adapter class
@@ -95,7 +89,7 @@ public final class HomefeedAdapter
      */
     public void bind(Post post, OnPostClickListener clickListener)
     {
-      username.setText(itemView.getContext().getString(R.string.by, post.author.firstname, post.author.lastname));
+      /*username.setText(itemView.getContext().getString(R.string.by, post.author.firstname, post.author.lastname));
 
       title.setText(post.title);
 
@@ -120,7 +114,7 @@ public final class HomefeedAdapter
       itemView.setOnClickListener(v -> {
         clickListener.onClick(post);
       });
-
+*/
     }
   }
 
