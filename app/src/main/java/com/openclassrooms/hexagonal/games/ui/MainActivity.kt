@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.openclassrooms.hexagonal.games.screen.Screen
 import com.openclassrooms.hexagonal.games.screen.ad.AddScreen
 import com.openclassrooms.hexagonal.games.screen.homefeed.HomefeedScreen
+import com.openclassrooms.hexagonal.games.screen.settings.SettingsScreen
 import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -46,6 +47,9 @@ fun HexagonalGamesNavHost(navHostController: NavHostController) {
         onPostClick = {
           //TODO
         },
+        onSettingsClick = {
+          navHostController.navigate(Screen.Settings.route)
+        },
         onFABClick = {
           navHostController.navigate(Screen.AddPost.route)
         }
@@ -55,6 +59,11 @@ fun HexagonalGamesNavHost(navHostController: NavHostController) {
       AddScreen(
         onBackClick = { navHostController.navigateUp() },
         onSaveClick = { navHostController.navigateUp() }
+      )
+    }
+    composable(route = Screen.Settings.route) {
+      SettingsScreen(
+        onBackClick = { navHostController.navigateUp() }
       )
     }
   }

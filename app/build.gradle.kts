@@ -37,7 +37,6 @@ android {
   }
   buildFeatures {
     compose = true
-    viewBinding = true
   }
 }
 
@@ -74,7 +73,8 @@ dependencies {
   
   implementation(libs.kotlinx.coroutines.android)
   
-  implementation("io.coil-kt:coil-compose:2.6.0")
+  implementation(libs.coil.compose)
+  implementation(libs.accompanist.permissions)
 
   testImplementation(libs.junit)
   androidTestImplementation(libs.ext.junit)

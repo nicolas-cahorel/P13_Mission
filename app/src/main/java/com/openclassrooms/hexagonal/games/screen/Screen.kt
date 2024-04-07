@@ -9,4 +9,6 @@ sealed class Screen(
   data object Homefeed : Screen("homefeed")
   
   data object AddPost : Screen("addPost")
+  
+  data object Settings : Screen("settings")
 }
