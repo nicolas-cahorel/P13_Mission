@@ -41,14 +41,6 @@ android {
 }
 
 dependencies {
-  //to remove
-  implementation(libs.appcompat)
-  implementation(libs.material)
-  implementation(libs.constraintlayout)
-  implementation(libs.navigation.fragment)
-  implementation(libs.navigation.ui)
-  implementation(libs.glide)
-
   //kotlin
   implementation(platform(libs.kotlin.bom))
 
