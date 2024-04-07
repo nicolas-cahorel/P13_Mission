@@ -65,6 +65,7 @@ dependencies {
   implementation(libs.compose.ui.tooling.preview)
   implementation(libs.material)
   implementation(libs.compose.material3)
+  implementation(libs.lifecycle.runtime.compose)
   debugImplementation(libs.compose.ui.tooling)
   debugImplementation(libs.compose.ui.test.manifest)
 
@@ -72,6 +73,8 @@ dependencies {
   implementation(libs.navigation.compose)
   
   implementation(libs.kotlinx.coroutines.android)
+  
+  implementation("io.coil-kt:coil-compose:2.6.0")
 
   testImplementation(libs.junit)
   androidTestImplementation(libs.ext.junit)

@@ -4,20 +4,8 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:id="@+id/nav_graph"
-  app:startDestination="@id/HomefeedFragment"
+    app:startDestination="@id/SettingsFragment"
   >
-
-  <fragment
-    android:id="@+id/HomefeedFragment"
-    android:name="com.openclassrooms.hexagonal.games.ui.homefeed.HomefeedFragment"
-    android:label="@string/homefeed_fragment_label"
-    tools:layout="@layout/fragment_homefeed"
-    >
-    <action
-      android:id="@+id/action_HomefeedFragment_to_SettingsFragment"
-      app:destination="@id/SettingsFragment"
-      />
-  </fragment>
 
   <fragment
     android:id="@+id/SettingsFragment"

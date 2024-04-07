@@ -1,10 +1,13 @@
 package com.openclassrooms.hexagonal.games.screen.homefeed
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.openclassrooms.hexagonal.games.data.repository.PostRepository
 import com.openclassrooms.hexagonal.games.domain.model.Post
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 /**
@@ -21,6 +24,11 @@ class HomefeedViewModel @Inject constructor(private val postRepository: PostRepo
    *
    * @return A Flow<Lis<Post>> object that can be observed for changes in the posts data.
    */
-  val posts: Flow<List<Post>> = postRepository.posts
+  val posts: StateFlow<List<Post>> = postRepository.posts.stateIn(
+    scope = viewModelScope,
+    started = SharingStarted.WhileSubscribed(5_000),
+    initialValue = emptyList(),
+  )
+  
   
 }
