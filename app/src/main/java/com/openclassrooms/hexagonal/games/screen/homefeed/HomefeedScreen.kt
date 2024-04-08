@@ -69,7 +69,7 @@ fun HomefeedScreen(
           IconButton(onClick = { showMenu = !showMenu }) {
             Icon(
               imageVector = Icons.Default.MoreVert,
-              contentDescription = "More"
+              contentDescription = stringResource(id = R.string.contentDescription_more)
             )
           }
           DropdownMenu(

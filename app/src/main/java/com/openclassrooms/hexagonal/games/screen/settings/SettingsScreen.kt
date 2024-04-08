@@ -1,5 +1,6 @@
 package com.openclassrooms.hexagonal.games.screen.settings
 
+import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -74,9 +75,13 @@ private fun Settings(
   onNotificationEnabledClicked: () -> Unit,
   onNotificationDisabledClicked: () -> Unit
 ) {
-  val notificationsPermissionState = rememberPermissionState(
-    android.Manifest.permission.POST_NOTIFICATIONS
-  )
+  val notificationsPermissionState = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    rememberPermissionState(
+      android.Manifest.permission.POST_NOTIFICATIONS
+    )
+  } else {
+    null
+  }
   
   Column(
     modifier = Modifier.fillMaxSize(),
@@ -87,15 +92,17 @@ private fun Settings(
       modifier = Modifier.size(200.dp),
       painter = painterResource(id = R.drawable.ic_notifications),
       tint = MaterialTheme.colorScheme.onSurface,
-      contentDescription = "notification icon"
+      contentDescription = stringResource(id = R.string.contentDescription_notification_icon)
     )
     Button(
       onClick = {
-        if (notificationsPermissionState.status.isGranted) {
-          onNotificationEnabledClicked()
-        } else {
-          notificationsPermissionState.launchPermissionRequest()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+          if (notificationsPermissionState?.status?.isGranted == false) {
+            notificationsPermissionState.launchPermissionRequest()
+          }
         }
+        
+        onNotificationEnabledClicked()
       }
     ) {
       Text(text = stringResource(id = R.string.notification_enable))

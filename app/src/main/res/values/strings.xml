@@ -11,4 +11,7 @@
   <string name="hint_description">Description</string>
   <string name="action_save">Save</string>
   <string name="contentDescription_go_back">Go back</string>
+  <string name="contentDescription_more">More</string>
+  <string name="contentDescription_notification_icon">Icone de notification</string>
+
 </resources>
