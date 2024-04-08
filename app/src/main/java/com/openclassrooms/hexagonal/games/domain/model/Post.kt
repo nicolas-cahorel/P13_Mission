@@ -36,5 +36,5 @@ data class Post(
   /**
    * User object representing the author of the Post.
    */
-  val author: User
+  val author: User?
 ) : Serializable

@@ -13,4 +13,5 @@
   <string name="contentDescription_go_back">Retour</string>
   <string name="contentDescription_more">Plus</string>
   <string name="contentDescription_notification_icon">Notification icon</string>
+  <string name="error_title">Titre non valide</string>
 </resources>

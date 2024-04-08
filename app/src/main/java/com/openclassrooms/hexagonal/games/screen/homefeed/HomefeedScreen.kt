@@ -147,7 +147,11 @@ private fun HomefeedCell(
       modifier = Modifier.padding(8.dp),
     ) {
       Text(
-        text = stringResource(id = R.string.by, post.author.firstname, post.author.lastname),
+        text = stringResource(
+          id = R.string.by,
+          post.author?.firstname ?: "",
+          post.author?.lastname ?: ""
+        ),
         style = MaterialTheme.typography.titleSmall
       )
       Text(
