@@ -6,11 +6,11 @@ import com.openclassrooms.hexagonal.games.data.repository.PostRepository
 import com.openclassrooms.hexagonal.games.domain.model.Post
 import com.openclassrooms.hexagonal.games.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import java.util.UUID
 import javax.inject.Inject
 
@@ -35,9 +35,13 @@ class AddViewModel @Inject constructor(private val postRepository: PostRepositor
   val post: StateFlow<Post>
     get() = _post
   
-  private var _error = MutableSharedFlow<FormError?>()
-  val error: SharedFlow<FormError?>
-    get() = _error
+  val error = post.map {
+    verifyPost()
+  }.stateIn(
+    scope = viewModelScope,
+    started = SharingStarted.WhileSubscribed(5_000),
+    initialValue = null,
+  )
   
   fun onAction(formEvent: FormEvent) {
     when (formEvent) {
@@ -55,30 +59,20 @@ class AddViewModel @Inject constructor(private val postRepository: PostRepositor
     }
   }
   
-  fun addPost(): Boolean {
-    val isPostValid = verifyPost()
-    
-    if (isPostValid) {
-      //TODO : retrieve the current user
-      postRepository.addPost(
-        _post.value.copy(
-          author = User("1", "Gerry", "Ariella")
-        )
+  fun addPost() {
+    //TODO : retrieve the current user
+    postRepository.addPost(
+      _post.value.copy(
+        author = User("1", "Gerry", "Ariella")
       )
-    }
-    
-    return isPostValid
+    )
   }
   
-  private fun verifyPost(): Boolean {
+  private fun verifyPost(): FormError? {
     return if (_post.value.title.isEmpty()) {
-      viewModelScope.launch {
-        _error.emit(FormError.TitleError)
-      }
-      
-      false
+      FormError.TitleError
     } else {
-      true
+      null
     }
   }
   

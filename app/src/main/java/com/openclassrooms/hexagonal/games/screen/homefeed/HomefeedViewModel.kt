@@ -5,9 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.openclassrooms.hexagonal.games.data.repository.PostRepository
 import com.openclassrooms.hexagonal.games.domain.model.Post
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -19,16 +19,22 @@ import javax.inject.Inject
 class HomefeedViewModel @Inject constructor(private val postRepository: PostRepository) :
   ViewModel() {
   
+  private val _posts: MutableStateFlow<List<Post>> = MutableStateFlow(emptyList())
+  
   /**
    * Returns a Flow observable containing the list of posts fetched from the repository.
    *
-   * @return A Flow<Lis<Post>> object that can be observed for changes in the posts data.
+   * @return A Flow<List<Post>> object that can be observed for changes.
    */
-  val posts: StateFlow<List<Post>> = postRepository.posts.stateIn(
-    scope = viewModelScope,
-    started = SharingStarted.WhileSubscribed(5_000),
-    initialValue = emptyList(),
-  )
+  val posts: StateFlow<List<Post>>
+    get() = _posts
   
+  init {
+    viewModelScope.launch {
+      postRepository.posts.collect {
+        _posts.value = it
+      }
+    }
+  }
   
 }

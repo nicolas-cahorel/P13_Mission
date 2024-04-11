@@ -1,6 +1,7 @@
 package com.openclassrooms.hexagonal.games.data.service
 
 import com.openclassrooms.hexagonal.games.domain.model.Post
+import kotlinx.coroutines.flow.Flow
 
 /**
  * This interface defines the contract for interacting with Post data from a data source.
@@ -13,7 +14,7 @@ interface PostApi {
    *
    * @return A list of Posts sorted by creation date (newest first).
    */
-  fun getPostsOrderByCreationDateDesc(): List<Post>
+  fun getPostsOrderByCreationDateDesc(): Flow<List<Post>>
   
   /**
    * Adds a new Post to the data source.

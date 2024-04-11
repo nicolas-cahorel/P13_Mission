@@ -3,7 +3,6 @@ package com.openclassrooms.hexagonal.games.data.repository
 import com.openclassrooms.hexagonal.games.data.service.PostApi
 import com.openclassrooms.hexagonal.games.domain.model.Post
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,9 +21,7 @@ class PostRepository @Inject constructor(private val postApi: PostApi) {
    *
    * @return Flow containing a list of Posts.
    */
-  val posts: Flow<List<Post>> = flow {
-    emit(postApi.getPostsOrderByCreationDateDesc())
-  }
+  val posts: Flow<List<Post>> = postApi.getPostsOrderByCreationDateDesc()
   
   /**
    * Adds a new Post to the data source using the injected PostApi.
