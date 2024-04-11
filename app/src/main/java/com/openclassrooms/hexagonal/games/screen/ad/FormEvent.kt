@@ -7,6 +7,7 @@ import com.openclassrooms.hexagonal.games.R
  * A sealed class representing different events that can occur on a form.
  */
 sealed class FormEvent {
+  
   /**
    * Event triggered when the title of the form is changed.
    *
@@ -20,6 +21,7 @@ sealed class FormEvent {
    * @property description The new description of the form.
    */
   data class DescriptionChanged(val description: String) : FormEvent()
+  
 }
 
 /**
@@ -35,4 +37,5 @@ sealed class FormError(@StringRes val messageRes: Int) {
    * The actual error message can be retrieved using the provided resource ID (`R.string.error_title`).
    */
   data object TitleError : FormError(R.string.error_title)
+  
 }
