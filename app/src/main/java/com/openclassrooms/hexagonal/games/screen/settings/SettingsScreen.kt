@@ -119,7 +119,7 @@ private fun Settings(
 @PreviewScreenSizes
 @Composable
 private fun SettingsPreview() {
-  HexagonalGamesTheme(dynamicColor = false) {
+  HexagonalGamesTheme {
     Settings(
       onNotificationEnabledClicked = { },
       onNotificationDisabledClicked = { }

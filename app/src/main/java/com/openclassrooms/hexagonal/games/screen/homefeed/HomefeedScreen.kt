@@ -188,7 +188,7 @@ private fun HomefeedCell(
 @PreviewScreenSizes
 @Composable
 private fun HomefeedCellPreview() {
-  HexagonalGamesTheme(dynamicColor = false) {
+  HexagonalGamesTheme {
     HomefeedCell(
       post = Post(
         id = "1",
@@ -211,7 +211,7 @@ private fun HomefeedCellPreview() {
 @PreviewScreenSizes
 @Composable
 private fun HomefeedCellImagePreview() {
-  HexagonalGamesTheme(dynamicColor = false) {
+  HexagonalGamesTheme {
     HomefeedCell(
       post = Post(
         id = "1",

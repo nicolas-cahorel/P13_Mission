@@ -145,7 +145,7 @@ private fun CreatePost(
 @PreviewScreenSizes
 @Composable
 private fun CreatePostPreview() {
-  HexagonalGamesTheme(dynamicColor = false) {
+  HexagonalGamesTheme {
     CreatePost(
       title = "test",
       onTitleChanged = { },
@@ -161,7 +161,7 @@ private fun CreatePostPreview() {
 @PreviewScreenSizes
 @Composable
 private fun CreatePostErrorPreview() {
-  HexagonalGamesTheme(dynamicColor = false) {
+  HexagonalGamesTheme {
     CreatePost(
       title = "test",
       onTitleChanged = { },
