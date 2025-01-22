@@ -1,20 +1,25 @@
 [versions]
 accompanistPermissions = "0.34.0"
-agp = "8.3.1"
+agp = "8.7.3"
 coilCompose = "2.6.0"
 hiltNavigationCompose = "1.2.0"
 junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.5.1"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
 kotlinxCoroutinesAndroid = "1.8.0"
-material = "1.11.0"
+material = "1.12.0"
 hilt = "2.49"
 kotlin = "1.9.23"
-compose = "2024.04.00"
-activityCompose = "1.8.2"
-navigationCompose = "2.7.7"
+compose = "2025.01.00"
+activityCompose = "1.8.2" # Conserver la version 1.8.2 sinon impossible de build
+navigationCompose = "2.8.5"
 ksp = "1.9.23-1.0.20"
-lifecycleRuntimeCompose = "2.7.0"
+lifecycleRuntimeCompose = "2.8.7"
+googleServices = "4.4.2"
+firebaseBom = "33.5.1" # Conserver la version 33.5.1 sinon crash de l'app
+firebaseUiAuth = "8.0.0"
+playServices = "19.0.1" # Conserver la version 19.0.1 sinon impossible de build
+
 
 [libraries]
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
@@ -38,10 +43,18 @@ compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
+firebase-bom = {group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom"}
+firebase-analytics = {group = "com.google.firebase", name = "firebase-analytics"}
+firebase-ui-auth = {group = "com.firebaseui", name = "firebase-ui-auth", version.ref = "firebaseUiAuth"}
+
+google-play-services-measurement= {group = "com.google.android.gms", name = "play-services-measurement", version.ref = "playServices"}
+google-play-services-measurement-base= {group = "com.google.android.gms", name = "play-services-measurement-base", version.ref = "playServices"}
+google-play-services-measurement-api= {group = "com.google.android.gms", name = "play-services-measurement-api", version.ref = "playServices"}
+google-play-services-measurement-impl= {group = "com.google.android.gms", name = "play-services-measurement-impl", version.ref = "playServices"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-
+googleServices = {id = "com.google.gms.google-services", version.ref = "googleServices"}

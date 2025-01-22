@@ -84,12 +84,12 @@ private fun Settings(
   }
   
   Column(
-    modifier = Modifier.fillMaxSize(),
+    modifier = modifier.fillMaxSize(),
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.SpaceEvenly
   ) {
     Icon(
-      modifier = Modifier.size(200.dp),
+      modifier = modifier.size(200.dp),
       painter = painterResource(id = R.drawable.ic_notifications),
       tint = MaterialTheme.colorScheme.onSurface,
       contentDescription = stringResource(id = R.string.contentDescription_notification_icon)
