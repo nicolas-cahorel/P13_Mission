@@ -1,4 +1,4 @@
-package com.openclassrooms.hexagonal.games.screen.homefeed
+package com.openclassrooms.hexagonal.games.screen.homeScreen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,7 +35,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,9 +48,9 @@ import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomefeedScreen(
+fun HomeScreen(
   modifier: Modifier = Modifier,
-  viewModel: HomefeedViewModel = hiltViewModel(),
+  viewModel: HomeScreenViewModel = hiltViewModel(),
   onPostClick: (Post) -> Unit = {},
   onSettingsClick: () -> Unit = {},
   onFABClick: () -> Unit = {},
@@ -63,7 +62,7 @@ fun HomefeedScreen(
     topBar = {
       TopAppBar(
         title = {
-          Text(stringResource(id = R.string.homefeed_fragment_label))
+          Text(stringResource(id = R.string.title_homeScreen))
         },
         actions = {
           IconButton(onClick = { showMenu = !showMenu }) {
@@ -79,10 +78,11 @@ fun HomefeedScreen(
             DropdownMenuItem(
               onClick = {
                 onSettingsClick()
+                showMenu = !showMenu
               },
               text = {
                 Text(
-                  text = stringResource(id = R.string.action_settings)
+                  text = stringResource(id = R.string.title_settingsScreen)
                 )
               }
             )
@@ -106,7 +106,7 @@ fun HomefeedScreen(
   ) { contentPadding ->
     val posts by viewModel.posts.collectAsStateWithLifecycle()
     
-    HomefeedList(
+    FeedList(
       modifier = modifier.padding(contentPadding),
       posts = posts,
       onPostClick = onPostClick
@@ -115,7 +115,7 @@ fun HomefeedScreen(
 }
 
 @Composable
-private fun HomefeedList(
+private fun FeedList(
   modifier: Modifier = Modifier,
   posts: List<Post>,
   onPostClick: (Post) -> Unit,
@@ -125,7 +125,7 @@ private fun HomefeedList(
     verticalArrangement = Arrangement.spacedBy(8.dp),
   ) {
     items(posts) { post ->
-      HomefeedCell(
+      FeedCell(
         post = post,
         onPostClick = onPostClick
       )
@@ -134,7 +134,7 @@ private fun HomefeedList(
 }
 
 @Composable
-private fun HomefeedCell(
+private fun FeedCell(
   post: Post,
   onPostClick: (Post) -> Unit,
 ) {
@@ -158,7 +158,7 @@ private fun HomefeedCell(
         text = post.title,
         style = MaterialTheme.typography.titleLarge
       )
-      if (post.photoUrl.isNullOrEmpty() == false) {
+      if (!post.photoUrl.isNullOrEmpty()) {
         AsyncImage(
           modifier = Modifier
             .padding(top = 8.dp)
@@ -174,7 +174,7 @@ private fun HomefeedCell(
           contentScale = ContentScale.Crop,
         )
       }
-      if (post.description.isNullOrEmpty() == false) {
+      if (!post.description.isNullOrEmpty()) {
         Text(
           text = post.description,
           style = MaterialTheme.typography.bodyMedium
@@ -184,12 +184,14 @@ private fun HomefeedCell(
   }
 }
 
+// PREVIEWS
+
 @PreviewLightDark
-@PreviewScreenSizes
+//@PreviewScreenSizes
 @Composable
-private fun HomefeedCellPreview() {
+private fun FeedCellPreview() {
   HexagonalGamesTheme {
-    HomefeedCell(
+    FeedCell(
       post = Post(
         id = "1",
         title = "title",
@@ -208,11 +210,11 @@ private fun HomefeedCellPreview() {
 }
 
 @PreviewLightDark
-@PreviewScreenSizes
+//@PreviewScreenSizes
 @Composable
-private fun HomefeedCellImagePreview() {
+private fun FeedCellImagePreview() {
   HexagonalGamesTheme {
-    HomefeedCell(
+    FeedCell(
       post = Post(
         id = "1",
         title = "title",

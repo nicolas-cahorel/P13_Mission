@@ -1,4 +1,4 @@
-package com.openclassrooms.hexagonal.games.screen.ad
+package com.openclassrooms.hexagonal.games.screen.addScreen
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -45,7 +44,7 @@ fun AddScreen(
     topBar = {
       TopAppBar(
         title = {
-          Text(stringResource(id = R.string.add_fragment_label))
+          Text(stringResource(id = R.string.title_addScreen))
         },
         navigationIcon = {
           IconButton(onClick = {
@@ -135,14 +134,16 @@ private fun CreatePost(
     ) {
       Text(
         modifier = Modifier.padding(8.dp),
-        text = stringResource(id = R.string.action_save)
+        text = stringResource(id = R.string.title_save_button)
       )
     }
   }
 }
 
+// PREVIEWS
+
 @PreviewLightDark
-@PreviewScreenSizes
+//@PreviewScreenSizes
 @Composable
 private fun CreatePostPreview() {
   HexagonalGamesTheme {
@@ -158,7 +159,7 @@ private fun CreatePostPreview() {
 }
 
 @PreviewLightDark
-@PreviewScreenSizes
+//@PreviewScreenSizes
 @Composable
 private fun CreatePostErrorPreview() {
   HexagonalGamesTheme {

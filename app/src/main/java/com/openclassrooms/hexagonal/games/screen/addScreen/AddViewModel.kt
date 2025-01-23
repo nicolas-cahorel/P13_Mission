@@ -1,4 +1,4 @@
-package com.openclassrooms.hexagonal.games.screen.ad
+package com.openclassrooms.hexagonal.games.screen.addScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

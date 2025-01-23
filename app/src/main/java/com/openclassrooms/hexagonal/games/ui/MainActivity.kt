@@ -8,10 +8,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.openclassrooms.hexagonal.games.screen.Screen
-import com.openclassrooms.hexagonal.games.screen.ad.AddScreen
-import com.openclassrooms.hexagonal.games.screen.homefeed.HomefeedScreen
-import com.openclassrooms.hexagonal.games.screen.settings.SettingsScreen
+import com.google.firebase.auth.FirebaseUser
+import com.openclassrooms.hexagonal.games.screen.Routes
+import com.openclassrooms.hexagonal.games.screen.addScreen.AddScreen
+import com.openclassrooms.hexagonal.games.screen.homeScreen.HomeScreen
+import com.openclassrooms.hexagonal.games.screen.login.LoginScreen
+import com.openclassrooms.hexagonal.games.screen.login.SignInOrUpScreen
+import com.openclassrooms.hexagonal.games.screen.settingsScreen.SettingsScreen
 import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -40,28 +43,52 @@ class MainActivity : ComponentActivity() {
 fun HexagonalGamesNavHost(navHostController: NavHostController) {
   NavHost(
     navController = navHostController,
-    startDestination = Screen.Homefeed.route
+    startDestination = Routes.LoginScreen.route
   ) {
-    composable(route = Screen.Homefeed.route) {
-      HomefeedScreen(
+
+    composable(route = Routes.LoginScreen.route) {
+      LoginScreen(
+        navController = navHostController
+      ) {
+        navHostController.navigate(Routes.HomeScreen.route) {
+          popUpTo(Routes.LoginScreen.route) { inclusive = true }
+        }
+      }
+    }
+
+    composable(route = Routes.SignInOrUpScreen.route) {
+      SignInOrUpScreen(
+        onSignInSuccess = {
+          // Naviguer vers l'écran d'accueil après une connexion réussie
+          navHostController.navigate(Routes.HomeScreen.route) {
+            popUpTo(Routes.SignInOrUpScreen.route) { inclusive = true }
+          }
+        }
+      )
+    }
+
+    composable(route = Routes.HomeScreen.route) {
+      HomeScreen(
         onPostClick = {
           //TODO
         },
         onSettingsClick = {
-          navHostController.navigate(Screen.Settings.route)
+          navHostController.navigate(Routes.SettingsScreen.route)
         },
         onFABClick = {
-          navHostController.navigate(Screen.AddPost.route)
+          navHostController.navigate(Routes.AddScreen.route)
         }
       )
     }
-    composable(route = Screen.AddPost.route) {
+
+    composable(route = Routes.AddScreen.route) {
       AddScreen(
         onBackClick = { navHostController.navigateUp() },
         onSaveClick = { navHostController.navigateUp() }
       )
     }
-    composable(route = Screen.Settings.route) {
+
+    composable(route = Routes.SettingsScreen.route) {
       SettingsScreen(
         onBackClick = { navHostController.navigateUp() }
       )

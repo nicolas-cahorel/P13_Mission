@@ -1,4 +1,4 @@
-package com.openclassrooms.hexagonal.games.screen.settings
+package com.openclassrooms.hexagonal.games.screen.settingsScreen
 
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -43,7 +42,7 @@ fun SettingsScreen(
     topBar = {
       TopAppBar(
         title = {
-          Text(stringResource(id = R.string.action_settings))
+          Text(stringResource(id = R.string.title_settingsScreen))
         },
         navigationIcon = {
           IconButton(onClick = {
@@ -105,18 +104,20 @@ private fun Settings(
         onNotificationEnabledClicked()
       }
     ) {
-      Text(text = stringResource(id = R.string.notification_enable))
+      Text(text = stringResource(id = R.string.title_notification_enable))
     }
     Button(
       onClick = { onNotificationDisabledClicked() }
     ) {
-      Text(text = stringResource(id = R.string.notification_disable))
+      Text(text = stringResource(id = R.string.title_notification_disable))
     }
   }
 }
 
+// PREVIEWS
+
 @PreviewLightDark
-@PreviewScreenSizes
+//@PreviewScreenSizes
 @Composable
 private fun SettingsPreview() {
   HexagonalGamesTheme {
