@@ -1,17 +1,71 @@
 <resources>
+
+  <!-- Hexagonal Games Application -->
   <string name="app_name">Hexagonal Games</string>
-  <string name="title_settingsScreen">Paramètres</string>
-  <string name="title_addScreen">Ajout d\'une publication</string>
+  <string name="contentDescription_go_back">Retour</string>
+  <string name="toast_no_internet">Erreur de réseau, vérifiez votre connexion Internet</string>
+  <string name="backButton_topAppBar_description">Retour</string>
+
+  <!-- LoginScreen -->
+  <string name="title_signIn_button">Se connecter avec une adresse e-mail</string>
+
+  <!-- SignInOrUpScreen -->
+  <string name="title_signInOrUp_topAppBar">Se connecter</string>
+  <string name="title_email">E-mail</string>
+  <string name="signInOrUp_button">Suivant</string>
+  <string name="error_email_empty">Saisissez votre adresse e-mail pour continuer</string>
+  <string name="error_email_format">Cette adresse e-mail n\'est pas valide</string>
+  <string name="toast_error">Une erreur inconnue s\'est produite</string>
+
+  <!-- SignInScreen -->
+  <string name="title_signIn_topAppBar">Se connecter</string>
+  <string name="title_welcome">Bienvenue! vous avez déjà utilisé l\'adresse e-mail %1$s pour vous connecter. Saisissez le mot de passe du compte</string>
+  <string name="title_label_password">Mot de passe</string>
+  <string name="title_help_button">Vous ne parvenez pas à vous connecter?</string>
+  <string name="title_connect_button">Se connecter</string>
+  <string name="error_password_incorrect">Mot de passe incorrect</string>
+  <string name="error_unknown">Une erreur inconnue s\'est produite</string>
+
+  <!-- SignUpScreen -->
+  <string name="title_signUp_topAppBar">S\'inscrire</string>
+  <string name="title_name">Prénom et Nom</string>
+  <string name="error_name_empty">Veuillez saisir un prénom et un nom</string>
+  <string name="title_password">Nouveau mot de passe</string>
+  <string name="error_password_empty">Saisissez un mot de passe pour continuer</string>
+  <string name="error_password_format">Le mot de passe n\'est pas assez sécurisé. Utilisez au moins 6 caractères et une combinaison de chiffres et de lettres</string>
+  <string name="toast_create_account_error">Échec de la création du compte avec une adresse e-mail</string>
+  <string name="title_signUp_button">Enregistrer</string>
+
+  <!-- PasswordRecoveryScreen -->
+  <string name="title_passwordRecovery_topAppBar">Récupérer votre mot de passe</string>
+  <string name="title_recovery_instructions">Les instructions relatives à la réinitialisation de votre mot de passe seront envoyées à cette adresse e-mail</string>
+  <string name="title_sendEmail_button">Envoyer</string>
+  <string name="ok_dialog_button">OK</string>
+  <string name="dialog_title">Consultez votre boîte de réception</string>
+  <string name="dialog_message">Suivez les instructions envoyéesà l\'adresse %1$s pour récupérer votre mot de passe</string>
+
+  <!-- UserAccountScreen -->
+  <string name="title_userAccount_topAppBar">Mon compte</string>
+  <string name="title_signOut_button">Déconnexion</string>
+  <string name="title_deleteAccount_button">Suppression du compte</string>
+
+  <!-- HomeScreen -->
+  <string name="title_homeScreen">Home</string>
   <string name="by">Par %1$s %2$s</string>
-  <string name="title_notification_enable">Activer les notifications</string>
-  <string name="title_notification_disable">Désactiver les notifications</string>
   <string name="description_button_add">Ajout</string>
+  <string name="contentDescription_more">Plus</string>
+
+  <!-- AddScreen -->
+  <string name="title_addScreen">Ajout d\'une publication</string>
   <string name="hint_title">Titre</string>
   <string name="hint_description">Description</string>
   <string name="title_save_button">Sauvegarder</string>
-  <string name="contentDescription_go_back">Retour</string>
-  <string name="contentDescription_more">Plus</string>
-  <string name="contentDescription_notification_icon">Notification icon</string>
   <string name="error_title">Titre non valide</string>
-  <string name="title_homeScreen">Home</string>
+
+  <!-- SettingsScreen -->
+  <string name="title_settingsScreen">Paramètres</string>
+  <string name="title_notification_enable">Activer les notifications</string>
+  <string name="title_notification_disable">Désactiver les notifications</string>
+  <string name="contentDescription_notification_icon">Notification icon</string>
+
 </resources>

@@ -18,7 +18,8 @@ lifecycleRuntimeCompose = "2.8.7"
 googleServices = "4.4.2"
 firebaseBom = "33.5.1" # Conserver la version 33.5.1 sinon crash de l'app
 firebaseUiAuth = "8.0.0"
-playServices = "19.0.1" # Conserver la version 19.0.1 sinon impossible de build
+playServices = "19.0.1"
+storage = "1.5.0" # Conserver la version 19.0.1 sinon impossible de build
 
 
 [libraries]
@@ -51,6 +52,7 @@ google-play-services-measurement= {group = "com.google.android.gms", name = "pla
 google-play-services-measurement-base= {group = "com.google.android.gms", name = "play-services-measurement-base", version.ref = "playServices"}
 google-play-services-measurement-api= {group = "com.google.android.gms", name = "play-services-measurement-api", version.ref = "playServices"}
 google-play-services-measurement-impl= {group = "com.google.android.gms", name = "play-services-measurement-impl", version.ref = "playServices"}
+storage = { group = "androidx.test.services", name = "storage", version.ref = "storage" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

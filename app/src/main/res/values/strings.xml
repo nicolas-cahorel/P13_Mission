@@ -1,17 +1,71 @@
 <resources>
+
+    <!-- Hexagonal Games Application -->
     <string name="app_name">Hexagonal Games</string>
-    <string name="title_settingsScreen">Settings</string>
-    <string name="title_addScreen">Add a post</string>
+    <string name="contentDescription_go_back">Go back</string>
+    <string name="toast_no_internet">Network error, check your Internet connection</string>
+    <string name="backButton_topAppBar_description">Back</string>
+
+    <!-- LoginScreen -->
+    <string name="title_signIn_button">Sign in with email</string>
+
+    <!-- SignInOrUpScreen -->
+    <string name="title_signInOrUp_topAppBar">Sign in</string>
+    <string name="title_email">Email</string>
+    <string name="signInOrUp_button">Next</string>
+    <string name="error_email_empty">Enter your email address to continue</string>
+    <string name="error_email_format">Incorrect email address</string>
+    <string name="toast_error">An unknown error occurred</string>
+
+    <!-- SignInScreen -->
+    <string name="title_signIn_topAppBar">Sign in</string>
+    <string name="title_welcome">Welcome back! You\'ve already used %1$s to sign in. Enter your password for that account</string>
+    <string name="title_label_password">Password</string>
+    <string name="title_help_button">Trouble signing in?</string>
+    <string name="title_connect_button">Sign in</string>
+    <string name="error_password_incorrect">Incorrect password</string>
+    <string name="error_unknown">An unknown error occurred</string>
+
+    <!-- SignUpScreen -->
+    <string name="title_signUp_topAppBar">Sign up</string>
+    <string name="title_name">First name &amp; surname</string>
+    <string name="error_name_empty">Please enter a first name and surname</string>
+    <string name="title_password">New password</string>
+    <string name="error_password_empty">Enter a password to continue</string>
+    <string name="error_password_format">Password is not strong enough. Use at least 6 characters and a mix of letters and numbers</string>
+    <string name="toast_create_account_error">Email account registration unsuccessful</string>
+    <string name="title_signUp_button">Save</string>
+
+    <!-- PasswordRecoveryScreen -->
+    <string name="title_passwordRecovery_topAppBar">Recover password</string>
+    <string name="title_recovery_instructions">Receive instructions to this email that explain how to reset your password</string>
+    <string name="title_sendEmail_button">Send</string>
+    <string name="ok_dialog_button">OK</string>
+    <string name="dialog_title">Check your email</string>
+    <string name="dialog_message">Follow the instructions sent to %1$s to recover your password</string>
+
+    <!-- UserAccountScreen -->
+    <string name="title_userAccount_topAppBar">My account</string>
+    <string name="title_signOut_button">Sign out</string>
+    <string name="title_deleteAccount_button">Delete account</string>
+
+    <!-- HomeScreen -->
+    <string name="title_homeScreen">Home</string>
     <string name="by">By %1$s %2$s</string>
-    <string name="title_notification_enable">Enable notifications</string>
-    <string name="title_notification_disable">Disable notifications</string>
     <string name="description_button_add">Add</string>
+    <string name="contentDescription_more">More</string>
+
+    <!-- AddScreen -->
+    <string name="title_addScreen">Add a post</string>
     <string name="hint_title">Title</string>
     <string name="hint_description">Description</string>
     <string name="title_save_button">Save</string>
-    <string name="contentDescription_go_back">Go back</string>
-    <string name="contentDescription_more">More</string>
-    <string name="contentDescription_notification_icon">Icone de notification</string>
     <string name="error_title">Title not valid</string>
-    <string name="title_homeScreen">Home</string>
+
+    <!-- SettingsScreen -->
+    <string name="title_settingsScreen">Settings</string>
+    <string name="title_notification_enable">Enable notifications</string>
+    <string name="title_notification_disable">Disable notifications</string>
+    <string name="contentDescription_notification_icon">Icone de notification</string>
+
 </resources>
