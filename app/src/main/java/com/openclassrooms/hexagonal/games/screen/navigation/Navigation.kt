@@ -1,19 +1,23 @@
 package com.openclassrooms.hexagonal.games.screen.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.openclassrooms.hexagonal.games.screen.addScreen.AddScreen
 import com.openclassrooms.hexagonal.games.screen.homeScreen.HomeScreen
 import com.openclassrooms.hexagonal.games.screen.loginScreen.LoginScreen
+import com.openclassrooms.hexagonal.games.screen.loginScreen.LoginScreenState
 import com.openclassrooms.hexagonal.games.screen.loginScreen.LoginScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.passwordRecoveryScreen.PasswordRecoveryScreen
+import com.openclassrooms.hexagonal.games.screen.settingsScreen.SettingsScreen
 import com.openclassrooms.hexagonal.games.screen.signInOrUpScreen.SignInOrUpScreen
 import com.openclassrooms.hexagonal.games.screen.signInScreen.SignInScreen
 import com.openclassrooms.hexagonal.games.screen.signUpScreen.SignUpScreen
 import com.openclassrooms.hexagonal.games.screen.userAccountScreen.UserAccountScreen
-import com.openclassrooms.hexagonal.games.screen.settingsScreen.SettingsScreen
 
 @Composable
 fun Navigation(navController: NavHostController) {
@@ -23,16 +27,23 @@ fun Navigation(navController: NavHostController) {
     ) {
 
         composable(Routes.LoginScreen.route) {
+
+            val loginScreenViewModel: LoginScreenViewModel = hiltViewModel()
+            val loginScreenState by loginScreenViewModel.loginScreenState.collectAsState()
+
             LoginScreen(
-                viewModel = LoginScreenViewModel(),
-                onButtonClicked = { isUserLoggedInState ->
-                    if (isUserLoggedInState) {
-                        navController.navigate(Routes.HomeScreen.route) {
-                            popUpTo(Routes.LoginScreen.route) { inclusive = true }
+                state = loginScreenState,
+                onButtonClicked = { state ->
+                    when (state) {
+                        is LoginScreenState.UserIsLoggedIn -> {
+                            navController.navigate(Routes.HomeScreen.route) {
+                                popUpTo(Routes.LoginScreen.route) { inclusive = true }
+                            }
                         }
-                    } else {
-                        navController.navigate(Routes.SignInOrUpScreen.route) {
-                            popUpTo(Routes.LoginScreen.route) { inclusive = true }
+                        is LoginScreenState.UserIsNotLoggedIn -> {
+                            navController.navigate(Routes.SignInOrUpScreen.route) {
+                                popUpTo(Routes.LoginScreen.route) { inclusive = true }
+                            }
                         }
                     }
                 }

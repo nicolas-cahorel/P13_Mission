@@ -10,12 +10,16 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginScreenViewModel @Inject constructor() : ViewModel() {
 
-    private val _isUserLoggedInState = MutableStateFlow<Boolean>(false)
-    val isUserLoggedInState: StateFlow<Boolean> get() = _isUserLoggedInState
+    private val _loginScreenState = MutableStateFlow<LoginScreenState>(LoginScreenState.UserIsNotLoggedIn)
+    val loginScreenState: StateFlow<LoginScreenState> get() = _loginScreenState
 
     init {
         val currentUser = FirebaseAuth.getInstance().currentUser
-        _isUserLoggedInState.value = currentUser != null
+        if (currentUser != null) {
+            _loginScreenState.value = LoginScreenState.UserIsLoggedIn
+        } else {
+            _loginScreenState.value = LoginScreenState.UserIsNotLoggedIn
+        }
     }
 
 }
