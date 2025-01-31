@@ -1,4 +1,4 @@
-package com.openclassrooms.hexagonal.games.screen.loginScreens
+package com.openclassrooms.hexagonal.games.screen.signInScreen
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,34 +27,43 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import com.openclassrooms.hexagonal.games.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PasswordRecoveryScreen(
-    onBackButtonClicked: (Boolean) -> Unit
+fun SignInScreen(
+    onSignInSuccess: (Boolean) -> Unit,
+    onHelpClicked: () -> Unit,
+    onBackButtonClicked: (Boolean) -> Unit,
+    email: String
 ) {
     val context = LocalContext.current
-    val errorEmailFormat = stringResource(R.string.error_email_format)
-    val errorEmailEmpty = stringResource(R.string.error_email_empty)
-    var email by remember { mutableStateOf(TextFieldValue("")) }
+    val errorPasswordEmpty = stringResource(R.string.error_password_empty)
+    val labelPassword = stringResource(R.string.title_label_password)
+    var password by remember { mutableStateOf(TextFieldValue("")) }
+    var isPasswordVisible by remember { mutableStateOf(false) }
+    var passwordTextFieldLabel by remember { mutableStateOf(errorPasswordEmpty) }
     var isButtonEnabled by remember { mutableStateOf(false) }
-    var emailTextFieldLabel by remember { mutableStateOf(errorEmailEmpty) }
-    var showDialog by remember { mutableStateOf(false) }
 
     Scaffold(
 
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.title_passwordRecovery_topAppBar)) },
+                title = { Text(stringResource(R.string.title_signIn_topAppBar)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -82,81 +91,85 @@ fun PasswordRecoveryScreen(
         ) {
 
             Text(
-                text = stringResource(R.string.title_recovery_instructions),
+                text = stringResource(R.string.title_welcome, email),
                 style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                text = stringResource(R.string.title_email),
-                style = MaterialTheme.typography.titleLarge
-            )
             TextField(
-                value = email,
+                value = password,
                 onValueChange = {
-                    email = it
-                    if (email.text.isNotEmpty()) {
-                        val emailPattern = "[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
-                        if (email.text.trim().matches(emailPattern.toRegex())) {
-                            emailTextFieldLabel = ""
-                            isButtonEnabled = true
-                        } else {
-                            emailTextFieldLabel = errorEmailFormat
-                            isButtonEnabled = false
-                        }
+                    password = it
+                    if (password.text.isNotEmpty()) {
+                        passwordTextFieldLabel = labelPassword
+                        isButtonEnabled = true
                     } else {
-                        emailTextFieldLabel = errorEmailEmpty
+                        passwordTextFieldLabel = errorPasswordEmpty
                         isButtonEnabled = false
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(emailTextFieldLabel) },
+                label = { Text(passwordTextFieldLabel) },
                 colors = TextFieldDefaults.colors(
                     focusedLabelColor = if (!isButtonEnabled) Color.Red else MaterialTheme.colorScheme.primary,
                     unfocusedLabelColor = if (isButtonEnabled) Color.Red else MaterialTheme.colorScheme.onSurface,
-                )
+                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                        Icon(
+                            painter = painterResource(id = if (isPasswordVisible) R.drawable.visibility_on_icon else R.drawable.visibility_off_icon),
+                            contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
+                        )
+                    }
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = {
-                    val firebaseAuth = FirebaseAuth.getInstance()
-                    firebaseAuth.sendPasswordResetEmail(email.text.trim())
+                    val auth = FirebaseAuth.getInstance()
+                    auth.signInWithEmailAndPassword(email, password.text)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
-                                showDialog = true
+                                onSignInSuccess(true)
                             } else {
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.toast_error),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                val exception = task.exception
+                                if (exception is FirebaseAuthException && exception.errorCode == "ERROR_WRONG_PASSWORD") {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.error_password_incorrect),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.error_unknown),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+
                             }
                         }
                 },
                 enabled = isButtonEnabled,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.align(Alignment.End)
             ) {
-                Text(stringResource(R.string.title_sendEmail_button))
+                Text(stringResource(R.string.title_connect_button))
             }
 
-            if (showDialog) {
-                AlertDialog(
-                    onDismissRequest = { showDialog = false },
-                    confirmButton = {
-                        Button(onClick = { showDialog = false }) {
-                            Text(stringResource(R.string.ok_dialog_button))
-                        }
-                    },
-                    title = {
-                        Text(stringResource(R.string.dialog_title))
-                    },
-                    text = {
-                        Text(stringResource(R.string.dialog_message, email.text))
-                    }
-                )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    onHelpClicked()
+                },
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text(stringResource(R.string.title_help_button))
             }
 
         }
@@ -165,8 +178,11 @@ fun PasswordRecoveryScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewPasswordRecoveryScreen() {
-    PasswordRecoveryScreen(
-        onBackButtonClicked = {}
+fun PreviewSignInScreen() {
+    SignInScreen(
+        onSignInSuccess = { _ -> },
+        onHelpClicked = {},
+        onBackButtonClicked = { _ -> },
+        email = "test@example.com"
     )
 }

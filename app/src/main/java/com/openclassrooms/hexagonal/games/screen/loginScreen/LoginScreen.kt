@@ -1,4 +1,4 @@
-package com.openclassrooms.hexagonal.games.screen.loginScreens
+package com.openclassrooms.hexagonal.games.screen.loginScreen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,23 +9,24 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.openclassrooms.hexagonal.games.R
 
 @Composable
 fun LoginScreen(
-    onUserLoggedIn: (FirebaseUser?) -> Unit
+    viewModel: LoginScreenViewModel,
+    onButtonClicked: (Boolean) -> Unit
 ) {
+    val isUserLoggedInState by viewModel.isUserLoggedInState.collectAsState()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -53,12 +54,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally),
                 onClick = {
-                    val currentUser = FirebaseAuth.getInstance().currentUser
-                    if (currentUser != null) {
-                        onUserLoggedIn(currentUser)
-                    } else {
-                        onUserLoggedIn(null)
-                    }
+                        onButtonClicked(isUserLoggedInState)
                 }) {
                 Text(stringResource(R.string.title_signIn_button))
             }
@@ -66,12 +62,3 @@ fun LoginScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    MaterialTheme {
-        LoginScreen(
-            onUserLoggedIn = {}
-        )
-    }
-}

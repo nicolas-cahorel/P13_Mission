@@ -6,12 +6,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.openclassrooms.hexagonal.games.screen.addScreen.AddScreen
 import com.openclassrooms.hexagonal.games.screen.homeScreen.HomeScreen
-import com.openclassrooms.hexagonal.games.screen.loginScreens.LoginScreen
-import com.openclassrooms.hexagonal.games.screen.loginScreens.PasswordRecoveryScreen
-import com.openclassrooms.hexagonal.games.screen.loginScreens.SignInOrUpScreen
-import com.openclassrooms.hexagonal.games.screen.loginScreens.SignInScreen
-import com.openclassrooms.hexagonal.games.screen.loginScreens.SignUpScreen
-import com.openclassrooms.hexagonal.games.screen.loginScreens.UserAccountScreen
+import com.openclassrooms.hexagonal.games.screen.loginScreen.LoginScreen
+import com.openclassrooms.hexagonal.games.screen.loginScreen.LoginScreenViewModel
+import com.openclassrooms.hexagonal.games.screen.passwordRecoveryScreen.PasswordRecoveryScreen
+import com.openclassrooms.hexagonal.games.screen.signInOrUpScreen.SignInOrUpScreen
+import com.openclassrooms.hexagonal.games.screen.signInScreen.SignInScreen
+import com.openclassrooms.hexagonal.games.screen.signUpScreen.SignUpScreen
+import com.openclassrooms.hexagonal.games.screen.userAccountScreen.UserAccountScreen
 import com.openclassrooms.hexagonal.games.screen.settingsScreen.SettingsScreen
 
 @Composable
@@ -23,8 +24,9 @@ fun Navigation(navController: NavHostController) {
 
         composable(Routes.LoginScreen.route) {
             LoginScreen(
-                onUserLoggedIn = { user ->
-                    if (user != null) {
+                viewModel = LoginScreenViewModel(),
+                onButtonClicked = { isUserLoggedInState ->
+                    if (isUserLoggedInState) {
                         navController.navigate(Routes.HomeScreen.route) {
                             popUpTo(Routes.LoginScreen.route) { inclusive = true }
                         }

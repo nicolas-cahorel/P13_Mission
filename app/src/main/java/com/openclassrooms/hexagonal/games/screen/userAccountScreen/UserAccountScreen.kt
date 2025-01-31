@@ -1,4 +1,4 @@
-package com.openclassrooms.hexagonal.games.screen.loginScreens
+package com.openclassrooms.hexagonal.games.screen.userAccountScreen
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement

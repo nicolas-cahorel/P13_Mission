@@ -18,8 +18,8 @@ lifecycleRuntimeCompose = "2.8.7"
 googleServices = "4.4.2"
 firebaseBom = "33.5.1" # Conserver la version 33.5.1 sinon crash de l'app
 firebaseUiAuth = "8.0.0"
-playServices = "19.0.1"
-storage = "1.5.0" # Conserver la version 19.0.1 sinon impossible de build
+playServices = "19.0.1" # Conserver la version 19.0.1 sinon impossible de build
+storage = "1.5.0"
 
 
 [libraries]

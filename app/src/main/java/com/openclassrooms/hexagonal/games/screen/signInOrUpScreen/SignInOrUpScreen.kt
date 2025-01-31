@@ -1,4 +1,4 @@
-package com.openclassrooms.hexagonal.games.screen.loginScreens
+package com.openclassrooms.hexagonal.games.screen.signInOrUpScreen
 
 import android.content.Context
 import android.net.ConnectivityManager

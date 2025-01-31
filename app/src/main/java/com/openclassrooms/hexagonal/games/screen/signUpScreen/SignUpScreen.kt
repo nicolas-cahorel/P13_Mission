@@ -1,4 +1,4 @@
-package com.openclassrooms.hexagonal.games.screen.loginScreens
+package com.openclassrooms.hexagonal.games.screen.signUpScreen
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +27,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -40,30 +39,32 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
 import com.openclassrooms.hexagonal.games.R
+import com.openclassrooms.hexagonal.games.screen.signInOrUpScreen.isInternetAvailable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInScreen(
-    onSignInSuccess: (Boolean) -> Unit,
-    onHelpClicked: () -> Unit,
-    onBackButtonClicked: (Boolean) -> Unit,
-    email: String
+fun SignUpScreen(
+    email: String,
+    onSignUpSuccess: (Boolean) -> Unit,
+    onBackButtonClicked: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
+    val errorNameEmpty = stringResource(R.string.error_name_empty)
     val errorPasswordEmpty = stringResource(R.string.error_password_empty)
-    val labelPassword = stringResource(R.string.title_label_password)
+    val errorPasswordFormat = stringResource(R.string.error_password_format)
+    var name by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
-    var isPasswordVisible by remember { mutableStateOf(false) }
-    var passwordTextFieldLabel by remember { mutableStateOf(errorPasswordEmpty) }
     var isButtonEnabled by remember { mutableStateOf(false) }
+    var nameTextFieldLabel by remember { mutableStateOf(errorNameEmpty) }
+    var passwordTextFieldLabel by remember { mutableStateOf(errorPasswordEmpty) }
+    var isPasswordVisible by remember { mutableStateOf(false) }
 
     Scaffold(
 
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.title_signIn_topAppBar)) },
+                title = { Text(stringResource(R.string.title_signUp_topAppBar)) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -91,19 +92,64 @@ fun SignInScreen(
         ) {
 
             Text(
-                text = stringResource(R.string.title_welcome, email),
+                text = stringResource(R.string.title_email),
                 style = MaterialTheme.typography.titleLarge
+            )
+            TextField(
+                value = email,
+                onValueChange = {},
+                enabled = false,
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    disabledIndicatorColor = Color.Transparent
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            Text(
+                text = stringResource(R.string.title_name),
+                style = MaterialTheme.typography.titleLarge
+            )
+            TextField(
+                value = name,
+                onValueChange = {
+                    name = it
+                    if (name.text.isNotEmpty()) {
+                        nameTextFieldLabel = ""
+                        isButtonEnabled = true
+                    } else {
+                        nameTextFieldLabel = errorNameEmpty
+                        isButtonEnabled = false
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(nameTextFieldLabel) },
+                colors = TextFieldDefaults.colors(
+                    focusedLabelColor = if (!isButtonEnabled) Color.Red else MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = if (isButtonEnabled) Color.Red else MaterialTheme.colorScheme.onSurface,
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = stringResource(R.string.title_password),
+                style = MaterialTheme.typography.titleLarge
+            )
             TextField(
                 value = password,
                 onValueChange = {
                     password = it
                     if (password.text.isNotEmpty()) {
-                        passwordTextFieldLabel = labelPassword
-                        isButtonEnabled = true
+                        val passwordPattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$"
+                        if (password.text.trim().matches(passwordPattern.toRegex())) {
+                            passwordTextFieldLabel = ""
+                            isButtonEnabled = true
+                        } else {
+                            passwordTextFieldLabel = errorPasswordFormat
+                            isButtonEnabled = false
+                        }
                     } else {
                         passwordTextFieldLabel = errorPasswordEmpty
                         isButtonEnabled = false
@@ -131,58 +177,44 @@ fun SignInScreen(
 
             Button(
                 onClick = {
-                    val auth = FirebaseAuth.getInstance()
-                    auth.signInWithEmailAndPassword(email, password.text)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                onSignInSuccess(true)
-                            } else {
-                                val exception = task.exception
-                                if (exception is FirebaseAuthException && exception.errorCode == "ERROR_WRONG_PASSWORD") {
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.error_password_incorrect),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                    if (isInternetAvailable(context)) {
+                        val firebaseAuth = FirebaseAuth.getInstance()
+                        firebaseAuth.createUserWithEmailAndPassword(email, password.text)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    onSignUpSuccess(true)
                                 } else {
+                                    onSignUpSuccess(false)
                                     Toast.makeText(
                                         context,
-                                        context.getString(R.string.error_unknown),
+                                        context.getString(R.string.toast_create_account_error),
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
-
                             }
-                        }
+                    } else {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.toast_no_internet),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 },
                 enabled = isButtonEnabled,
-                modifier = Modifier.align(Alignment.End)
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(R.string.title_connect_button))
+                Text(stringResource(R.string.title_signUp_button))
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    onHelpClicked()
-                },
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text(stringResource(R.string.title_help_button))
-            }
-
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewSignInScreen() {
-    SignInScreen(
-        onSignInSuccess = { _ -> },
-        onHelpClicked = {},
-        onBackButtonClicked = { _ -> },
-        email = "test@example.com"
+fun PreviewSignUpScreen() {
+    SignUpScreen(
+        email = "test@example.com",
+        onSignUpSuccess = { _ -> },
+        onBackButtonClicked = { _ -> }
     )
 }
