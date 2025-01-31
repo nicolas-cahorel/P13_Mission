@@ -32,9 +32,8 @@ fun Navigation(navController: NavHostController) {
             val loginScreenState by loginScreenViewModel.loginScreenState.collectAsState()
 
             LoginScreen(
-                state = loginScreenState,
-                onButtonClicked = { state ->
-                    when (state) {
+                onButtonClicked = { ->
+                    when (loginScreenState) {
                         is LoginScreenState.UserIsLoggedIn -> {
                             navController.navigate(Routes.HomeScreen.route) {
                                 popUpTo(Routes.LoginScreen.route) { inclusive = true }

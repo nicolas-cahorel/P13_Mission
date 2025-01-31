@@ -21,8 +21,7 @@ import com.openclassrooms.hexagonal.games.R
 
 @Composable
 fun LoginScreen(
-    onButtonClicked: (LoginScreenState) -> Unit,
-    state: LoginScreenState
+    onButtonClicked: () -> Unit,
 ) {
 
     Box(
@@ -51,7 +50,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally),
                 onClick = {
-                    onButtonClicked(state)
+                    onButtonClicked()
                 }) {
                 Text(stringResource(R.string.title_signIn_button))
             }
