@@ -20,94 +20,86 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.FirebaseAuth
 import com.openclassrooms.hexagonal.games.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserAccountScreen(
-    onBackButtonClicked: (Boolean) -> Unit,
-    onSignOut: (Boolean) -> Unit
+    viewModel: UserAccountScreenViewModel,
+    navigateToPrevious: () -> Unit,
+    navigateToSplash: () -> Unit
 ) {
     val context = LocalContext.current
+    val uiState by viewModel.userAccountScreenState.collectAsState()
 
-    Scaffold(
-
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.title_userAccount_topAppBar)) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                navigationIcon = {
-                    IconButton(onClick = { onBackButtonClicked(true) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.backButton_topAppBar_description),
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is UserAccountScreenState.UserDeleted -> navigateToSplash()
+            is UserAccountScreenState.UserSignedOut -> navigateToSplash()
+                is UserAccountScreenState.Error -> {
+                    Toast.makeText(
+                        context,
+                        (uiState as UserAccountScreenState.Error).message,
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-            )
+                else -> Unit
+            }
         }
 
-    ) { paddingValues ->
+        Scaffold(
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center
-        ) {
-
-            Button(
-                onClick = {
-                    val firebaseAuth = FirebaseAuth.getInstance()
-                    try {
-                        firebaseAuth.signOut()
-                        onSignOut(true)
-                    } catch (e: Exception) {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.toast_error),
-                            Toast.LENGTH_SHORT
-                        ).show()
+            topBar = {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.title_userAccount_topAppBar)) },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    navigationIcon = {
+                        IconButton(onClick = { navigateToPrevious() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.backButton_topAppBar_description),
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
                     }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.title_signOut_button))
+                )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+        ) { paddingValues ->
 
-            Button(
-                onClick = {
-                    val firebaseAuth = FirebaseAuth.getInstance()
-                    firebaseAuth.currentUser?.delete()
-                        ?.addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                firebaseAuth.signOut()
-                                onSignOut(true)
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.toast_error),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                },
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center
             ) {
-                Text(stringResource(R.string.title_deleteAccount_button))
+
+                Button(
+                    onClick = { viewModel.onSignOutButtonClicked() },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.title_signOut_button))
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = { viewModel.onDeleteButtonClicked() },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.title_deleteAccount_button))
+                }
             }
         }
     }
-}

@@ -1,65 +1,63 @@
 package com.openclassrooms.hexagonal.games.screen.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.openclassrooms.hexagonal.games.screen.addScreen.AddScreen
 import com.openclassrooms.hexagonal.games.screen.homeScreen.HomeScreen
-import com.openclassrooms.hexagonal.games.screen.loginScreen.LoginScreen
-import com.openclassrooms.hexagonal.games.screen.loginScreen.LoginScreenState
-import com.openclassrooms.hexagonal.games.screen.loginScreen.LoginScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.passwordRecoveryScreen.PasswordRecoveryScreen
+import com.openclassrooms.hexagonal.games.screen.passwordRecoveryScreen.PasswordRecoveryScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.settingsScreen.SettingsScreen
 import com.openclassrooms.hexagonal.games.screen.signInOrUpScreen.SignInOrUpScreen
+import com.openclassrooms.hexagonal.games.screen.signInOrUpScreen.SignInOrUpScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.signInScreen.SignInScreen
+import com.openclassrooms.hexagonal.games.screen.signInScreen.SignInScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.signUpScreen.SignUpScreen
+import com.openclassrooms.hexagonal.games.screen.signUpScreen.SignUpScreenViewModel
+import com.openclassrooms.hexagonal.games.screen.splashScreen.SplashScreen
+import com.openclassrooms.hexagonal.games.screen.splashScreen.SplashScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.userAccountScreen.UserAccountScreen
+import com.openclassrooms.hexagonal.games.screen.userAccountScreen.UserAccountScreenViewModel
 
 @Composable
 fun Navigation(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = "LoginScreen"
+        startDestination = "SplashScreen"
     ) {
 
-        composable(Routes.LoginScreen.route) {
+        composable(Routes.SplashScreen.route) {
+            val splashScreenViewModel: SplashScreenViewModel = hiltViewModel()
+            SplashScreen(
+                viewModel = splashScreenViewModel,
+                navigateToHome = {
+                    navController.navigate(Routes.HomeScreen.route) {
+                        popUpTo(Routes.SplashScreen.route) { inclusive = true }
 
-            val loginScreenViewModel: LoginScreenViewModel = hiltViewModel()
-            val loginScreenState by loginScreenViewModel.loginScreenState.collectAsState()
-
-            LoginScreen(
-                onButtonClicked = { ->
-                    when (loginScreenState) {
-                        is LoginScreenState.UserIsLoggedIn -> {
-                            navController.navigate(Routes.HomeScreen.route) {
-                                popUpTo(Routes.LoginScreen.route) { inclusive = true }
-                            }
-                        }
-                        is LoginScreenState.UserIsNotLoggedIn -> {
-                            navController.navigate(Routes.SignInOrUpScreen.route) {
-                                popUpTo(Routes.LoginScreen.route) { inclusive = true }
-                            }
-                        }
+                    }
+                },
+                navigateToLoginOrSignUp = {
+                    navController.navigate(Routes.SignInOrUpScreen.route) {
+                        popUpTo(Routes.SplashScreen.route) { inclusive = true }
                     }
                 }
             )
         }
 
         composable(route = Routes.SignInOrUpScreen.route) {
+            val signInOrUpScreenViewModel: SignInOrUpScreenViewModel = hiltViewModel()
             SignInOrUpScreen(
-                onEmailEntered = { accountExists, email ->
-                    if (accountExists) {
-                        navController.navigate("SignInScreen/$email") {
-                            popUpTo(Routes.SignInOrUpScreen.route) { inclusive = true }
-                        }
-                    } else {
-                        navController.navigate("SignUpScreen/$email") {
-                            popUpTo(Routes.SignInOrUpScreen.route) { inclusive = true }
-                        }
+                viewModel = signInOrUpScreenViewModel,
+                navigateToSignIn = { email ->
+                    navController.navigate("SignInScreen/$email") {
+                        popUpTo(Routes.SignInOrUpScreen.route) { inclusive = true }
+                    }
+                },
+                navigateToSignUp = { email ->
+                    navController.navigate("SignUpScreen/$email") {
+                        popUpTo(Routes.SignInOrUpScreen.route) { inclusive = true }
                     }
                 }
             )
@@ -68,23 +66,24 @@ fun Navigation(navController: NavHostController) {
         composable(route = Routes.SignInScreen.route) { backStackEntry ->
             val email =
                 backStackEntry.arguments?.getString(Routes.SignInScreen.ARGUMENT)
+            val signInScreenViewModel: SignInScreenViewModel = hiltViewModel()
             if (!email.isNullOrEmpty()) {
                 SignInScreen(
+                    viewModel = signInScreenViewModel,
                     email = email,
-                    onSignInSuccess = { isSignInSuccessful ->
-                        if (isSignInSuccessful) {
-                            navController.navigate(Routes.HomeScreen.route) {
-                                popUpTo(Routes.SignInScreen.route) { inclusive = true }
-                            }
+                    navigateToHome = {
+                        navController.navigate(Routes.HomeScreen.route) {
+                            popUpTo(Routes.SignInScreen.route) { inclusive = true }
+
                         }
                     },
-                    onHelpClicked = {
+                    navigateToPasswordRecovery = {
                         navController.navigate("PasswordRecoveryScreen") {
                             popUpTo(Routes.SignInScreen.route) { inclusive = true }
                         }
                     },
-                    onBackButtonClicked = {
-                        navController.navigate(Routes.LoginScreen.route) {
+                    navigateToSplash = {
+                        navController.navigate(Routes.SplashScreen.route) {
                             popUpTo(Routes.SignInScreen.route) { inclusive = true }
                         }
                     }
@@ -95,18 +94,18 @@ fun Navigation(navController: NavHostController) {
         composable(route = Routes.SignUpScreen.route) { backStackEntry ->
             val email =
                 backStackEntry.arguments?.getString(Routes.SignUpScreen.ARGUMENT)
+            val signUpScreenViewModel: SignUpScreenViewModel = hiltViewModel()
             if (!email.isNullOrEmpty()) {
                 SignUpScreen(
+                    viewModel = signUpScreenViewModel,
                     email = email,
-                    onSignUpSuccess = { isSignUpSuccessful ->
-                        if (isSignUpSuccessful) {
+                    navigateToHome = {
                             navController.navigate(Routes.HomeScreen.route) {
-                                popUpTo(Routes.SignInScreen.route) { inclusive = true }
+                                popUpTo(Routes.SignUpScreen.route) { inclusive = true }
                             }
-                        }
                     },
-                    onBackButtonClicked = {
-                        navController.navigate(Routes.LoginScreen.route) {
+                    navigateToSplash = {
+                        navController.navigate(Routes.SplashScreen.route) {
                             popUpTo(Routes.SignUpScreen.route) { inclusive = true }
                         }
                     }
@@ -115,9 +114,11 @@ fun Navigation(navController: NavHostController) {
         }
 
         composable(route = Routes.PasswordRecoveryScreen.route) {
+            val passwordRecoveryScreenViewModel: PasswordRecoveryScreenViewModel = hiltViewModel()
             PasswordRecoveryScreen(
-                onBackButtonClicked = {
-                    navController.navigate(Routes.LoginScreen.route) {
+                viewModel = passwordRecoveryScreenViewModel,
+                navigateToSplash = {
+                    navController.navigate(Routes.SplashScreen.route) {
                         popUpTo(Routes.PasswordRecoveryScreen.route) { inclusive = true }
                     }
                 }
@@ -125,16 +126,16 @@ fun Navigation(navController: NavHostController) {
         }
 
         composable(route = Routes.UserAccountScreen.route) {
+            val userAccountScreenViewModel: UserAccountScreenViewModel = hiltViewModel()
             UserAccountScreen(
-                onBackButtonClicked = {
+                viewModel = userAccountScreenViewModel,
+                navigateToPrevious = {
                     navController.popBackStack()
                 },
-                onSignOut = { isSignedOut ->
-                    if (isSignedOut) {
-                        navController.navigate(Routes.LoginScreen.route) {
+                navigateToSplash = {
+                        navController.navigate(Routes.SplashScreen.route) {
                             popUpTo(Routes.UserAccountScreen.route) { inclusive = true }
                         }
-                    }
                 }
             )
         }

@@ -6,7 +6,7 @@ sealed class Routes(
   val route: String,
   val navArguments: List<NamedNavArgument> = emptyList()
 ) {
-  data object LoginScreen : Routes("LoginScreen")
+  data object SplashScreen : Routes("SplashScreen")
 
   data object SignInOrUpScreen : Routes("SignInOrUpScreen")
 

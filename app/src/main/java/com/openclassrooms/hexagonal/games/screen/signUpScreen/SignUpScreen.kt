@@ -1,5 +1,8 @@
 package com.openclassrooms.hexagonal.games.screen.signUpScreen
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +26,8 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,25 +45,35 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.openclassrooms.hexagonal.games.R
-import com.openclassrooms.hexagonal.games.screen.signInOrUpScreen.isInternetAvailable
+import com.openclassrooms.hexagonal.games.screen.signInScreen.SignInScreenState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
-    email: String,
-    onSignUpSuccess: (Boolean) -> Unit,
-    onBackButtonClicked: (Boolean) -> Unit
+    viewModel: SignUpScreenViewModel,
+    navigateToHome: () -> Unit,
+    navigateToSplash: () -> Unit,
+    email: String
 ) {
     val context = LocalContext.current
-    val errorNameEmpty = stringResource(R.string.error_name_empty)
-    val errorPasswordEmpty = stringResource(R.string.error_password_empty)
-    val errorPasswordFormat = stringResource(R.string.error_password_format)
+    val uiState by viewModel.signUpScreenState.collectAsState()
     var name by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
-    var isButtonEnabled by remember { mutableStateOf(false) }
-    var nameTextFieldLabel by remember { mutableStateOf(errorNameEmpty) }
-    var passwordTextFieldLabel by remember { mutableStateOf(errorPasswordEmpty) }
     var isPasswordVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is SignUpScreenState.SignUpSuccess -> navigateToHome()
+            is SignUpScreenState.SignUpError -> {
+                Toast.makeText(
+                    context,
+                    (uiState as SignUpScreenState.SignUpError).message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            else -> Unit
+        }
+    }
 
     Scaffold(
 
@@ -70,7 +85,7 @@ fun SignUpScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { onBackButtonClicked(true) }) {
+                    IconButton(onClick = { navigateToSplash() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.backButton_topAppBar_description),
@@ -113,21 +128,22 @@ fun SignUpScreen(
             )
             TextField(
                 value = name,
-                onValueChange = {
-                    name = it
-                    if (name.text.isNotEmpty()) {
-                        nameTextFieldLabel = ""
-                        isButtonEnabled = true
-                    } else {
-                        nameTextFieldLabel = errorNameEmpty
-                        isButtonEnabled = false
-                    }
+
+                onValueChange = { newValue ->
+                    name = newValue
+                    viewModel.onNameChanged(newValue.text)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(nameTextFieldLabel) },
+                label = {
+                    Text(
+                        text = (uiState as? SignUpScreenState.InvalidInput)?.takeIf { !it.isNameValid }?.nameTextFieldLabel ?: "")
+                },
                 colors = TextFieldDefaults.colors(
-                    focusedLabelColor = if (!isButtonEnabled) Color.Red else MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = if (isButtonEnabled) Color.Red else MaterialTheme.colorScheme.onSurface,
+                    focusedLabelColor = if (uiState is SignUpScreenState.InvalidInput && !(uiState as SignUpScreenState.InvalidInput).isNameValid) {
+                        Color.Red
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    }
                 )
             )
 
@@ -139,27 +155,21 @@ fun SignUpScreen(
             )
             TextField(
                 value = password,
-                onValueChange = {
-                    password = it
-                    if (password.text.isNotEmpty()) {
-                        val passwordPattern = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$"
-                        if (password.text.trim().matches(passwordPattern.toRegex())) {
-                            passwordTextFieldLabel = ""
-                            isButtonEnabled = true
-                        } else {
-                            passwordTextFieldLabel = errorPasswordFormat
-                            isButtonEnabled = false
-                        }
-                    } else {
-                        passwordTextFieldLabel = errorPasswordEmpty
-                        isButtonEnabled = false
-                    }
+                onValueChange = { newValue ->
+                    password = newValue
+                    viewModel.onPasswordChanged(newValue.text)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(passwordTextFieldLabel) },
+                label = {
+                    Text(
+                        text = (uiState as? SignUpScreenState.InvalidInput)?.takeIf { !it.isPasswordValid }?.passwordTextFieldLabel ?: "")
+                         },
                 colors = TextFieldDefaults.colors(
-                    focusedLabelColor = if (!isButtonEnabled) Color.Red else MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = if (isButtonEnabled) Color.Red else MaterialTheme.colorScheme.onSurface,
+                    focusedLabelColor = if (uiState is SignUpScreenState.InvalidInput && !(uiState as SignUpScreenState.InvalidInput).isPasswordValid) {
+                        Color.Red
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    }
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -176,45 +186,12 @@ fun SignUpScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = {
-                    if (isInternetAvailable(context)) {
-                        val firebaseAuth = FirebaseAuth.getInstance()
-                        firebaseAuth.createUserWithEmailAndPassword(email, password.text)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    onSignUpSuccess(true)
-                                } else {
-                                    onSignUpSuccess(false)
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.toast_create_account_error),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                    } else {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.toast_no_internet),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                },
-                enabled = isButtonEnabled,
+                onClick = { viewModel.onButtonClicked(email, password.text) },
+                enabled = uiState is SignUpScreenState.ValidInput,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.title_signUp_button))
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewSignUpScreen() {
-    SignUpScreen(
-        email = "test@example.com",
-        onSignUpSuccess = { _ -> },
-        onBackButtonClicked = { _ -> }
-    )
 }

@@ -1,4 +1,4 @@
-package com.openclassrooms.hexagonal.games.screen.loginScreen
+package com.openclassrooms.hexagonal.games.screen.splashScreen
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +9,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,9 +22,12 @@ import coil.compose.AsyncImage
 import com.openclassrooms.hexagonal.games.R
 
 @Composable
-fun LoginScreen(
-    onButtonClicked: () -> Unit,
+fun SplashScreen(
+    viewModel: SplashScreenViewModel,
+    navigateToLoginOrSignUp: () -> Unit,
+    navigateToHome: () -> Unit
 ) {
+    val splashScreenState by viewModel.splashScreenState.collectAsState()
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -50,7 +55,10 @@ fun LoginScreen(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally),
                 onClick = {
-                    onButtonClicked()
+                    when (splashScreenState) {
+                        is SplashScreenState.UserIsLoggedIn -> navigateToHome()
+                        is SplashScreenState.UserIsNotLoggedIn -> navigateToLoginOrSignUp ()
+                    }
                 }) {
                 Text(stringResource(R.string.title_signIn_button))
             }

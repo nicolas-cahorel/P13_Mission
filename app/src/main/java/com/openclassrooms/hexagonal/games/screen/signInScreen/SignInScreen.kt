@@ -23,6 +23,8 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,27 +39,36 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
 import com.openclassrooms.hexagonal.games.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(
-    onSignInSuccess: (Boolean) -> Unit,
-    onHelpClicked: () -> Unit,
-    onBackButtonClicked: (Boolean) -> Unit,
+    viewModel: SignInScreenViewModel,
+    navigateToHome: () -> Unit,
+    navigateToPasswordRecovery: () -> Unit,
+    navigateToSplash: () -> Unit,
     email: String
 ) {
     val context = LocalContext.current
-    val errorPasswordEmpty = stringResource(R.string.error_password_empty)
-    val labelPassword = stringResource(R.string.title_label_password)
+    val uiState by viewModel.signInScreenState.collectAsState()
     var password by remember { mutableStateOf(TextFieldValue("")) }
     var isPasswordVisible by remember { mutableStateOf(false) }
-    var passwordTextFieldLabel by remember { mutableStateOf(errorPasswordEmpty) }
-    var isButtonEnabled by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is SignInScreenState.SignInSuccess -> navigateToHome()
+            is SignInScreenState.SignInError -> {
+                Toast.makeText(
+                    context,
+                    (uiState as SignInScreenState.SignInError).message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            else -> Unit
+        }
+    }
 
     Scaffold(
 
@@ -69,7 +80,7 @@ fun SignInScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { onBackButtonClicked(true) }) {
+                    IconButton(onClick = { navigateToSplash() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.backButton_topAppBar_description),
@@ -99,21 +110,21 @@ fun SignInScreen(
 
             TextField(
                 value = password,
-                onValueChange = {
-                    password = it
-                    if (password.text.isNotEmpty()) {
-                        passwordTextFieldLabel = labelPassword
-                        isButtonEnabled = true
-                    } else {
-                        passwordTextFieldLabel = errorPasswordEmpty
-                        isButtonEnabled = false
-                    }
+                onValueChange = { newValue ->
+                    password = newValue
+                    viewModel.onPasswordChanged(newValue.text)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(passwordTextFieldLabel) },
+                label = {
+                    Text(
+                        text = when (uiState) {
+                            is SignInScreenState.InvalidInput -> (uiState as SignInScreenState.InvalidInput).textFieldLabel
+                            else -> stringResource(R.string.title_label_password)
+                        }
+                    )
+                },
                 colors = TextFieldDefaults.colors(
-                    focusedLabelColor = if (!isButtonEnabled) Color.Red else MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = if (isButtonEnabled) Color.Red else MaterialTheme.colorScheme.onSurface,
+                    focusedLabelColor = if (uiState is SignInScreenState.InvalidInput) Color.Red else MaterialTheme.colorScheme.primary
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -130,32 +141,8 @@ fun SignInScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = {
-                    val auth = FirebaseAuth.getInstance()
-                    auth.signInWithEmailAndPassword(email, password.text)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                onSignInSuccess(true)
-                            } else {
-                                val exception = task.exception
-                                if (exception is FirebaseAuthException && exception.errorCode == "ERROR_WRONG_PASSWORD") {
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.error_password_incorrect),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.error_unknown),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-
-                            }
-                        }
-                },
-                enabled = isButtonEnabled,
+                onClick = { viewModel.onButtonClicked(email, password.text) },
+                enabled = uiState is SignInScreenState.ValidInput,
                 modifier = Modifier.align(Alignment.End)
             ) {
                 Text(stringResource(R.string.title_connect_button))
@@ -165,7 +152,7 @@ fun SignInScreen(
 
             Button(
                 onClick = {
-                    onHelpClicked()
+                    navigateToPasswordRecovery()
                 },
                 modifier = Modifier.align(Alignment.End)
             ) {
@@ -174,15 +161,4 @@ fun SignInScreen(
 
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewSignInScreen() {
-    SignInScreen(
-        onSignInSuccess = { _ -> },
-        onHelpClicked = {},
-        onBackButtonClicked = { _ -> },
-        email = "test@example.com"
-    )
 }

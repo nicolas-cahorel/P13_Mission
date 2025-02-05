@@ -23,6 +23,8 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,23 +34,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.FirebaseAuth
 import com.openclassrooms.hexagonal.games.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordRecoveryScreen(
-    onBackButtonClicked: (Boolean) -> Unit
+    viewModel: PasswordRecoveryScreenViewModel,
+    navigateToSplash: () -> Unit
 ) {
     val context = LocalContext.current
-    val errorEmailFormat = stringResource(R.string.error_email_format)
-    val errorEmailEmpty = stringResource(R.string.error_email_empty)
+    val uiState by viewModel.passwordRecoveryScreenState.collectAsState()
     var email by remember { mutableStateOf(TextFieldValue("")) }
-    var isButtonEnabled by remember { mutableStateOf(false) }
-    var emailTextFieldLabel by remember { mutableStateOf(errorEmailEmpty) }
-    var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is PasswordRecoveryScreenState.Error -> {
+                Toast.makeText(
+                    context,
+                    (uiState as PasswordRecoveryScreenState.Error).message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            else -> Unit
+        }
+    }
 
     Scaffold(
 
@@ -60,7 +70,7 @@ fun PasswordRecoveryScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 navigationIcon = {
-                    IconButton(onClick = { onBackButtonClicked(true) }) {
+                    IconButton(onClick = { navigateToSplash() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.backButton_topAppBar_description),
@@ -94,59 +104,39 @@ fun PasswordRecoveryScreen(
             )
             TextField(
                 value = email,
-                onValueChange = {
-                    email = it
-                    if (email.text.isNotEmpty()) {
-                        val emailPattern = "[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
-                        if (email.text.trim().matches(emailPattern.toRegex())) {
-                            emailTextFieldLabel = ""
-                            isButtonEnabled = true
-                        } else {
-                            emailTextFieldLabel = errorEmailFormat
-                            isButtonEnabled = false
-                        }
-                    } else {
-                        emailTextFieldLabel = errorEmailEmpty
-                        isButtonEnabled = false
-                    }
+                onValueChange = { newValue ->
+                    email = newValue
+                    viewModel.onEmailChanged(newValue.text)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(emailTextFieldLabel) },
+                label = {
+                    Text(
+                        text = when (uiState) {
+                            is PasswordRecoveryScreenState.InvalidInput -> (uiState as PasswordRecoveryScreenState.InvalidInput).textFieldLabel
+                            else -> ""
+                        }
+                    )
+                },
                 colors = TextFieldDefaults.colors(
-                    focusedLabelColor = if (!isButtonEnabled) Color.Red else MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = if (isButtonEnabled) Color.Red else MaterialTheme.colorScheme.onSurface,
+                    focusedLabelColor = if (uiState is PasswordRecoveryScreenState.InvalidInput) Color.Red else MaterialTheme.colorScheme.primary,
                 )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = {
-                    val firebaseAuth = FirebaseAuth.getInstance()
-                    firebaseAuth.sendPasswordResetEmail(email.text.trim())
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                showDialog = true
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.toast_error),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                },
-                enabled = isButtonEnabled,
+                onClick = { viewModel.onButtonClicked(email.text) },
+                enabled = uiState is PasswordRecoveryScreenState.ValidInput,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.title_sendEmail_button))
             }
 
-            if (showDialog) {
+            if (uiState is PasswordRecoveryScreenState.ShowDialog) {
                 AlertDialog(
-                    onDismissRequest = { showDialog = false },
+                    onDismissRequest = { viewModel.onDialogButtonClicked() },
                     confirmButton = {
-                        Button(onClick = { showDialog = false }) {
+                        Button(onClick = { viewModel.onDialogButtonClicked() }) {
                             Text(stringResource(R.string.ok_dialog_button))
                         }
                     },
@@ -161,12 +151,4 @@ fun PasswordRecoveryScreen(
 
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewPasswordRecoveryScreen() {
-    PasswordRecoveryScreen(
-        onBackButtonClicked = {}
-    )
 }

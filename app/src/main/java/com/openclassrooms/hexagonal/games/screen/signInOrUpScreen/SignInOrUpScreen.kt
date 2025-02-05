@@ -1,8 +1,5 @@
 package com.openclassrooms.hexagonal.games.screen.signInOrUpScreen
 
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,6 +18,8 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,23 +29,35 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.FirebaseAuth
 import com.openclassrooms.hexagonal.games.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInOrUpScreen(
-    onEmailEntered: (Boolean, String) -> Unit
+    viewModel: SignInOrUpScreenViewModel,
+    navigateToSignUp: (email: String) -> Unit,
+    navigateToSignIn: (email: String) -> Unit
 ) {
     val context = LocalContext.current
-    val errorEmailFormat = stringResource(R.string.error_email_format)
-    val errorEmailEmpty = stringResource(R.string.error_email_empty)
+    val uiState by viewModel.signInOrUpScreenState.collectAsState()
     var email by remember { mutableStateOf(TextFieldValue("")) }
-    var accountExists by remember { mutableStateOf(false) }
-    var isButtonEnabled by remember { mutableStateOf(false) }
-    var emailTextFieldLabel by remember { mutableStateOf(errorEmailEmpty) }
+
+    LaunchedEffect(uiState) {
+        when (uiState) {
+            is SignInOrUpScreenState.AccountExists -> navigateToSignIn(email.text)
+            is SignInOrUpScreenState.AccountDoNotExists -> navigateToSignUp(email.text)
+            is SignInOrUpScreenState.Error -> {
+                Toast.makeText(
+                    context,
+                    (uiState as SignInOrUpScreenState.Error).message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            else -> Unit
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -76,59 +87,29 @@ fun SignInOrUpScreen(
 
             TextField(
                 value = email,
-                onValueChange = {
-                    email = it
-                    if (email.text.isNotEmpty()) {
-                        val emailPattern = "[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"
-                        if (email.text.trim().matches(emailPattern.toRegex())) {
-                            emailTextFieldLabel = ""
-                            isButtonEnabled = true
-                        } else {
-                            emailTextFieldLabel = errorEmailFormat
-                            isButtonEnabled = false
-                        }
-                    } else {
-                        emailTextFieldLabel = errorEmailEmpty
-                        isButtonEnabled = false
-                    }
+                onValueChange = { newValue ->
+                    email = newValue
+                    viewModel.onEmailChanged(newValue.text)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(emailTextFieldLabel) },
+                label = {
+                    Text(
+                        text = when (uiState) {
+                            is SignInOrUpScreenState.InvalidInput -> (uiState as SignInOrUpScreenState.InvalidInput).textFieldLabel
+                            else -> ""
+                        }
+                    )
+                },
                 colors = TextFieldDefaults.colors(
-                    focusedLabelColor = if (!isButtonEnabled) Color.Red else MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = if (isButtonEnabled) Color.Red else MaterialTheme.colorScheme.onSurface,
+                    focusedLabelColor = if (uiState is SignInOrUpScreenState.InvalidInput) Color.Red else MaterialTheme.colorScheme.primary
                 )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = {
-                    if (isInternetAvailable(context)) {
-                        val firebaseAuth = FirebaseAuth.getInstance()
-                        firebaseAuth.fetchSignInMethodsForEmail(email.text.trim())
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    accountExists =
-                                        task.result?.signInMethods?.isNotEmpty() == true
-                                    onEmailEntered(accountExists, email.text.trim())
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.toast_error),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                    } else {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.toast_no_internet),
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                },
-                enabled = isButtonEnabled,
+                onClick = { viewModel.onButtonClicked(email.text) },
+                enabled = uiState is SignInOrUpScreenState.ValidInput,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.signInOrUp_button))
@@ -136,19 +117,4 @@ fun SignInOrUpScreen(
 
         }
     }
-}
-
-fun isInternetAvailable(context: Context): Boolean {
-    val connectivityManager =
-        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val network = connectivityManager.activeNetwork
-    val capabilities = connectivityManager.getNetworkCapabilities(network)
-    return capabilities != null && (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewSignInOrUpScreen() {
-    SignInOrUpScreen { _, _ -> }
 }
