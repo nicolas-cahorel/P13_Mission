@@ -1,5 +1,7 @@
 package com.openclassrooms.hexagonal.games.data.repository
 
+import android.net.Uri
+import com.openclassrooms.hexagonal.games.data.service.FirebasePostService
 import com.openclassrooms.hexagonal.games.data.service.PostApi
 import com.openclassrooms.hexagonal.games.domain.model.Post
 import kotlinx.coroutines.flow.Flow
@@ -21,8 +23,17 @@ class PostRepository @Inject constructor(private val postApi: PostApi) {
    *
    * @return Flow containing a list of Posts.
    */
+//  val posts: Flow<List<Post>> = postApi.getPostsOrderByCreationDateDesc()
+
+
+  /**
+   * Retrieves a Flow object containing a list of Posts ordered by creation date
+   * in descending order.
+   *
+   * @return Flow containing a list of Posts.
+   */
   val posts: Flow<List<Post>> = postApi.getPostsOrderByCreationDateDesc()
-  
+
   /**
    * Adds a new Post to the data source using the injected PostApi.
    *
@@ -31,5 +42,25 @@ class PostRepository @Inject constructor(private val postApi: PostApi) {
   fun addPost(post: Post?) {
     postApi.addPost(post!!)
   }
-  
+
+  /**
+   * Fetches all posts sorted by creation date.
+   */
+//  fun getPosts(): Flow<List<Post>> {
+//    return postService.getPostsOrderByCreationDateDesc()
+//  }
+
+  /**
+   * Adds a new post without an image.
+   */
+//  fun addPostWithoutPhoto(post: Post, callback: (Boolean) -> Unit) {
+//    postService.addPost(post)
+//  }
+
+  /**
+   * Adds a new post with an image.
+   */
+//  fun addPostWithPhoto(post: Post, imageUri: Uri, callback: (Boolean) -> Unit) {
+//    postService.addPostWithImage(post, imageUri, callback)
+//  }
 }

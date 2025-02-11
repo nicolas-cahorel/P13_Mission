@@ -140,7 +140,7 @@ fun SignUpScreen(
                 },
                 colors = TextFieldDefaults.colors(
                     focusedLabelColor = if (uiState is SignUpScreenState.InvalidInput && !(uiState as SignUpScreenState.InvalidInput).isNameValid) {
-                        Color.Red
+                        MaterialTheme.colorScheme.error
                     } else {
                         MaterialTheme.colorScheme.primary
                     }
@@ -166,7 +166,7 @@ fun SignUpScreen(
                          },
                 colors = TextFieldDefaults.colors(
                     focusedLabelColor = if (uiState is SignUpScreenState.InvalidInput && !(uiState as SignUpScreenState.InvalidInput).isPasswordValid) {
-                        Color.Red
+                        MaterialTheme.colorScheme.error
                     } else {
                         MaterialTheme.colorScheme.primary
                     }

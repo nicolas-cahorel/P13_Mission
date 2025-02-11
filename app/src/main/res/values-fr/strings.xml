@@ -1,10 +1,11 @@
 <resources>
 
   <!-- Hexagonal Games Application -->
-  <string name="app_name">Hexagonal Games</string>
+  <string name="app_name">P13M_Hexagonal_Games</string>
   <string name="contentDescription_go_back">Retour</string>
   <string name="toast_no_internet">Erreur de réseau, vérifiez votre connexion Internet</string>
   <string name="backButton_topAppBar_description">Retour</string>
+  <string name="default_notification_channel_id">Notification Hexagonal Games</string>
 
   <!-- LoginScreen -->
   <string name="title_signIn_button">Se connecter avec une adresse e-mail</string>
@@ -61,6 +62,9 @@
   <string name="hint_description">Description</string>
   <string name="title_save_button">Sauvegarder</string>
   <string name="error_title">Titre non valide</string>
+  <string name="title_select_photo_button">Sélectionner une photo</string>
+  <string name="error_description">Description non valide</string>
+  <string name="error_photo">Photo non valide</string>
 
   <!-- SettingsScreen -->
   <string name="title_settingsScreen">Paramètres</string>

@@ -17,7 +17,7 @@ ksp = "1.9.23-1.0.20"
 lifecycleRuntimeCompose = "2.8.7"
 googleServices = "4.4.2"
 firebaseBom = "33.5.1" # Conserver la version 33.5.1 sinon crash de l'app
-firebaseUiAuth = "8.0.0"
+firebaseUi = "8.0.2"
 playServices = "19.0.1" # Conserver la version 19.0.1 sinon impossible de build
 storage = "1.5.0"
 
@@ -46,7 +46,10 @@ navigation-compose = { group = "androidx.navigation", name = "navigation-compose
 lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 firebase-bom = {group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom"}
 firebase-analytics = {group = "com.google.firebase", name = "firebase-analytics"}
-firebase-ui-auth = {group = "com.firebaseui", name = "firebase-ui-auth", version.ref = "firebaseUiAuth"}
+firebase-ui-auth = {group = "com.firebaseui", name = "firebase-ui-auth", version.ref = "firebaseUi"}
+firebase-messaging = {group = "com.google.firebase", name = "firebase-messaging"}
+firebase-ui-storage = {group = "com.firebaseui", name = "firebase-ui-storage", version.ref = "firebaseUi"}
+firebase-ui-firestore = {group = "com.firebaseui", name = "firebase-ui-firestore", version.ref = "firebaseUi"}
 
 google-play-services-measurement= {group = "com.google.android.gms", name = "play-services-measurement", version.ref = "playServices"}
 google-play-services-measurement-base= {group = "com.google.android.gms", name = "play-services-measurement-base", version.ref = "playServices"}

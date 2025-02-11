@@ -156,7 +156,7 @@ fun Navigation(navController: NavHostController) {
 
         composable(route = Routes.AddScreen.route) {
             AddScreen(
-                onBackClick = { navController.navigateUp() },
+                navigateToPrevious = { navController.navigateUp() },
                 onSaveClick = { navController.navigateUp() }
             )
         }

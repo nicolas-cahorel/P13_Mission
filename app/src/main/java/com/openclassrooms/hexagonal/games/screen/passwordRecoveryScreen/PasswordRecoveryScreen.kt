@@ -118,7 +118,7 @@ fun PasswordRecoveryScreen(
                     )
                 },
                 colors = TextFieldDefaults.colors(
-                    focusedLabelColor = if (uiState is PasswordRecoveryScreenState.InvalidInput) Color.Red else MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = if (uiState is PasswordRecoveryScreenState.InvalidInput) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                 )
             )
 

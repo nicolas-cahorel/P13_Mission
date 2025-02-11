@@ -101,7 +101,7 @@ fun SignInOrUpScreen(
                     )
                 },
                 colors = TextFieldDefaults.colors(
-                    focusedLabelColor = if (uiState is SignInOrUpScreenState.InvalidInput) Color.Red else MaterialTheme.colorScheme.primary
+                    focusedLabelColor = if (uiState is SignInOrUpScreenState.InvalidInput) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                 )
             )
 

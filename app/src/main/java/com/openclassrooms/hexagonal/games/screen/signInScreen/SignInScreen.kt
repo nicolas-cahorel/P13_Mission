@@ -124,7 +124,7 @@ fun SignInScreen(
                     )
                 },
                 colors = TextFieldDefaults.colors(
-                    focusedLabelColor = if (uiState is SignInScreenState.InvalidInput) Color.Red else MaterialTheme.colorScheme.primary
+                    focusedLabelColor = if (uiState is SignInScreenState.InvalidInput) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),

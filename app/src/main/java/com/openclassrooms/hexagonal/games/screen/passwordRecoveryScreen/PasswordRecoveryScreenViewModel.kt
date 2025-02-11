@@ -1,10 +1,11 @@
 package com.openclassrooms.hexagonal.games.screen.passwordRecoveryScreen
 
-import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.openclassrooms.hexagonal.games.R
+import com.openclassrooms.hexagonal.games.data.repository.UserRepository
+import com.openclassrooms.hexagonal.games.data.repository.UserRepositoryState
+import com.openclassrooms.hexagonal.games.utils.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PasswordRecoveryScreenViewModel @Inject constructor(
-    private val application: Application
+    private val resourceProvider: ResourceProvider,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _passwordRecoveryScreenState =
@@ -21,6 +23,10 @@ class PasswordRecoveryScreenViewModel @Inject constructor(
             PasswordRecoveryScreenState.InvalidInput("")
         )
     val passwordRecoveryScreenState: StateFlow<PasswordRecoveryScreenState> get() = _passwordRecoveryScreenState
+
+    private val _repositoryState = MutableStateFlow<UserRepositoryState?>(null)
+    val repositoryState: StateFlow<UserRepositoryState?> get() = _repositoryState
+
 
     fun onEmailChanged(newEmail: String) {
         if (newEmail.isNotEmpty()) {
@@ -31,30 +37,28 @@ class PasswordRecoveryScreenViewModel @Inject constructor(
             } else {
                 _passwordRecoveryScreenState.value =
                     PasswordRecoveryScreenState.InvalidInput(
-                        textFieldLabel = application.getString(R.string.error_email_format),
+                        textFieldLabel = resourceProvider.getString(R.string.error_email_format),
                     )
             }
         } else {
             _passwordRecoveryScreenState.value =
                 PasswordRecoveryScreenState.InvalidInput(
-                    textFieldLabel = application.getString(R.string.error_email_empty),
+                    textFieldLabel = resourceProvider.getString(R.string.error_email_empty),
                 )
         }
     }
 
         fun onButtonClicked(email: String) {
-            val firebaseAuth = FirebaseAuth.getInstance()
             viewModelScope.launch {
-                firebaseAuth.sendPasswordResetEmail(email.trim())
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            _passwordRecoveryScreenState.value =
-                                PasswordRecoveryScreenState.ShowDialog
-                        } else {
-                            _passwordRecoveryScreenState.value =
-                                PasswordRecoveryScreenState.Error(application.getString(R.string.toast_error))
-                        }
+                userRepository.recoverPassword(email).collect { userRepositoryState ->
+                    _repositoryState.value = userRepositoryState
+
+                    _passwordRecoveryScreenState.value = when (userRepositoryState) {
+                        is UserRepositoryState.RecoverPasswordSuccess -> PasswordRecoveryScreenState.ShowDialog
+                        is UserRepositoryState.RecoverPasswordError -> PasswordRecoveryScreenState.Error(userRepositoryState.message)
+                        else -> PasswordRecoveryScreenState.Error(resourceProvider.getString(R.string.toast_error))
                     }
+                }
             }
         }
 

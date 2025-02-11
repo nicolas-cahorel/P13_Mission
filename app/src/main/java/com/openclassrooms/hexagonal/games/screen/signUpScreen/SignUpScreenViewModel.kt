@@ -1,13 +1,13 @@
 package com.openclassrooms.hexagonal.games.screen.signUpScreen
 
-import android.app.Application
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.openclassrooms.hexagonal.games.R
+import com.openclassrooms.hexagonal.games.data.repository.UserRepository
+import com.openclassrooms.hexagonal.games.data.repository.UserRepositoryState
+import com.openclassrooms.hexagonal.games.domain.model.User
+import com.openclassrooms.hexagonal.games.utils.InternetUtils
+import com.openclassrooms.hexagonal.games.utils.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,12 +16,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignUpScreenViewModel @Inject constructor(
-    private val application: Application
+    private val resourceProvider: ResourceProvider,
+    private val internetUtils: InternetUtils,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _signUpScreenState =
         MutableStateFlow<SignUpScreenState>(SignUpScreenState.InvalidInput("", "", false,false))
     val signUpScreenState: StateFlow<SignUpScreenState> get() = _signUpScreenState
+
+    private val _repositoryState = MutableStateFlow<UserRepositoryState?>(null)
+    val repositoryState: StateFlow<UserRepositoryState?> get() = _repositoryState
 
     private var name: String = ""
     private var nameTextFieldLabel: String = ""
@@ -62,7 +67,7 @@ class SignUpScreenViewModel @Inject constructor(
             nameTextFieldLabel = ""
             nameIsValid = true
         } else {
-            nameTextFieldLabel = application.getString(R.string.error_name_empty)
+            nameTextFieldLabel = resourceProvider.getString(R.string.error_name_empty)
             nameIsValid = false
         }
     }
@@ -74,42 +79,41 @@ class SignUpScreenViewModel @Inject constructor(
                 passwordTextFieldLabel = ""
                 passwordIsValid = true
             } else {
-                passwordTextFieldLabel = application.getString(R.string.error_password_format)
+                passwordTextFieldLabel = resourceProvider.getString(R.string.error_password_format)
                 passwordIsValid = false
             }
         } else {
-            passwordTextFieldLabel = application.getString(R.string.error_password_empty)
+            passwordTextFieldLabel = resourceProvider.getString(R.string.error_password_empty)
             passwordIsValid = false
         }
     }
 
-    fun onButtonClicked(email: String, password: String) {
-        if (isInternetAvailable(application)) {
-            val firebaseAuth = FirebaseAuth.getInstance()
+    fun onButtonClicked(email: String, password: String, name: String) {
+        if (internetUtils.isInternetAvailable()) {
             viewModelScope.launch {
-                firebaseAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            _signUpScreenState.value =
-                                SignUpScreenState.SignUpSuccess
-                        } else {
-                            _signUpScreenState.value =
-                                SignUpScreenState.SignUpError(application.getString(R.string.toast_create_account_error))
-                        }
+                val user = User(
+                    id = null,
+                    firstname = name.substringBefore(" "),
+                    lastname = name.substringAfter(" "),
+                    email = email,
+                    password = password
+                )
+                userRepository.createUser(user).collect { userRepositoryState ->
+                    _repositoryState.value = userRepositoryState
+
+                    _signUpScreenState.value = when (userRepositoryState) {
+                        is UserRepositoryState.CreateUserSuccess -> SignUpScreenState.SignUpSuccess
+                        is UserRepositoryState.CreateUserError -> SignUpScreenState.SignUpError(
+                            userRepositoryState.message
+                        )
+
+                        else -> SignUpScreenState.SignUpError(resourceProvider.getString(R.string.toast_create_account_error))
                     }
+                }
             }
-        }else {
+        } else {
             _signUpScreenState.value =
-                SignUpScreenState.SignUpError(application.getString(R.string.toast_no_internet))
+                SignUpScreenState.SignUpError(resourceProvider.getString(R.string.toast_no_internet))
         }
     }
-}
-
-private fun isInternetAvailable(context: Context): Boolean {
-    val connectivityManager =
-        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    val network = connectivityManager.activeNetwork
-    val capabilities = connectivityManager.getNetworkCapabilities(network)
-    return capabilities != null && (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
 }

@@ -81,6 +81,9 @@ dependencies {
   implementation(platform(libs.firebase.bom))
   implementation(libs.firebase.analytics)
   implementation(libs.firebase.ui.auth)
+  implementation(libs.firebase.messaging)
+  implementation(libs.firebase.ui.storage)
+  implementation(libs.firebase.ui.firestore)
 
   //Google Play Services
   implementation(libs.google.play.services.measurement)

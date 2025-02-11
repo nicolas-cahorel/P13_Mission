@@ -1,13 +1,12 @@
 package com.openclassrooms.hexagonal.games.screen.signInOrUpScreen
 
-import android.app.Application
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseAuth
 import com.openclassrooms.hexagonal.games.R
+import com.openclassrooms.hexagonal.games.data.repository.UserRepository
+import com.openclassrooms.hexagonal.games.data.repository.UserRepositoryState
+import com.openclassrooms.hexagonal.games.utils.InternetUtils
+import com.openclassrooms.hexagonal.games.utils.ResourceProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,12 +15,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignInOrUpScreenViewModel @Inject constructor(
-    private val application: Application
+    private val resourceProvider: ResourceProvider,
+    private val internetUtils: InternetUtils,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _signInOrUpScreenState =
         MutableStateFlow<SignInOrUpScreenState>(SignInOrUpScreenState.InvalidInput("", false))
     val signInOrUpScreenState: StateFlow<SignInOrUpScreenState> get() = _signInOrUpScreenState
+
+    private val _repositoryState = MutableStateFlow<UserRepositoryState?>(null)
+    val repositoryState: StateFlow<UserRepositoryState?> get() = _repositoryState
 
     fun onEmailChanged(newEmail: String) {
         if (newEmail.isNotEmpty()) {
@@ -35,52 +39,39 @@ class SignInOrUpScreenViewModel @Inject constructor(
             } else {
                 _signInOrUpScreenState.value =
                     SignInOrUpScreenState.InvalidInput(
-                        textFieldLabel = application.getString(R.string.error_email_format),
+                        textFieldLabel = resourceProvider.getString(R.string.error_email_format),
                         isButtonEnabled = false
                     )
             }
         } else {
             _signInOrUpScreenState.value =
                 SignInOrUpScreenState.InvalidInput(
-                    textFieldLabel = application.getString(R.string.error_email_empty),
+                    textFieldLabel = resourceProvider.getString(R.string.error_email_empty),
                     isButtonEnabled = false
                 )
         }
     }
 
     fun onButtonClicked(email: String) {
-        if (isInternetAvailable(application)) {
-            val firebaseAuth = FirebaseAuth.getInstance()
+        if (internetUtils.isInternetAvailable()) {
             viewModelScope.launch {
-                firebaseAuth.fetchSignInMethodsForEmail(email.trim())
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            if (task.result?.signInMethods?.isNotEmpty() == true) {
-                                _signInOrUpScreenState.value =
-                                    SignInOrUpScreenState.AccountExists
-                            } else {
-                                _signInOrUpScreenState.value =
-                                    SignInOrUpScreenState.AccountDoNotExists
-                            }
-                        } else {
-                            _signInOrUpScreenState.value =
-                                SignInOrUpScreenState.Error(application.getString(R.string.toast_error))
-                        }
+                userRepository.doUserExistInFirebase(email).collect { userRepositoryState ->
+                    _repositoryState.value = userRepositoryState
+
+                    _signInOrUpScreenState.value = when (userRepositoryState) {
+                        is UserRepositoryState.UserFoundInFirebase -> SignInOrUpScreenState.AccountExists
+                        is UserRepositoryState.UserNotFoundInFirebase -> SignInOrUpScreenState.AccountDoNotExists
+                        is UserRepositoryState.UserException -> SignInOrUpScreenState.Error(
+                            userRepositoryState.message
+                        )
+
+                        else -> SignInOrUpScreenState.Error(resourceProvider.getString(R.string.toast_error))
                     }
+                }
             }
         } else {
             _signInOrUpScreenState.value =
-                SignInOrUpScreenState.Error(application.getString(R.string.toast_no_internet))
+                SignInOrUpScreenState.Error(resourceProvider.getString(R.string.toast_no_internet))
         }
     }
-
-    private fun isInternetAvailable(context: Context): Boolean {
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = connectivityManager.activeNetwork
-        val capabilities = connectivityManager.getNetworkCapabilities(network)
-        return capabilities != null && (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
-                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR))
-    }
-
 }
