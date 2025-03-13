@@ -5,8 +5,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.openclassrooms.hexagonal.games.screen.addScreen.AddScreen
+import com.openclassrooms.hexagonal.games.screen.addPostScreen.AddPostScreen
+import com.openclassrooms.hexagonal.games.screen.addPostScreen.AddPostScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.homeScreen.HomeScreen
+import com.openclassrooms.hexagonal.games.screen.homeScreen.HomeScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.passwordRecoveryScreen.PasswordRecoveryScreen
 import com.openclassrooms.hexagonal.games.screen.passwordRecoveryScreen.PasswordRecoveryScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.settingsScreen.SettingsScreen
@@ -21,6 +23,12 @@ import com.openclassrooms.hexagonal.games.screen.splashScreen.SplashScreenViewMo
 import com.openclassrooms.hexagonal.games.screen.userAccountScreen.UserAccountScreen
 import com.openclassrooms.hexagonal.games.screen.userAccountScreen.UserAccountScreenViewModel
 
+/**
+ * Manages the navigation between different screens in the application.
+ * Uses Jetpack Navigation with HiltViewModel to handle dependencies.
+ *
+ * @param navController The navigation controller that manages the app navigation stack.
+ */
 @Composable
 fun Navigation(navController: NavHostController) {
     NavHost(
@@ -33,15 +41,10 @@ fun Navigation(navController: NavHostController) {
             SplashScreen(
                 viewModel = splashScreenViewModel,
                 navigateToHome = {
-                    navController.navigate(Routes.HomeScreen.route) {
-                        popUpTo(Routes.SplashScreen.route) { inclusive = true }
-
-                    }
+                    navController.navigate(Routes.HomeScreen.route)
                 },
                 navigateToLoginOrSignUp = {
-                    navController.navigate(Routes.SignInOrUpScreen.route) {
-                        popUpTo(Routes.SplashScreen.route) { inclusive = true }
-                    }
+                    navController.navigate(Routes.SignInOrUpScreen.route)
                 }
             )
         }
@@ -51,14 +54,10 @@ fun Navigation(navController: NavHostController) {
             SignInOrUpScreen(
                 viewModel = signInOrUpScreenViewModel,
                 navigateToSignIn = { email ->
-                    navController.navigate("SignInScreen/$email") {
-                        popUpTo(Routes.SignInOrUpScreen.route) { inclusive = true }
-                    }
+                    navController.navigate("SignInScreen/$email")
                 },
                 navigateToSignUp = { email ->
-                    navController.navigate("SignUpScreen/$email") {
-                        popUpTo(Routes.SignInOrUpScreen.route) { inclusive = true }
-                    }
+                    navController.navigate("SignUpScreen/$email")
                 }
             )
         }
@@ -72,20 +71,13 @@ fun Navigation(navController: NavHostController) {
                     viewModel = signInScreenViewModel,
                     email = email,
                     navigateToHome = {
-                        navController.navigate(Routes.HomeScreen.route) {
-                            popUpTo(Routes.SignInScreen.route) { inclusive = true }
-
-                        }
+                        navController.navigate(Routes.HomeScreen.route)
                     },
                     navigateToPasswordRecovery = {
-                        navController.navigate("PasswordRecoveryScreen") {
-                            popUpTo(Routes.SignInScreen.route) { inclusive = true }
-                        }
+                        navController.navigate("PasswordRecoveryScreen")
                     },
                     navigateToSplash = {
-                        navController.navigate(Routes.SplashScreen.route) {
-                            popUpTo(Routes.SignInScreen.route) { inclusive = true }
-                        }
+                        navController.navigate(Routes.SplashScreen.route)
                     }
                 )
             }
@@ -100,14 +92,10 @@ fun Navigation(navController: NavHostController) {
                     viewModel = signUpScreenViewModel,
                     email = email,
                     navigateToHome = {
-                            navController.navigate(Routes.HomeScreen.route) {
-                                popUpTo(Routes.SignUpScreen.route) { inclusive = true }
-                            }
+                        navController.navigate(Routes.HomeScreen.route)
                     },
                     navigateToSplash = {
-                        navController.navigate(Routes.SplashScreen.route) {
-                            popUpTo(Routes.SignUpScreen.route) { inclusive = true }
-                        }
+                        navController.navigate(Routes.SplashScreen.route)
                     }
                 )
             }
@@ -118,9 +106,7 @@ fun Navigation(navController: NavHostController) {
             PasswordRecoveryScreen(
                 viewModel = passwordRecoveryScreenViewModel,
                 navigateToSplash = {
-                    navController.navigate(Routes.SplashScreen.route) {
-                        popUpTo(Routes.PasswordRecoveryScreen.route) { inclusive = true }
-                    }
+                    navController.navigate(Routes.SplashScreen.route)
                 }
             )
         }
@@ -129,42 +115,72 @@ fun Navigation(navController: NavHostController) {
             val userAccountScreenViewModel: UserAccountScreenViewModel = hiltViewModel()
             UserAccountScreen(
                 viewModel = userAccountScreenViewModel,
-                navigateToPrevious = {
-                    navController.popBackStack()
-                },
+                navigateToPrevious = { navController.navigateUp() },
                 navigateToSplash = {
-                        navController.navigate(Routes.SplashScreen.route) {
-                            popUpTo(Routes.UserAccountScreen.route) { inclusive = true }
-                        }
+                    navController.navigate(Routes.SplashScreen.route)
                 }
             )
         }
 
         composable(route = Routes.HomeScreen.route) {
+            val homeScreenViewModel: HomeScreenViewModel = hiltViewModel()
             HomeScreen(
-                onPostClick = {
-                    //TODO
+                viewModel = homeScreenViewModel,
+                navigateToPostDetails = { postId ->
+                    navController.navigate("PostDetailsScreen/$postId")
                 },
-                onSettingsClick = {
+                navigateToSettings = {
                     navController.navigate(Routes.SettingsScreen.route)
                 },
-                onFABClick = {
-                    navController.navigate(Routes.AddScreen.route)
+                navigateToAdd = {
+                    navController.navigate(Routes.AddPostScreen.route)
+                },
+                navigateToUserAccount = {
+                    navController.navigate(Routes.UserAccountScreen.route)
+                },
+                navigateToSplash = {
+                    navController.navigate(Routes.SplashScreen.route)
                 }
             )
         }
 
-        composable(route = Routes.AddScreen.route) {
-            AddScreen(
-                navigateToPrevious = { navController.navigateUp() },
-                onSaveClick = { navController.navigateUp() }
+        composable(route = Routes.AddPostScreen.route) {
+            val addPostScreenViewModel: AddPostScreenViewModel = hiltViewModel()
+            AddPostScreen(
+                viewModel = addPostScreenViewModel,
+                navigateToHome = {
+                    navController.navigate(Routes.HomeScreen.route)
+                }
             )
         }
 
         composable(route = Routes.SettingsScreen.route) {
             SettingsScreen(
-                onBackClick = { navController.navigateUp() }
+                navigateToPrevious = { navController.navigateUp() }
             )
         }
+
+        composable(route = Routes.PostDetailsScreen.route) { backStackEntry ->
+            val postId =
+                backStackEntry.arguments?.getString(Routes.PostDetailsScreen.ARGUMENT)
+//            val postDetailsScreenViewModel: PostDetailsScreenViewModel = hiltViewModel()
+//            if (!postId.isNullOrEmpty()) {
+//                PostDetailsScreen(
+//                    viewModel = postDetailsScreenViewModel,
+//                    postId = postId,
+//                    navigateToHome = {
+//                        navController.navigate(Routes.HomeScreen.route) {
+//                            popUpTo(Routes.SignUpScreen.route) { inclusive = true }
+//                        }
+//                    },
+//                    navigateToSplash = {
+//                        navController.navigate(Routes.SplashScreen.route) {
+//                            popUpTo(Routes.SignUpScreen.route) { inclusive = true }
+//                        }
+//                    }
+//                )
+        }
+
+
     }
 }

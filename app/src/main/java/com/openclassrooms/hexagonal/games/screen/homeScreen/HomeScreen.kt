@@ -1,5 +1,6 @@
 package com.openclassrooms.hexagonal.games.screen.homeScreen
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -24,6 +25,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,200 +37,293 @@ import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.imageLoader
 import coil.util.DebugLogger
+import com.google.firebase.Timestamp
 import com.openclassrooms.hexagonal.games.R
 import com.openclassrooms.hexagonal.games.domain.model.Post
 import com.openclassrooms.hexagonal.games.domain.model.User
 import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
+import kotlin.random.Random
 
+
+/**
+ * Home screen displaying a list of posts. Allows users to navigate to different screens such as post details,
+ * settings, user account, or add a new post.
+ *
+ * @param modifier Modifier to apply to the root element.
+ * @param viewModel The ViewModel that provides the state of the home screen.
+ * @param navigateToPostDetails Function to navigate to the post details screen, takes the post ID as a parameter.
+ * @param navigateToSettings Function to navigate to the settings screen.
+ * @param navigateToAdd Function to navigate to the add post screen.
+ * @param navigateToUserAccount Function to navigate to the user account screen.
+ * @param navigateToSplash Function to navigate to the splash screen.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-  modifier: Modifier = Modifier,
-  viewModel: HomeScreenViewModel = hiltViewModel(),
-  onPostClick: (Post) -> Unit = {},
-  onSettingsClick: () -> Unit = {},
-  onFABClick: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    viewModel: HomeScreenViewModel,
+    navigateToPostDetails: (String) -> Unit = {},
+    navigateToSettings: () -> Unit = {},
+    navigateToAdd: () -> Unit = {},
+    navigateToUserAccount: () -> Unit = {},
+    navigateToSplash: () -> Unit = {}
 ) {
-  var showMenu by rememberSaveable { mutableStateOf(false) }
-  
-  Scaffold(
-    modifier = modifier,
-    topBar = {
-      TopAppBar(
-        title = {
-          Text(stringResource(id = R.string.title_homeScreen))
-        },
-        actions = {
-          IconButton(onClick = { showMenu = !showMenu }) {
-            Icon(
-              imageVector = Icons.Default.MoreVert,
-              contentDescription = stringResource(id = R.string.contentDescription_more)
-            )
-          }
-          DropdownMenu(
-            expanded = showMenu,
-            onDismissRequest = { showMenu = false }
-          ) {
-            DropdownMenuItem(
-              onClick = {
-                onSettingsClick()
-                showMenu = !showMenu
-              },
-              text = {
-                Text(
-                  text = stringResource(id = R.string.title_settingsScreen)
-                )
-              }
-            )
-          }
+
+    val context = LocalContext.current
+    val homeScreenState by viewModel.homeScreenState.collectAsState()
+    var showMenu by rememberSaveable { mutableStateOf(false) }
+
+    // Show toast messages based on the state of the home screen
+    LaunchedEffect(homeScreenState) {
+        when (homeScreenState) {
+            is HomeScreenState.Loading -> Unit
+            is HomeScreenState.DisplayPosts -> Unit
+            is HomeScreenState.NoPostToDisplay -> {
+                Toast.makeText(
+                    context,
+                    R.string.toast_no_posts,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            is HomeScreenState.InternetUnavailable -> {
+                Toast.makeText(
+                    context,
+                    R.string.toast_no_internet,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
-      )
-    },
-    floatingActionButtonPosition = FabPosition.End,
-    floatingActionButton = {
-      FloatingActionButton(
-        onClick = {
-          onFABClick()
-        }
-      ) {
-        Icon(
-          imageVector = Icons.Filled.Add,
-          contentDescription = stringResource(id = R.string.description_button_add)
-        )
-      }
     }
-  ) { contentPadding ->
-    val posts by viewModel.posts.collectAsStateWithLifecycle()
-    
-    FeedList(
-      modifier = modifier.padding(contentPadding),
-      posts = posts,
-      onPostClick = onPostClick
-    )
-  }
+
+    // Scaffold layout with a top bar, menu, and floating action button
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+
+            TopAppBar(
+                title = {
+                    Text(stringResource(id = R.string.title_homeScreen))
+                },
+                actions = {
+
+                    IconButton(onClick = { showMenu = !showMenu }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = stringResource(id = R.string.contentDescription_more)
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+
+                        DropdownMenuItem(
+                            onClick = {
+                                navigateToSettings()
+                                showMenu = false
+                            },
+                            text = {
+                                Text(
+                                    text = stringResource(id = R.string.title_settingsScreen)
+                                )
+                            }
+                        )
+
+                        DropdownMenuItem(
+                            onClick = {
+                                showMenu = false
+                                if (homeScreenState.isUserLoggedIn) {
+                                    navigateToUserAccount()
+                                } else {
+                                    navigateToSplash()
+                                }
+                            },
+                            text = {
+                                Text(
+                                    stringResource(id = R.string.title_my_account)
+                                )
+                            }
+                        )
+
+                    }
+                }
+            )
+        },
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    if (homeScreenState.isUserLoggedIn) {
+                        navigateToAdd()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            R.string.toast_user_not_logged_in,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = stringResource(id = R.string.description_button_add)
+                )
+            }
+        }
+    ) { contentPadding ->
+        val posts = when (homeScreenState) {
+            is HomeScreenState.DisplayPosts -> (homeScreenState as HomeScreenState.DisplayPosts).posts
+            else -> emptyList()
+        }
+
+        FeedList(
+            modifier = modifier.padding(contentPadding),
+            posts = posts,
+            onPostClick = navigateToPostDetails
+        )
+    }
 }
 
+/**
+ * Displays a list of posts in a LazyColumn.
+ *
+ * @param modifier Modifier to apply to the list.
+ * @param posts List of posts to display.
+ * @param onPostClick Function to handle post click events.
+ */
 @Composable
 private fun FeedList(
-  modifier: Modifier = Modifier,
-  posts: List<Post>,
-  onPostClick: (Post) -> Unit,
+    modifier: Modifier = Modifier,
+    posts: List<Post>,
+    onPostClick: (String) -> Unit,
 ) {
-  LazyColumn(
-    modifier = modifier.padding(8.dp),
-    verticalArrangement = Arrangement.spacedBy(8.dp),
-  ) {
-    items(posts) { post ->
-      FeedCell(
-        post = post,
-        onPostClick = onPostClick
-      )
+    LazyColumn(
+        modifier = modifier.padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        items(posts) { post ->
+            FeedCell(
+                post = post,
+                onPostClick = onPostClick
+            )
+        }
     }
-  }
 }
 
+/**
+ * Displays a single post in a card layout.
+ *
+ * @param post The post to display.
+ * @param onPostClick Function to handle click events for the post.
+ */
 @Composable
 private fun FeedCell(
-  post: Post,
-  onPostClick: (Post) -> Unit,
+    post: Post,
+    onPostClick: (String) -> Unit,
 ) {
-  ElevatedCard(
-    modifier = Modifier.fillMaxWidth(),
-    onClick = {
-      onPostClick(post)
-    }) {
-    Column(
-      modifier = Modifier.padding(8.dp),
-    ) {
-      Text(
-        text = stringResource(
-          id = R.string.by,
-          post.author?.firstname ?: "",
-          post.author?.lastname ?: ""
-        ),
-        style = MaterialTheme.typography.titleSmall
-      )
-      Text(
-        text = post.title,
-        style = MaterialTheme.typography.titleLarge
-      )
-      if (!post.photoUrl.isNullOrEmpty()) {
-        AsyncImage(
-          modifier = Modifier
-            .padding(top = 8.dp)
-            .fillMaxWidth()
-            .heightIn(max = 200.dp)
-            .aspectRatio(ratio = 16 / 9f),
-          model = post.photoUrl,
-          imageLoader = LocalContext.current.imageLoader.newBuilder()
-            .logger(DebugLogger())
-            .build(),
-          placeholder = ColorPainter(Color.DarkGray),
-          contentDescription = "image",
-          contentScale = ContentScale.Crop,
-        )
-      }
-      if (!post.description.isNullOrEmpty()) {
-        Text(
-          text = post.description,
-          style = MaterialTheme.typography.bodyMedium
-        )
-      }
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = {
+            onPostClick(post.id)
+        }) {
+        Column(
+            modifier = Modifier.padding(8.dp),
+        ) {
+            Text(
+                text = stringResource(
+                    id = R.string.by,
+                    post.author?.firstname ?: "",
+                    post.author?.lastname ?: ""
+                ),
+                style = MaterialTheme.typography.titleSmall
+            )
+            Text(
+                text = post.title,
+                style = MaterialTheme.typography.titleLarge
+            )
+            if (post.photoUrl.isNotEmpty()) {
+                AsyncImage(
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth()
+                        .heightIn(max = 200.dp)
+                        .aspectRatio(ratio = 16 / 9f),
+                    model = post.photoUrl,
+                    imageLoader = LocalContext.current.imageLoader.newBuilder()
+                        .logger(DebugLogger())
+                        .build(),
+                    placeholder = ColorPainter(Color.DarkGray),
+                    contentDescription = "image",
+                    contentScale = ContentScale.Crop,
+                )
+            }
+            if (!post.description.isNullOrEmpty()) {
+                Text(
+                    text = post.description,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
     }
-  }
+}
+
+// A helper function to generate a valid random timestamp
+fun generateValidTimestamp(): Timestamp {
+    val validSeconds = Random.nextLong(-62135596800, 253402300799)
+    return Timestamp(validSeconds, 0)
 }
 
 // PREVIEWS
 
-@PreviewLightDark
-//@PreviewScreenSizes
+@Preview
 @Composable
 private fun FeedCellPreview() {
-  HexagonalGamesTheme {
-    FeedCell(
-      post = Post(
-        id = "1",
-        title = "title",
-        description = "description",
-        photoUrl = null,
-        timestamp = 1,
-        author = User(
-          id = "1",
-          firstname = "firstname",
-          lastname = "lastname"
+    HexagonalGamesTheme {
+        FeedCell(
+            post = Post(
+                id = "1",
+                title = "title",
+                description = "description",
+                photoUrl = "",
+                timestamp = generateValidTimestamp().seconds,
+                author = User(
+                    id = "1",
+                    firstname = "firstname",
+                    lastname = "lastname",
+                    email = ""
+                )
+            ),
+            onPostClick = {}
         )
-      ),
-      onPostClick = {}
-    )
-  }
+    }
 }
 
-@PreviewLightDark
-//@PreviewScreenSizes
+@Preview
 @Composable
 private fun FeedCellImagePreview() {
-  HexagonalGamesTheme {
-    FeedCell(
-      post = Post(
-        id = "1",
-        title = "title",
-        description = null,
-        photoUrl = "https://picsum.photos/id/85/1080/",
-        timestamp = 1,
-        author = User(
-          id = "1",
-          firstname = "firstname",
-          lastname = "lastname"
+    HexagonalGamesTheme {
+        FeedCell(
+            post = Post(
+                id = "1",
+                title = "title",
+                description = null,
+                photoUrl = "https://picsum.photos/id/85/1080/",
+                timestamp = generateValidTimestamp().seconds,
+                author = User(
+                    id = "1",
+                    firstname = "firstname",
+                    lastname = "lastname",
+                    email = ""
+                )
+            ),
+            onPostClick = {}
         )
-      ),
-      onPostClick = {}
-    )
-  }
+    }
 }

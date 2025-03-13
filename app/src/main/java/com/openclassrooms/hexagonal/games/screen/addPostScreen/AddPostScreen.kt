@@ -1,7 +1,8 @@
-package com.openclassrooms.hexagonal.games.screen.addScreen
+package com.openclassrooms.hexagonal.games.screen.addPostScreen
 
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,30 +26,67 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.openclassrooms.hexagonal.games.R
 import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
 
+/**
+ * This Composable represents the AddPost screen where users can create a new post.
+ * It manages UI state, interacts with the ViewModel, and navigates based on the result of actions.
+ * It handles scenarios such as no internet connection, error states, and successful post creation.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddScreen(
+fun AddPostScreen(
     modifier: Modifier = Modifier,
-    viewModel: AddScreenViewModel = hiltViewModel(),
-    navigateToPrevious: () -> Unit,
-    onSaveClick: () -> Unit
+    viewModel: AddPostScreenViewModel,
+    navigateToHome: () -> Unit
 ) {
+
+    val context = LocalContext.current
+    val addPostScreenState by viewModel.addPostScreenState.collectAsState()
+
+    // Effect to show toast messages or navigate based on the post state.
+    LaunchedEffect(addPostScreenState) {
+        when (addPostScreenState) {
+            is AddPostScreenState.AddPostNoInternet -> {
+                Toast.makeText(
+                    context,
+                    R.string.toast_no_network,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            is AddPostScreenState.AddPostError -> {
+                Toast.makeText(
+                    context,
+                    R.string.toast_add_post_error,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            is AddPostScreenState.AddPostSuccess -> {
+                navigateToHome()
+            }
+
+            else -> Unit
+        }
+    }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -58,7 +96,7 @@ fun AddScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        navigateToPrevious()
+                        navigateToHome()
                     }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -73,10 +111,10 @@ fun AddScreen(
         val error by viewModel.error.collectAsStateWithLifecycle()
 
 
-        // Vérifie la disponibilité du Photo Picker
+        /// Check if the Photo Picker is available for Android 13 and later
         val isPhotoPickerAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
 
-        // Sélecteur d'image pour Android 13 - API 33 et versions ultérieures
+        // Image Picker for Android 13 and later (API 33+)
         val pickVisualMediaLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.PickVisualMedia()
         ) { uri ->
@@ -86,7 +124,7 @@ fun AddScreen(
             } ?: Log.d("PhotoPicker", "No media selected")
         }
 
-        // Sélecteur d'image pour Android 12 - API 32 et versions antérieures
+        // Image Picker for Android 12 and earlier (API 32-)
         val getContentLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
         ) { uri ->
@@ -103,10 +141,7 @@ fun AddScreen(
             onTitleChanged = { viewModel.onAction(FormEvent.TitleChanged(it)) },
             description = post.description ?: "",
             onDescriptionChanged = { viewModel.onAction(FormEvent.DescriptionChanged(it)) },
-            onSaveClicked = {
-                viewModel.addPost()
-                onSaveClick()
-            },
+            onSaveClicked = { viewModel.addPost() },
             onSelectPhotoClicked = {
                 if (isPhotoPickerAvailable) {
                     pickVisualMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -114,11 +149,15 @@ fun AddScreen(
                     getContentLauncher.launch("image/*")
                 }
             },
-            photoUrl = post.photoUrl ?: ""
+            photoUrl = post.photoUrl
         )
     }
 }
 
+/**
+ * Composable that represents the form for creating a post.
+ * It includes input fields for title and description, an image picker, and a save button.
+ */
 @Composable
 private fun CreatePost(
     modifier: Modifier = Modifier,

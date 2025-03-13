@@ -21,7 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -30,12 +30,22 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.openclassrooms.hexagonal.games.R
 import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
 
+/**
+ * SettingsScreen composable that displays the settings screen of the app.
+ *
+ * This screen consists of a top app bar with a back navigation icon, and settings options
+ * for enabling or disabling notifications.
+ *
+ * @param modifier The modifier to be applied to the screen.
+ * @param viewModel The view model for managing settings logic.
+ * @param navigateToPrevious Function to navigate to the previous screen.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-  modifier: Modifier = Modifier,
-  viewModel: SettingsViewModel = hiltViewModel(),
-  onBackClick: () -> Unit
+    modifier: Modifier = Modifier,
+    viewModel: SettingsViewModel = hiltViewModel(),
+    navigateToPrevious: () -> Unit
 ) {
   Scaffold(
     modifier = modifier,
@@ -46,7 +56,7 @@ fun SettingsScreen(
         },
         navigationIcon = {
           IconButton(onClick = {
-            onBackClick()
+            navigateToPrevious()
           }) {
             Icon(
               imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -67,6 +77,16 @@ fun SettingsScreen(
   }
 }
 
+/**
+ * Composable function that handles the settings options for enabling or disabling notifications.
+ *
+ * It checks the permission status for posting notifications on devices running Android 13 and above.
+ * It displays buttons for enabling and disabling notifications based on the permission status.
+ *
+ * @param modifier The modifier to be applied to the settings UI.
+ * @param onNotificationEnabledClicked Lambda to be invoked when the enable notification button is clicked.
+ * @param onNotificationDisabledClicked Lambda to be invoked when the disable notification button is clicked.
+ */
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun Settings(
@@ -115,9 +135,7 @@ private fun Settings(
 }
 
 // PREVIEWS
-
-@PreviewLightDark
-//@PreviewScreenSizes
+@Preview
 @Composable
 private fun SettingsPreview() {
   HexagonalGamesTheme {

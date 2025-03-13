@@ -55,6 +55,10 @@
   <string name="by">Par %1$s %2$s</string>
   <string name="description_button_add">Ajout</string>
   <string name="contentDescription_more">Plus</string>
+  <string name="title_my_account">Mon compte</string>
+  <string name="toast_no_network">Pas de réseau</string>
+  <string name="toast_no_posts">Aucune publication</string>
+  <string name="toast_user_not_logged_in">Un compte est nécessaire pour ajouter une publication</string>
 
   <!-- AddScreen -->
   <string name="title_addScreen">Ajout d\'une publication</string>
@@ -65,6 +69,7 @@
   <string name="title_select_photo_button">Sélectionner une photo</string>
   <string name="error_description">Description non valide</string>
   <string name="error_photo">Photo non valide</string>
+  <string name="toast_add_post_error">Une erreur est survenue</string>
 
   <!-- SettingsScreen -->
   <string name="title_settingsScreen">Paramètres</string>

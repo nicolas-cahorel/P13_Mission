@@ -25,13 +25,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.hexagonal.games.R
 
+/**
+ * Composable function that displays the Sign In or Sign Up screen.
+ *
+ * The screen shows a text field for entering an email, a button to proceed, and a top app bar.
+ * Based on the state of the screen, it navigates to either the sign-in or sign-up screen, or shows error messages via Toast.
+ *
+ * @param viewModel The view model that handles the business logic for sign-in or sign-up.
+ * @param navigateToSignUp Function to navigate to the sign-up screen with the email.
+ * @param navigateToSignIn Function to navigate to the sign-in screen with the email.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInOrUpScreen(
@@ -40,17 +49,25 @@ fun SignInOrUpScreen(
     navigateToSignIn: (email: String) -> Unit
 ) {
     val context = LocalContext.current
-    val uiState by viewModel.signInOrUpScreenState.collectAsState()
+    val signInOrUpScreenState by viewModel.signInOrUpScreenState.collectAsState()
     var email by remember { mutableStateOf(TextFieldValue("")) }
 
-    LaunchedEffect(uiState) {
-        when (uiState) {
+    LaunchedEffect(signInOrUpScreenState) {
+        when (signInOrUpScreenState) {
             is SignInOrUpScreenState.AccountExists -> navigateToSignIn(email.text)
             is SignInOrUpScreenState.AccountDoNotExists -> navigateToSignUp(email.text)
             is SignInOrUpScreenState.Error -> {
                 Toast.makeText(
                     context,
-                    (uiState as SignInOrUpScreenState.Error).message,
+                    R.string.toast_error,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            is SignInOrUpScreenState.NoNetwork -> {
+                Toast.makeText(
+                    context,
+                    R.string.toast_no_internet,
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -94,14 +111,15 @@ fun SignInOrUpScreen(
                 modifier = Modifier.fillMaxWidth(),
                 label = {
                     Text(
-                        text = when (uiState) {
-                            is SignInOrUpScreenState.InvalidInput -> (uiState as SignInOrUpScreenState.InvalidInput).textFieldLabel
+                        text = when (signInOrUpScreenState) {
+                            is SignInOrUpScreenState.ValidInput -> ""
+                            is SignInOrUpScreenState.InvalidInput -> stringResource(R.string.error_email_format)
                             else -> ""
                         }
                     )
                 },
                 colors = TextFieldDefaults.colors(
-                    focusedLabelColor = if (uiState is SignInOrUpScreenState.InvalidInput) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                    focusedLabelColor = if (signInOrUpScreenState is SignInOrUpScreenState.InvalidInput) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                 )
             )
 
@@ -109,7 +127,7 @@ fun SignInOrUpScreen(
 
             Button(
                 onClick = { viewModel.onButtonClicked(email.text) },
-                enabled = uiState is SignInOrUpScreenState.ValidInput,
+                enabled = signInOrUpScreenState is SignInOrUpScreenState.ValidInput,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.signInOrUp_button))
@@ -118,3 +136,5 @@ fun SignInOrUpScreen(
         }
     }
 }
+
+//PREVIEW A FAIRE

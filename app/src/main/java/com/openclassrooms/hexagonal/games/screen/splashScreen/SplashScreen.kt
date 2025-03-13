@@ -1,5 +1,6 @@
 package com.openclassrooms.hexagonal.games.screen.splashScreen
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,12 +22,24 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.openclassrooms.hexagonal.games.R
 
+/**
+ * Composable function to display the SplashScreen.
+ *
+ * This screen is displayed when the app is first launched. It shows the app's logo and provides
+ * a button to navigate either to the login/signup screen or the home screen based on the user's
+ * login state.
+ *
+ * @param viewModel The [SplashScreenViewModel] which holds the state of the splash screen.
+ * @param navigateToLoginOrSignUp A lambda function that navigates to the login/signup screen.
+ * @param navigateToHome A lambda function that navigates to the home screen.
+ */
 @Composable
 fun SplashScreen(
     viewModel: SplashScreenViewModel,
     navigateToLoginOrSignUp: () -> Unit,
     navigateToHome: () -> Unit
 ) {
+    // Collect the state from the viewModel to determine the user's login status
     val splashScreenState by viewModel.splashScreenState.collectAsState()
 
     Box(
@@ -55,9 +68,10 @@ fun SplashScreen(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally),
                 onClick = {
+                    Log.d("Nicolas", "splashScreenState: $splashScreenState")
                     when (splashScreenState) {
                         is SplashScreenState.UserIsLoggedIn -> navigateToHome()
-                        is SplashScreenState.UserIsNotLoggedIn -> navigateToLoginOrSignUp ()
+                        is SplashScreenState.UserIsNotLoggedIn -> navigateToLoginOrSignUp()
                     }
                 }) {
                 Text(stringResource(R.string.title_signIn_button))
@@ -66,3 +80,4 @@ fun SplashScreen(
     }
 }
 
+//PREVIEW A FAIRE

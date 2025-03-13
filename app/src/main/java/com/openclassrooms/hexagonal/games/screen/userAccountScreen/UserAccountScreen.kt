@@ -29,6 +29,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.hexagonal.games.R
 
+/**
+ * UserAccountScreen Composable function that represents the UI for managing user account actions.
+ *
+ * This screen provides options to sign out or delete the user account. It listens for updates
+ * from the ViewModel and performs the necessary actions based on the user's choice.
+ * It also displays feedback using Toast messages for error cases.
+ *
+ * @param viewModel The ViewModel that holds the business logic for the user account actions.
+ * @param navigateToPrevious A callback to navigate to the previous screen.
+ * @param navigateToSplash A callback to navigate to the splash screen (e.g., after sign out or delete).
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserAccountScreen(
@@ -37,69 +48,73 @@ fun UserAccountScreen(
     navigateToSplash: () -> Unit
 ) {
     val context = LocalContext.current
-    val uiState by viewModel.userAccountScreenState.collectAsState()
+    val userAccountScreenState by viewModel.userAccountScreenState.collectAsState()
 
-    LaunchedEffect(uiState) {
-        when (uiState) {
-            is UserAccountScreenState.UserDeleted -> navigateToSplash()
-            is UserAccountScreenState.UserSignedOut -> navigateToSplash()
-                is UserAccountScreenState.Error -> {
-                    Toast.makeText(
-                        context,
-                        (uiState as UserAccountScreenState.Error).message,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                else -> Unit
+    LaunchedEffect(userAccountScreenState) {
+        when (userAccountScreenState) {
+            is UserAccountScreenState.DeleteUserSuccess -> navigateToSplash()
+            is UserAccountScreenState.SignOutUserSuccess -> navigateToSplash()
+            is UserAccountScreenState.DeleteUserError,
+            is UserAccountScreenState.SignOutUserError -> {
+                Toast.makeText(
+                    context,
+                    R.string.toast_error,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
+
+            else -> Unit
+        }
+    }
+
+    Scaffold(
+
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.title_userAccount_topAppBar)) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                navigationIcon = {
+                    IconButton(onClick = { navigateToPrevious() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.backButton_topAppBar_description),
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
+            )
         }
 
-        Scaffold(
+    ) { paddingValues ->
 
-            topBar = {
-                TopAppBar(
-                    title = { Text(stringResource(R.string.title_userAccount_topAppBar)) },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary
-                    ),
-                    navigationIcon = {
-                        IconButton(onClick = { navigateToPrevious() }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.backButton_topAppBar_description),
-                                tint = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                    }
-                )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+
+            Button(
+                onClick = { viewModel.onSignOutButtonClicked() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.title_signOut_button))
             }
 
-        ) { paddingValues ->
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center
+            Button(
+                onClick = { viewModel.onDeleteButtonClicked() },
+                modifier = Modifier.fillMaxWidth()
             ) {
-
-                Button(
-                    onClick = { viewModel.onSignOutButtonClicked() },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.title_signOut_button))
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = { viewModel.onDeleteButtonClicked() },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.title_deleteAccount_button))
-                }
+                Text(stringResource(R.string.title_deleteAccount_button))
             }
         }
     }
+}
+
+//PREVIEW A FAIRE

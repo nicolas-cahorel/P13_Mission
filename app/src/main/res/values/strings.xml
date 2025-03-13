@@ -6,6 +6,7 @@
     <string name="toast_no_internet">Network error, check your Internet connection</string>
     <string name="backButton_topAppBar_description">Back</string>
     <string name="default_notification_channel_id">Hexagonal Games notification</string>
+    <string name="toast_no_network">No network</string>
 
 
     <!-- LoginScreen -->
@@ -56,6 +57,9 @@
     <string name="by">By %1$s %2$s</string>
     <string name="description_button_add">Add</string>
     <string name="contentDescription_more">More</string>
+    <string name="title_my_account">My account</string>
+    <string name="toast_no_posts">No posts</string>
+    <string name="toast_user_not_logged_in">An account is mandatory in order to add a post</string>
 
     <!-- AddScreen -->
     <string name="title_addScreen">Add a post</string>
@@ -66,6 +70,8 @@
     <string name="title_select_photo_button">Select a photo</string>
     <string name="error_description">Invalid description</string>
     <string name="error_photo">Invalid photo</string>
+    <string name="toast_add_post_error">An issue occurred</string>
+
 
     <!-- SettingsScreen -->
     <string name="title_settingsScreen">Settings</string>

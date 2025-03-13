@@ -1,8 +1,5 @@
 package com.openclassrooms.hexagonal.games.screen.signUpScreen
 
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,12 +38,21 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.firebase.auth.FirebaseAuth
 import com.openclassrooms.hexagonal.games.R
-import com.openclassrooms.hexagonal.games.screen.signInScreen.SignInScreenState
 
+/**
+ * Composable function for the Sign-Up Screen UI.
+ *
+ * This screen allows users to sign up by providing a name and password. It also includes validation for
+ * the inputs and shows appropriate error messages when the inputs are invalid. The user will be navigated
+ * to the home screen upon successful sign-up or shown an error message if the sign-up fails.
+ *
+ * @param viewModel The ViewModel to manage the state and actions for sign-up.
+ * @param navigateToHome Lambda function to navigate to the home screen on successful sign-up.
+ * @param navigateToSplash Lambda function to navigate back to the splash screen.
+ * @param email The email that has already been entered and will be displayed in a non-editable TextField.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
@@ -56,27 +62,29 @@ fun SignUpScreen(
     email: String
 ) {
     val context = LocalContext.current
-    val uiState by viewModel.signUpScreenState.collectAsState()
+    val signUpScreenState by viewModel.signUpScreenState.collectAsState()
     var name by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
     var isPasswordVisible by remember { mutableStateOf(false) }
 
-    LaunchedEffect(uiState) {
-        when (uiState) {
+    // Effect to navigate or show error based on sign-up state
+    LaunchedEffect(signUpScreenState) {
+        when (signUpScreenState) {
             is SignUpScreenState.SignUpSuccess -> navigateToHome()
             is SignUpScreenState.SignUpError -> {
                 Toast.makeText(
                     context,
-                    (uiState as SignUpScreenState.SignUpError).message,
+                    R.string.toast_create_account_error,
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            else -> Unit
+
+            else -> {}
         }
     }
 
+    // Scaffold provides basic structure for the layout, including the top bar
     Scaffold(
-
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.title_signUp_topAppBar)) },
@@ -136,13 +144,21 @@ fun SignUpScreen(
                 modifier = Modifier.fillMaxWidth(),
                 label = {
                     Text(
-                        text = (uiState as? SignUpScreenState.InvalidInput)?.takeIf { !it.isNameValid }?.nameTextFieldLabel ?: "")
+                        text = when {
+                            signUpScreenState is SignUpScreenState.InvalidInput && (signUpScreenState as SignUpScreenState.InvalidInput).isNameEmpty ->
+                                stringResource(R.string.error_name_empty)
+
+                            else -> ""
+                        }
+                    )
                 },
+
                 colors = TextFieldDefaults.colors(
-                    focusedLabelColor = if (uiState is SignUpScreenState.InvalidInput && !(uiState as SignUpScreenState.InvalidInput).isNameValid) {
-                        MaterialTheme.colorScheme.error
-                    } else {
-                        MaterialTheme.colorScheme.primary
+                    focusedLabelColor = when {
+                        signUpScreenState is SignUpScreenState.InvalidInput && (signUpScreenState as SignUpScreenState.InvalidInput).isNameEmpty ->
+                            MaterialTheme.colorScheme.error
+
+                        else -> MaterialTheme.colorScheme.primary
                     }
                 )
             )
@@ -162,15 +178,32 @@ fun SignUpScreen(
                 modifier = Modifier.fillMaxWidth(),
                 label = {
                     Text(
-                        text = (uiState as? SignUpScreenState.InvalidInput)?.takeIf { !it.isPasswordValid }?.passwordTextFieldLabel ?: "")
-                         },
+                        text = when {
+                            signUpScreenState is SignUpScreenState.InvalidInput && (signUpScreenState as SignUpScreenState.InvalidInput).isPasswordEmpty ->
+                                stringResource(R.string.error_password_empty)
+
+                            signUpScreenState is SignUpScreenState.InvalidInput && !(signUpScreenState as SignUpScreenState.InvalidInput).isPasswordFormatCorrect ->
+                                stringResource(R.string.error_password_format)
+
+                            else -> ""
+                        }
+                    )
+                },
                 colors = TextFieldDefaults.colors(
-                    focusedLabelColor = if (uiState is SignUpScreenState.InvalidInput && !(uiState as SignUpScreenState.InvalidInput).isPasswordValid) {
-                        MaterialTheme.colorScheme.error
-                    } else {
-                        MaterialTheme.colorScheme.primary
+
+
+                    focusedLabelColor = when (signUpScreenState) {
+                        is SignUpScreenState.InvalidInput ->
+                            when {
+                                (signUpScreenState as SignUpScreenState.InvalidInput).isPasswordEmpty -> MaterialTheme.colorScheme.error
+                                !(signUpScreenState as SignUpScreenState.InvalidInput).isPasswordFormatCorrect -> MaterialTheme.colorScheme.error
+                                else -> MaterialTheme.colorScheme.primary
+                            }
+
+                        else -> MaterialTheme.colorScheme.primary
                     }
                 ),
+
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -186,8 +219,8 @@ fun SignUpScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { viewModel.onButtonClicked(email, password.text) },
-                enabled = uiState is SignUpScreenState.ValidInput,
+                onClick = { viewModel.onButtonClicked(email) },
+                enabled = signUpScreenState is SignUpScreenState.ValidInput,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.title_signUp_button))
@@ -195,3 +228,5 @@ fun SignUpScreen(
         }
     }
 }
+
+//PREVIEW A FAIRE

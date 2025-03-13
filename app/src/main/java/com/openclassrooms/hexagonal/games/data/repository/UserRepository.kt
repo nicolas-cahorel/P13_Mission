@@ -1,160 +1,77 @@
 package com.openclassrooms.hexagonal.games.data.repository
 
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
-import com.google.firebase.auth.UserProfileChangeRequest
-import com.openclassrooms.hexagonal.games.R
+import com.openclassrooms.hexagonal.games.data.service.UserApi
 import com.openclassrooms.hexagonal.games.domain.model.User
-import com.openclassrooms.hexagonal.games.utils.ResourceProvider
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Repository for managing user-related operations.
+ * This class provides an abstraction layer between the data source (UserApi)
+ * and the rest of the application, ensuring clean architecture principles.
+ * It is marked as a Singleton to ensure a single instance is used throughout the app.
+ *
+ * @param userApi The API interface for handling user operations.
+ */
 @Singleton
 class UserRepository @Inject constructor(
-    private val resourceProvider: ResourceProvider
+    private val userApi: UserApi
 ) {
 
-    private val auth = FirebaseAuth.getInstance()
+    /**
+     * Creates a new user in Firebase.
+     *
+     * @param user The user data to be created.
+     * @return A [Flow] emitting the result of the user creation operation.
+     */
+    fun createUser(user: User): Flow<UserResult> = userApi.createUser(user)
 
-    // fonction ok
-    fun createUser(user: User) = flow {
-        try {
+    /**
+     * Reads the currently authenticated user from Firebase.
+     *
+     * @return A [Flow] emitting the result of the user retrieval operation.
+     */
+    fun readUser(): Flow<UserResult> = userApi.readUser()
 
-            if (user.email.isNullOrEmpty() || user.password.isNullOrEmpty()) {
-                emit(
-                    UserRepositoryState.CreateUserError(resourceProvider.getString(R.string.toast_create_account_error))
-                )
-                return@flow
-            }
+    /**
+     * Deletes the currently authenticated user from Firebase.
+     *
+     * @return A [Flow] emitting the result of the user deletion operation.
+     */
+    fun deleteUser(): Flow<UserResult> = userApi.deleteUser()
 
-            auth.createUserWithEmailAndPassword(user.email, user.password).await()
-            val firebaseUser = auth.currentUser
+    /**
+     * Signs in a user with the provided email and password.
+     *
+     * @param email The email of the user.
+     * @param password The password of the user.
+     * @return A [Flow] emitting the result of the sign-in operation.
+     */
+    fun signIn(email: String, password: String): Flow<UserResult> = userApi.signIn(email, password)
 
-            if (firebaseUser != null) {
-                firebaseUser.updateProfile(
-                    UserProfileChangeRequest
-                        .Builder()
-                        .setDisplayName("${user.firstname} ${user.lastname}")
-                        .build()
-                ).await()
-                emit(UserRepositoryState.CreateUserSuccess)
-            } else {
-                emit(UserRepositoryState.CreateUserError(resourceProvider.getString(R.string.toast_create_account_error)))
-            }
+    /**
+     * Signs out the currently authenticated user.
+     *
+     * @return A [Flow] emitting the result of the sign-out operation.
+     */
+    fun signOut(): Flow<UserResult> = userApi.signOut()
 
-        } catch (exception: Exception) {
-            emit(
-                UserRepositoryState.CreateUserError(
-                    exception.message ?: resourceProvider.getString(R.string.toast_create_account_error)
-                )
-            )
-        }
-    }
+    /**
+     * Checks if a user exists in Firebase by their email.
+     *
+     * @param email The email to check in Firebase.
+     * @return A [Flow] emitting the result of the existence check operation.
+     */
+    fun doUserExistInFirebase(email: String): Flow<UserResult> =
+        userApi.doUserExistInFirebase(email)
 
-
-    // fonction ok
-    fun readCurrentUser() = flow {
-        try {
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            if (currentUser != null) {
-                val user = User(
-                    id = currentUser.uid,
-                    firstname = currentUser.displayName?.substringBefore(" "),
-                    lastname = currentUser.displayName?.substringAfter(" "),
-                    email = currentUser.email,
-                    password = null
-                )
-                emit(UserRepositoryState.GetUserDataSuccess(user))
-            } else {
-                emit(UserRepositoryState.GetUserDataError("Unable to get user from Firebase"))
-            }
-        } catch (e: Exception) {
-            emit(
-                UserRepositoryState.GetUserDataError(
-                    e.message ?: "Error while reading current user"
-                )
-            )
-        }
-    }
-
-    // fonction ok
-    fun deleteUser() = flow {
-        try {
-            val user = auth.currentUser
-            if (user != null) {
-                user.delete().await()
-                signOut()
-                emit(UserRepositoryState.DeleteUserSuccess)
-            }
-        } catch (e: Exception) {
-            emit(UserRepositoryState.DeleteUserError(resourceProvider.getString(R.string.toast_error)))
-        }
-    }
-
-
-    // fonction ok
-    fun signIn(user: User) = flow {
-        if (!user.email.isNullOrEmpty() && !user.password.isNullOrEmpty()) {
-
-            try {
-                auth.signInWithEmailAndPassword(user.email, user.password).await()
-                emit(UserRepositoryState.SignInSuccess)
-            } catch (e: Exception) {
-
-                if (e is FirebaseAuthException && e.errorCode == "ERROR_WRONG_PASSWORD") {
-                    emit(UserRepositoryState.SignInError(resourceProvider.getString(R.string.error_password_incorrect)))
-                } else {
-                    emit(UserRepositoryState.SignInError(resourceProvider.getString(R.string.error_unknown)))
-                }
-            }
-        }
-    }
-
-
-    // fonction ok
-    fun signOut() = flow {
-        try {
-            auth.signOut()
-            emit(UserRepositoryState.SignOutSuccess)
-        } catch (e: Exception) {
-            emit(
-                UserRepositoryState.SignOutError(
-                    e.message ?: resourceProvider.getString(R.string.toast_error)
-                )
-            )
-        }
-    }
-
-    fun doUserExistInFirebase(email: String) = flow {
-        try {
-            val task = auth.fetchSignInMethodsForEmail(email).await()
-            if (task.signInMethods?.isNotEmpty() == true) {
-                emit(UserRepositoryState.UserFoundInFirebase)
-            } else {
-                emit(UserRepositoryState.UserNotFoundInFirebase)
-            }
-        } catch (exception: Exception) {
-            emit(
-                UserRepositoryState.UserException(
-                    resourceProvider.getString(R.string.toast_error)
-                )
-            )
-        }
-    }
-
-
-    fun recoverPassword(email: String) = flow {
-        try {
-            auth.sendPasswordResetEmail(email).await()
-            emit(UserRepositoryState.RecoverPasswordSuccess)
-        } catch (e: Exception) {
-            emit(UserRepositoryState.RecoverPasswordError(resourceProvider.getString(R.string.toast_error)))
-        }
-    }
-
-
-
+    /**
+     * Initiates a password recovery process for the given email.
+     *
+     * @param email The email of the user who wants to recover their password.
+     * @return A [Flow] emitting the result of the password recovery operation.
+     */
+    fun recoverPassword(email: String): Flow<UserResult> = userApi.recoverPassword(email)
 
 }

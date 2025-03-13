@@ -31,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,6 +41,19 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.hexagonal.games.R
 
+/**
+ * SignInScreen composable function for displaying the sign-in screen UI.
+ *
+ * This screen allows users to input their email and password to sign in.
+ * It shows the sign-in state (success or error) and manages interactions like
+ * password visibility toggle, and navigation to other screens like password recovery or splash screen.
+ *
+ * @param viewModel The view model managing the state and logic of the sign-in screen.
+ * @param navigateToHome Lambda function to navigate to the home screen upon successful sign-in.
+ * @param navigateToPasswordRecovery Lambda function to navigate to the password recovery screen.
+ * @param navigateToSplash Lambda function to navigate back to the splash screen.
+ * @param email The email address of the user, displayed in the welcome message.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(
@@ -52,26 +64,26 @@ fun SignInScreen(
     email: String
 ) {
     val context = LocalContext.current
-    val uiState by viewModel.signInScreenState.collectAsState()
+    val signInScreenState by viewModel.signInScreenState.collectAsState()
     var password by remember { mutableStateOf(TextFieldValue("")) }
     var isPasswordVisible by remember { mutableStateOf(false) }
 
-    LaunchedEffect(uiState) {
-        when (uiState) {
+    LaunchedEffect(signInScreenState) {
+        when (signInScreenState) {
             is SignInScreenState.SignInSuccess -> navigateToHome()
             is SignInScreenState.SignInError -> {
                 Toast.makeText(
                     context,
-                    (uiState as SignInScreenState.SignInError).message,
+                    R.string.error_unknown,
                     Toast.LENGTH_SHORT
                 ).show()
             }
+
             else -> Unit
         }
     }
 
     Scaffold(
-
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.title_signIn_topAppBar)) },
@@ -117,14 +129,14 @@ fun SignInScreen(
                 modifier = Modifier.fillMaxWidth(),
                 label = {
                     Text(
-                        text = when (uiState) {
-                            is SignInScreenState.InvalidInput -> (uiState as SignInScreenState.InvalidInput).textFieldLabel
+                        text = when (signInScreenState) {
+                            is SignInScreenState.InvalidInput -> stringResource(R.string.error_password_empty)
                             else -> stringResource(R.string.title_label_password)
                         }
                     )
                 },
                 colors = TextFieldDefaults.colors(
-                    focusedLabelColor = if (uiState is SignInScreenState.InvalidInput) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                    focusedLabelColor = if (signInScreenState is SignInScreenState.InvalidInput) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                 ),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -142,7 +154,7 @@ fun SignInScreen(
 
             Button(
                 onClick = { viewModel.onButtonClicked(email, password.text) },
-                enabled = uiState is SignInScreenState.ValidInput,
+                enabled = signInScreenState is SignInScreenState.ValidInput,
                 modifier = Modifier.align(Alignment.End)
             ) {
                 Text(stringResource(R.string.title_connect_button))
@@ -162,3 +174,5 @@ fun SignInScreen(
         }
     }
 }
+
+//PREVIEW A FAIRE

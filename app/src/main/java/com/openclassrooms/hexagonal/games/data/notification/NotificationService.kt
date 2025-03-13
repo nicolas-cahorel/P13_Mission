@@ -13,24 +13,37 @@ import com.google.firebase.messaging.RemoteMessage
 import com.openclassrooms.hexagonal.games.R
 import com.openclassrooms.hexagonal.games.ui.MainActivity
 
-
+/**
+ * Service that handles incoming Firebase Cloud Messaging (FCM) push notifications.
+ * It processes the received messages and displays notifications to the user.
+ */
 @SuppressLint("MissingFirebaseInstanceTokenRefresh")
 class NotificationService : FirebaseMessagingService() {
 
     private val notificationId = 7
     private val notificationTag = "Hexagonal Games"
 
+    /**
+     * Called when a new FCM message is received.
+     *
+     * @param remoteMessage The received remote message containing notification details.
+     */
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
+        // If the message contains a notification payload, display it
         remoteMessage.notification?.let { notification ->
-                sendVisualNotification(notification)
+            sendVisualNotification(notification)
         }
     }
 
+    /**
+     * Creates and displays a push notification to the user.
+     *
+     * @param notification The notification payload received from Firebase.
+     */
     private fun sendVisualNotification(notification: RemoteMessage.Notification) {
-        // Create an Intent that will be shown when user will click on the Notification
-
+        // Create an intent to open MainActivity when the notification is clicked
         val intent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this,
@@ -39,7 +52,7 @@ class NotificationService : FirebaseMessagingService() {
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Create a Channel (Android 8)
+        // Retrieve the default notification channel ID from resources
         val channelId = getString(R.string.default_notification_channel_id)
 
         // Build a Notification object
@@ -54,7 +67,7 @@ class NotificationService : FirebaseMessagingService() {
 
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
-        // Support Version >= Android 8
+        // Create a notification channel for Android 8.0+ (API level 26+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channelName: CharSequence = "Firebase Messages"
             val importance = NotificationManager.IMPORTANCE_HIGH
@@ -62,8 +75,7 @@ class NotificationService : FirebaseMessagingService() {
             notificationManager.createNotificationChannel(mChannel)
         }
 
-        // Show notification
+        // Display the notification
         notificationManager.notify(notificationTag, notificationId, notificationBuilder.build())
     }
-
 }

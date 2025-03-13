@@ -8,24 +8,29 @@ import java.io.Serializable
  * serialization needs.
  */
 data class User(
-  /**
-   * Unique identifier for the User.
-   */
-  var id: String?,
-  
-  /**
-   * User's first name.
-   */
-  val firstname: String?,
-  
-  /**
-   * User's last name.
-   */
-  val lastname: String?,
+    /**
+     * Unique identifier for the User.
+     */
+    var id: String = "",
 
-  val email: String?,
+    /**
+     * User's first name.
+     */
+    val firstname: String = "",
 
-  val password: String?
+    /**
+     * User's last name.
+     */
+    val lastname: String = "",
 
+    /**
+     * User's email address.
+     */
+    val email: String = "",
+
+    /**
+     * User's password.
+     */
+    val password: String = ""
 
 ) : Serializable

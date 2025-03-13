@@ -1,84 +1,143 @@
 package com.openclassrooms.hexagonal.games.data.service
 
-import android.net.Uri
 import android.util.Log
-import com.google.firebase.firestore.DocumentReference
+import androidx.core.net.toUri
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.snapshots
 import com.google.firebase.storage.FirebaseStorage
+import com.openclassrooms.hexagonal.games.data.repository.PostResult
 import com.openclassrooms.hexagonal.games.domain.model.Post
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 
 /**
- * Implementation of PostApi using Firebase Firestore and Firebase Storage.
+ * FirebasePostService is an implementation of [PostApi] that provides methods
+ * for interacting with Firebase Firestore and Firebase Storage to manage posts.
  */
 class FirebasePostService : PostApi {
 
-    private val firestore = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    override fun getPostsOrderByCreationDateDesc(): Flow<List<Post>> = flow {
-        try {
-            val snapshot = firestore.collection("posts")
-                .orderBy("timestamp")
-                .get()
-                .await()
+    //        .apply {
+//        firestoreSettings = FirebaseFirestoreSettings.Builder()
+//            .setPersistenceEnabled(false)  // Disable offline cache
+//            .build()
+//    }
+    private val storage: FirebaseStorage = FirebaseStorage.getInstance()
 
-            val posts = snapshot.documents.mapNotNull { it.toObject(Post::class.java) }
-            emit(posts)
-        } catch (e: Exception) {
-            Log.e("FirebasePostService", "Error fetching posts", e)
-            emit(emptyList())
-        }
-    }
-
-    override fun addPost(post: Post) {
-        val postRef = firestore.collection("posts").document()
-        val postId = postRef.id
-
-        val updatedPost = post.copy(id = postId)
-
-        postRef.set(updatedPost)
-            .addOnSuccessListener {
-                Log.d("FirebasePostService", "Post successfully added.")
-            }
-            .addOnFailureListener { e ->
-                Log.e("FirebasePostService", "Failed to add post", e)
-            }
+    init {
+        firestore.clearPersistence() // Ensures no offline caching for fresh data
     }
 
     /**
-     * Adds a post with an image to Firebase Storage and Firestore.
+     * Retrieves all posts ordered by their creation date in descending order.
+     *
+     * @return A Flow emitting [PostResult] containing the list of posts or an error.
      */
-    fun addPostWithImage(post: Post, imageUri: Uri, callback: (Boolean) -> Unit) {
-        val postRef = firestore.collection("posts").document()
-        val postId = postRef.id
-        val imageRef = storage.reference.child("posts/$postId/image.jpg")
-
-        // Upload de l'image
-        imageRef.putFile(imageUri)
-            .addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener { uri ->
-                    val updatedPost = post.copy(id = postId, photoUrl = uri.toString())
-                    savePostToFirestore(postRef, updatedPost, callback)
+    override fun getPostsOrderByCreationDate(): Flow<PostResult> = flow {
+        try {
+            firestore.collection("posts")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .snapshots()
+                .collect { querySnapshot ->
+                    val posts = querySnapshot.toObjects(Post::class.java)
+                    if (posts.isEmpty()) {
+                        emit(PostResult.GetPostsEmpty)
+                    } else {
+                        emit(PostResult.GetPostsSuccess(posts))
+                    }
                 }
-            }
-            .addOnFailureListener { e ->
-                Log.e("FirebasePostService", "Failed to upload image", e)
-                callback(false)
-            }
+        } catch (exception: Exception) {
+            emit(PostResult.GetPostsError(exception))
+        }
     }
 
-    private fun savePostToFirestore(postRef: DocumentReference, post: Post, callback: (Boolean) -> Unit) {
-        postRef.set(post)
+    /**
+     * Uploads a photo associated with a post to Firebase Storage.
+     *
+     * @param post The post containing the photo URL.
+     * @return A Flow emitting [PostResult] indicating success or failure.
+     */
+    override fun addPhoto(post: Post): Flow<PostResult> = flow {
+        try {
+            val imageRef = storage.reference.child("post_images/${post.id}")
+            imageRef.putFile(post.photoUrl.toUri()).await()
+
+            val downloadUri = imageRef.downloadUrl.await().toString()
+            emit(PostResult.AddPhotoSuccess(downloadUri))
+        } catch (exception: Exception) {
+            Log.e("Nicolas", "Error adding photo", exception)
+            emit(PostResult.AddPhotoError(exception))
+        }
+    }
+
+    /**
+     * Adds a post to Firebase Firestore.
+     *
+     * @param post The post to be added.
+     * @return A Flow emitting [PostResult] indicating success or failure.
+     */
+    override fun addPost(post: Post): Flow<PostResult> = flow {
+        val postToSave = hashMapOf(
+            "id" to post.id,
+            "title" to post.title,
+            "description" to post.description,
+            "photoUrl" to post.photoUrl,
+            "timestamp" to post.timestamp,
+            "authorId" to post.author?.id,
+            "authorEmail" to post.author?.email,
+            "authorFirstname" to post.author?.firstname,
+            "authorLastname" to post.author?.lastname
+        )
+
+
+        try {
+            Log.d("Nicolas", "Saving post to Firestore: $post")
+
+            testFirestoreConnection()
+
+            firestore.collection("posts").document(post.id).set(postToSave)
+                .addOnSuccessListener {
+                    Log.d("Nicolas", "addonsuccesslistener.")
+                }
+                .addOnFailureListener {
+                    Log.d("Nicolas", "addonfailurelistener.")
+                }
+                .addOnCanceledListener {
+                    Log.d("Nicolas", "addoncancellistener.")
+                }
+                .addOnCompleteListener {
+                    Log.d("Nicolas", "addoncompletelistener.")
+                }
+            Log.d("Nicolas", "Post successfully saved.")
+            emit(PostResult.AddPostSuccess)
+        } catch (exception: Exception) {
+            Log.e("Nicolas", "Error adding post", exception)
+            emit(PostResult.AddPostError(exception))
+        }
+    }
+
+    /**
+     * Retrieves a specific post.
+     *
+     * @return A Flow emitting [PostResult] with the requested post.
+     */
+    override fun getPost(): Flow<PostResult> {
+        TODO("Not yet implemented")
+    }
+
+    /**
+     * Tests the Firestore connection by writing a test document.
+     */
+    private fun testFirestoreConnection() {
+        firestore.collection("test").document("connection_test").set(hashMapOf("status" to "ok"))
             .addOnSuccessListener {
-                Log.d("FirebasePostService", "Post successfully saved.")
-                callback(true)
+                Log.d("Nicolas", "Firestore connection test: SUCCESS")
             }
-            .addOnFailureListener { e ->
-                Log.e("FirebasePostService", "Failed to save post", e)
-                callback(false)
+            .addOnFailureListener { exception ->
+                Log.e("Nicolas", "Firestore connection test: FAILED", exception)
             }
     }
 }

@@ -30,13 +30,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.hexagonal.games.R
 
+/**
+ * Composable function for the password recovery screen.
+ *
+ * This screen allows users to reset their password by entering their email address.
+ * It provides input validation and displays feedback messages using Toasts and dialogs.
+ *
+ * @param viewModel The ViewModel managing the password recovery logic.
+ * @param navigateToSplash Callback function to navigate back to the splash screen.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordRecoveryScreen(
@@ -44,18 +52,20 @@ fun PasswordRecoveryScreen(
     navigateToSplash: () -> Unit
 ) {
     val context = LocalContext.current
-    val uiState by viewModel.passwordRecoveryScreenState.collectAsState()
+    val passwordRecoveryScreenState by viewModel.passwordRecoveryScreenState.collectAsState()
     var email by remember { mutableStateOf(TextFieldValue("")) }
 
-    LaunchedEffect(uiState) {
-        when (uiState) {
+    // Observes the state and displays an error message if necessary
+    LaunchedEffect(passwordRecoveryScreenState) {
+        when (passwordRecoveryScreenState) {
             is PasswordRecoveryScreenState.Error -> {
                 Toast.makeText(
                     context,
-                    (uiState as PasswordRecoveryScreenState.Error).message,
+                    R.string.toast_error,
                     Toast.LENGTH_SHORT
                 ).show()
             }
+
             else -> Unit
         }
     }
@@ -111,14 +121,15 @@ fun PasswordRecoveryScreen(
                 modifier = Modifier.fillMaxWidth(),
                 label = {
                     Text(
-                        text = when (uiState) {
-                            is PasswordRecoveryScreenState.InvalidInput -> (uiState as PasswordRecoveryScreenState.InvalidInput).textFieldLabel
+                        text = when (passwordRecoveryScreenState) {
+                            is PasswordRecoveryScreenState.InvalidInput -> stringResource(R.string.error_email_format)
+                            is PasswordRecoveryScreenState.EmptyInput -> stringResource(R.string.error_email_empty)
                             else -> ""
                         }
                     )
                 },
                 colors = TextFieldDefaults.colors(
-                    focusedLabelColor = if (uiState is PasswordRecoveryScreenState.InvalidInput) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = if (passwordRecoveryScreenState is PasswordRecoveryScreenState.InvalidInput) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                 )
             )
 
@@ -126,13 +137,13 @@ fun PasswordRecoveryScreen(
 
             Button(
                 onClick = { viewModel.onButtonClicked(email.text) },
-                enabled = uiState is PasswordRecoveryScreenState.ValidInput,
+                enabled = passwordRecoveryScreenState is PasswordRecoveryScreenState.ValidInput,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.title_sendEmail_button))
             }
 
-            if (uiState is PasswordRecoveryScreenState.ShowDialog) {
+            if (passwordRecoveryScreenState is PasswordRecoveryScreenState.ShowDialog) {
                 AlertDialog(
                     onDismissRequest = { viewModel.onDialogButtonClicked() },
                     confirmButton = {
@@ -152,3 +163,5 @@ fun PasswordRecoveryScreen(
         }
     }
 }
+
+//PREVIEW A FAIRE
