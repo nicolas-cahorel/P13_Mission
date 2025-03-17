@@ -16,21 +16,21 @@ data class User(
     /**
      * User's first name.
      */
-    val firstname: String = "",
+    var firstname: String = "",
 
     /**
      * User's last name.
      */
-    val lastname: String = "",
+    var lastname: String = "",
 
     /**
      * User's email address.
      */
-    val email: String = "",
+    var email: String = "",
 
     /**
      * User's password.
      */
-    val password: String = ""
+    var password: String = ""
 
 ) : Serializable

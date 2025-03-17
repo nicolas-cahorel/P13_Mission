@@ -82,14 +82,14 @@ class FirebasePostService : PostApi {
     override fun addPost(post: Post): Flow<PostResult> = flow {
         val postToSave = hashMapOf(
             "id" to post.id,
-            "title" to post.title,
-            "description" to post.description,
-            "photoUrl" to post.photoUrl,
-            "timestamp" to post.timestamp,
-            "authorId" to post.author?.id,
-            "authorEmail" to post.author?.email,
-            "authorFirstname" to post.author?.firstname,
-            "authorLastname" to post.author?.lastname
+//            "title" to post.title,
+//            "description" to post.description,
+//            "photoUrl" to post.photoUrl,
+//            "timestamp" to post.timestamp,
+//            "authorId" to post.author?.id,
+//            "authorEmail" to post.author?.email,
+//            "authorFirstname" to post.author?.firstname,
+//            "authorLastname" to post.author?.lastname
         )
 
 
@@ -98,7 +98,7 @@ class FirebasePostService : PostApi {
 
             testFirestoreConnection()
 
-            firestore.collection("posts").document(post.id).set(postToSave)
+            firestore.collection("posts").add(postToSave)
                 .addOnSuccessListener {
                     Log.d("Nicolas", "addonsuccesslistener.")
                 }
@@ -111,6 +111,20 @@ class FirebasePostService : PostApi {
                 .addOnCompleteListener {
                     Log.d("Nicolas", "addoncompletelistener.")
                 }
+
+//            firestore.collection("posts").document(post.id).set(postToSave)
+//                .addOnSuccessListener {
+//                    Log.d("Nicolas", "addonsuccesslistener.")
+//                }
+//                .addOnFailureListener {
+//                    Log.d("Nicolas", "addonfailurelistener.")
+//                }
+//                .addOnCanceledListener {
+//                    Log.d("Nicolas", "addoncancellistener.")
+//                }
+//                .addOnCompleteListener {
+//                    Log.d("Nicolas", "addoncompletelistener.")
+//                }
             Log.d("Nicolas", "Post successfully saved.")
             emit(PostResult.AddPostSuccess)
         } catch (exception: Exception) {

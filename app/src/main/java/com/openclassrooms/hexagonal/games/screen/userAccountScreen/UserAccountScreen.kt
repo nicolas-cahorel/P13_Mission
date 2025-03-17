@@ -21,8 +21,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -30,25 +28,26 @@ import androidx.compose.ui.unit.dp
 import com.openclassrooms.hexagonal.games.R
 
 /**
- * UserAccountScreen Composable function that represents the UI for managing user account actions.
+ * Displays the user account management screen UI.
  *
- * This screen provides options to sign out or delete the user account. It listens for updates
- * from the ViewModel and performs the necessary actions based on the user's choice.
- * It also displays feedback using Toast messages for error cases.
+ * This composable function provides options for users to sign out or delete their account.
+ * It listens for updates from the ViewModel and executes the appropriate actions based on user input.
+ * Feedback messages, including error notifications, are displayed using Toasts.
  *
- * @param viewModel The ViewModel that holds the business logic for the user account actions.
- * @param navigateToPrevious A callback to navigate to the previous screen.
- * @param navigateToSplash A callback to navigate to the splash screen (e.g., after sign out or delete).
+ * @param viewModel The ViewModel managing the business logic for user account actions.
+ * @param userAccountScreenState The current state of the user account screen, including UI state and action status.
+ * @param navigateToPrevious Lambda function invoked to navigate back to the previous screen.
+ * @param navigateToSplash Lambda function invoked to navigate to the splash screen (e.g., after signing out or deleting the account).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserAccountScreen(
     viewModel: UserAccountScreenViewModel,
+    userAccountScreenState: UserAccountScreenState,
     navigateToPrevious: () -> Unit,
     navigateToSplash: () -> Unit
 ) {
     val context = LocalContext.current
-    val userAccountScreenState by viewModel.userAccountScreenState.collectAsState()
 
     LaunchedEffect(userAccountScreenState) {
         when (userAccountScreenState) {

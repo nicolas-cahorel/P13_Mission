@@ -1,6 +1,8 @@
 package com.openclassrooms.hexagonal.games.screen.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -8,6 +10,7 @@ import androidx.navigation.compose.composable
 import com.openclassrooms.hexagonal.games.screen.addPostScreen.AddPostScreen
 import com.openclassrooms.hexagonal.games.screen.addPostScreen.AddPostScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.homeScreen.HomeScreen
+import com.openclassrooms.hexagonal.games.screen.homeScreen.HomeScreenState
 import com.openclassrooms.hexagonal.games.screen.homeScreen.HomeScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.passwordRecoveryScreen.PasswordRecoveryScreen
 import com.openclassrooms.hexagonal.games.screen.passwordRecoveryScreen.PasswordRecoveryScreenViewModel
@@ -38,8 +41,9 @@ fun Navigation(navController: NavHostController) {
 
         composable(Routes.SplashScreen.route) {
             val splashScreenViewModel: SplashScreenViewModel = hiltViewModel()
+            val splashScreenState by splashScreenViewModel.splashScreenState.collectAsState()
             SplashScreen(
-                viewModel = splashScreenViewModel,
+                splashScreenState = splashScreenState,
                 navigateToHome = {
                     navController.navigate(Routes.HomeScreen.route)
                 },
@@ -51,8 +55,10 @@ fun Navigation(navController: NavHostController) {
 
         composable(route = Routes.SignInOrUpScreen.route) {
             val signInOrUpScreenViewModel: SignInOrUpScreenViewModel = hiltViewModel()
+            val signInOrUpScreenState by signInOrUpScreenViewModel.signInOrUpScreenState.collectAsState()
             SignInOrUpScreen(
                 viewModel = signInOrUpScreenViewModel,
+                signInOrUpScreenState = signInOrUpScreenState,
                 navigateToSignIn = { email ->
                     navController.navigate("SignInScreen/$email")
                 },
@@ -66,9 +72,11 @@ fun Navigation(navController: NavHostController) {
             val email =
                 backStackEntry.arguments?.getString(Routes.SignInScreen.ARGUMENT)
             val signInScreenViewModel: SignInScreenViewModel = hiltViewModel()
+            val signInScreenState by signInScreenViewModel.signInScreenState.collectAsState()
             if (!email.isNullOrEmpty()) {
                 SignInScreen(
                     viewModel = signInScreenViewModel,
+                    signInScreenState = signInScreenState,
                     email = email,
                     navigateToHome = {
                         navController.navigate(Routes.HomeScreen.route)
@@ -87,9 +95,11 @@ fun Navigation(navController: NavHostController) {
             val email =
                 backStackEntry.arguments?.getString(Routes.SignUpScreen.ARGUMENT)
             val signUpScreenViewModel: SignUpScreenViewModel = hiltViewModel()
+            val signUpScreenState by signUpScreenViewModel.signUpScreenState.collectAsState()
             if (!email.isNullOrEmpty()) {
                 SignUpScreen(
                     viewModel = signUpScreenViewModel,
+                    signUpScreenState = signUpScreenState,
                     email = email,
                     navigateToHome = {
                         navController.navigate(Routes.HomeScreen.route)
@@ -103,8 +113,10 @@ fun Navigation(navController: NavHostController) {
 
         composable(route = Routes.PasswordRecoveryScreen.route) {
             val passwordRecoveryScreenViewModel: PasswordRecoveryScreenViewModel = hiltViewModel()
+            val passwordRecoveryScreenState by passwordRecoveryScreenViewModel.passwordRecoveryScreenState.collectAsState()
             PasswordRecoveryScreen(
                 viewModel = passwordRecoveryScreenViewModel,
+                passwordRecoveryScreenState = passwordRecoveryScreenState,
                 navigateToSplash = {
                     navController.navigate(Routes.SplashScreen.route)
                 }
@@ -113,8 +125,10 @@ fun Navigation(navController: NavHostController) {
 
         composable(route = Routes.UserAccountScreen.route) {
             val userAccountScreenViewModel: UserAccountScreenViewModel = hiltViewModel()
+            val userAccountScreenState by userAccountScreenViewModel.userAccountScreenState.collectAsState()
             UserAccountScreen(
                 viewModel = userAccountScreenViewModel,
+                userAccountScreenState = userAccountScreenState,
                 navigateToPrevious = { navController.navigateUp() },
                 navigateToSplash = {
                     navController.navigate(Routes.SplashScreen.route)
@@ -124,8 +138,9 @@ fun Navigation(navController: NavHostController) {
 
         composable(route = Routes.HomeScreen.route) {
             val homeScreenViewModel: HomeScreenViewModel = hiltViewModel()
+            val homeScreenState by homeScreenViewModel.homeScreenState.collectAsState()
             HomeScreen(
-                viewModel = homeScreenViewModel,
+                homeScreenState = homeScreenState,
                 navigateToPostDetails = { postId ->
                     navController.navigate("PostDetailsScreen/$postId")
                 },
@@ -146,8 +161,10 @@ fun Navigation(navController: NavHostController) {
 
         composable(route = Routes.AddPostScreen.route) {
             val addPostScreenViewModel: AddPostScreenViewModel = hiltViewModel()
+            val addPostScreenState by addPostScreenViewModel.addPostScreenState.collectAsState()
             AddPostScreen(
                 viewModel = addPostScreenViewModel,
+                addPostScreenState = addPostScreenState,
                 navigateToHome = {
                     navController.navigate(Routes.HomeScreen.route)
                 }

@@ -27,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,20 +44,27 @@ import com.openclassrooms.hexagonal.games.R
 import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
 
 /**
- * This Composable represents the AddPost screen where users can create a new post.
- * It manages UI state, interacts with the ViewModel, and navigates based on the result of actions.
- * It handles scenarios such as no internet connection, error states, and successful post creation.
+ * Displays the AddPost screen, allowing users to create a new post.
+ *
+ * This composable function manages the UI state, interacts with the ViewModel, and handles
+ * navigation based on the outcome of user actions. It manages various scenarios, including
+ * no internet connection, error states, and successful post creation.
+ *
+ * @param modifier The modifier for customizing the layout appearance and behavior.
+ * @param viewModel The ViewModel managing the logic and state of the AddPost screen.
+ * @param addPostScreenState The current state of the AddPost screen, including UI state and action status.
+ * @param navigateToHome Lambda function invoked to navigate to the home screen after a successful post creation.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddPostScreen(
     modifier: Modifier = Modifier,
     viewModel: AddPostScreenViewModel,
+    addPostScreenState: AddPostScreenState,
     navigateToHome: () -> Unit
 ) {
 
     val context = LocalContext.current
-    val addPostScreenState by viewModel.addPostScreenState.collectAsState()
 
     // Effect to show toast messages or navigate based on the post state.
     LaunchedEffect(addPostScreenState) {

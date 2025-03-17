@@ -10,8 +10,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,24 +21,22 @@ import coil.compose.AsyncImage
 import com.openclassrooms.hexagonal.games.R
 
 /**
- * Composable function to display the SplashScreen.
+ * Composable function that displays the SplashScreen.
  *
- * This screen is displayed when the app is first launched. It shows the app's logo and provides
- * a button to navigate either to the login/signup screen or the home screen based on the user's
+ * This screen is shown when the app is launched for the first time. It presents the app's logo and includes
+ * a button that allows navigation either to the login/signup screen or the home screen, depending on the user's
  * login state.
  *
- * @param viewModel The [SplashScreenViewModel] which holds the state of the splash screen.
+ * @param splashScreenState The [SplashScreenState] that holds the current state of the splash screen.
  * @param navigateToLoginOrSignUp A lambda function that navigates to the login/signup screen.
  * @param navigateToHome A lambda function that navigates to the home screen.
  */
 @Composable
 fun SplashScreen(
-    viewModel: SplashScreenViewModel,
+    splashScreenState: SplashScreenState,
     navigateToLoginOrSignUp: () -> Unit,
     navigateToHome: () -> Unit
 ) {
-    // Collect the state from the viewModel to determine the user's login status
-    val splashScreenState by viewModel.splashScreenState.collectAsState()
 
     Box(
         modifier = Modifier.fillMaxSize(),

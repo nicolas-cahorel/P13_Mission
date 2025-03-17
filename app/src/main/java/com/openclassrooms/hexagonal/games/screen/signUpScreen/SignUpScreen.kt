@@ -24,7 +24,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,27 +41,29 @@ import androidx.compose.ui.unit.dp
 import com.openclassrooms.hexagonal.games.R
 
 /**
- * Composable function for the Sign-Up Screen UI.
+ * Displays the sign-up screen UI.
  *
- * This screen allows users to sign up by providing a name and password. It also includes validation for
- * the inputs and shows appropriate error messages when the inputs are invalid. The user will be navigated
- * to the home screen upon successful sign-up or shown an error message if the sign-up fails.
+ * This composable function allows users to sign up by providing their name and password.
+ * It includes input validation and displays appropriate error messages for invalid inputs.
+ * Upon successful sign-up, the user is navigated to the home screen, while sign-up failures
+ * trigger an error message.
  *
- * @param viewModel The ViewModel to manage the state and actions for sign-up.
- * @param navigateToHome Lambda function to navigate to the home screen on successful sign-up.
- * @param navigateToSplash Lambda function to navigate back to the splash screen.
- * @param email The email that has already been entered and will be displayed in a non-editable TextField.
+ * @param viewModel The ViewModel managing the state and actions of the sign-up process.
+ * @param signUpScreenState The current state of the sign-up screen, including UI state and validation status.
+ * @param navigateToHome Lambda function invoked to navigate to the home screen upon successful sign-up.
+ * @param navigateToSplash Lambda function invoked to navigate back to the splash screen.
+ * @param email The pre-entered email address, displayed in a non-editable TextField.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
     viewModel: SignUpScreenViewModel,
+    signUpScreenState: SignUpScreenState,
     navigateToHome: () -> Unit,
     navigateToSplash: () -> Unit,
     email: String
 ) {
     val context = LocalContext.current
-    val signUpScreenState by viewModel.signUpScreenState.collectAsState()
     var name by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
     var isPasswordVisible by remember { mutableStateOf(false) }

@@ -24,7 +24,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,29 +41,31 @@ import androidx.compose.ui.unit.dp
 import com.openclassrooms.hexagonal.games.R
 
 /**
- * SignInScreen composable function for displaying the sign-in screen UI.
+ * Displays the sign-in screen UI.
  *
- * This screen allows users to input their email and password to sign in.
- * It shows the sign-in state (success or error) and manages interactions like
- * password visibility toggle, and navigation to other screens like password recovery or splash screen.
+ * This composable function allows users to input their email and password to sign in.
+ * It manages user interactions such as toggling password visibility and navigating
+ * to other screens, including password recovery and the splash screen. Additionally,
+ * it displays the sign-in state (success or error).
  *
- * @param viewModel The view model managing the state and logic of the sign-in screen.
- * @param navigateToHome Lambda function to navigate to the home screen upon successful sign-in.
- * @param navigateToPasswordRecovery Lambda function to navigate to the password recovery screen.
- * @param navigateToSplash Lambda function to navigate back to the splash screen.
- * @param email The email address of the user, displayed in the welcome message.
+ * @param viewModel The ViewModel managing the state and logic of the sign-in screen.
+ * @param signInScreenState The current state of the sign-in screen, including UI state and authentication status.
+ * @param navigateToHome Lambda function invoked to navigate to the home screen upon successful sign-in.
+ * @param navigateToPasswordRecovery Lambda function invoked to navigate to the password recovery screen.
+ * @param navigateToSplash Lambda function invoked to navigate back to the splash screen.
+ * @param email The user's email address, displayed in the welcome message.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(
     viewModel: SignInScreenViewModel,
+    signInScreenState: SignInScreenState,
     navigateToHome: () -> Unit,
     navigateToPasswordRecovery: () -> Unit,
     navigateToSplash: () -> Unit,
     email: String
 ) {
     val context = LocalContext.current
-    val signInScreenState by viewModel.signInScreenState.collectAsState()
     var password by remember { mutableStateOf(TextFieldValue("")) }
     var isPasswordVisible by remember { mutableStateOf(false) }
 

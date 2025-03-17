@@ -24,7 +24,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,22 +36,23 @@ import androidx.compose.ui.unit.dp
 import com.openclassrooms.hexagonal.games.R
 
 /**
- * Composable function for the password recovery screen.
+ * Displays the password recovery screen UI.
  *
- * This screen allows users to reset their password by entering their email address.
- * It provides input validation and displays feedback messages using Toasts and dialogs.
+ * This composable function allows users to reset their password by entering their email address.
+ * It includes input validation and provides feedback messages using Toasts and dialogs.
  *
  * @param viewModel The ViewModel managing the password recovery logic.
- * @param navigateToSplash Callback function to navigate back to the splash screen.
+ * @param passwordRecoveryScreenState The current state of the password recovery screen, including UI state and validation status.
+ * @param navigateToSplash Lambda function invoked to navigate back to the splash screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordRecoveryScreen(
     viewModel: PasswordRecoveryScreenViewModel,
+    passwordRecoveryScreenState: PasswordRecoveryScreenState,
     navigateToSplash: () -> Unit
 ) {
     val context = LocalContext.current
-    val passwordRecoveryScreenState by viewModel.passwordRecoveryScreenState.collectAsState()
     var email by remember { mutableStateOf(TextFieldValue("")) }
 
     // Observes the state and displays an error message if necessary

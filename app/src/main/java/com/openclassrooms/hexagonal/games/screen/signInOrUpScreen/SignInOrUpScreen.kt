@@ -19,7 +19,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,22 +33,24 @@ import com.openclassrooms.hexagonal.games.R
 /**
  * Composable function that displays the Sign In or Sign Up screen.
  *
- * The screen shows a text field for entering an email, a button to proceed, and a top app bar.
- * Based on the state of the screen, it navigates to either the sign-in or sign-up screen, or shows error messages via Toast.
+ * This screen presents a text field for entering an email, a button to proceed, and a top app bar.
+ * Based on the current state, it navigates either to the sign-in or sign-up screen or displays
+ * error messages via a Toast.
  *
- * @param viewModel The view model that handles the business logic for sign-in or sign-up.
- * @param navigateToSignUp Function to navigate to the sign-up screen with the email.
- * @param navigateToSignIn Function to navigate to the sign-in screen with the email.
+ * @param viewModel The [SignInOrUpScreenViewModel] that handles the business logic and state management for the screen.
+ * @param signInOrUpScreenState The [SignInOrUpScreenState] that holds the current UI state of the screen.
+ * @param navigateToSignUp A lambda function to navigate to the sign-up screen, passing the entered email.
+ * @param navigateToSignIn A lambda function to navigate to the sign-in screen, passing the entered email.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInOrUpScreen(
     viewModel: SignInOrUpScreenViewModel,
+    signInOrUpScreenState: SignInOrUpScreenState,
     navigateToSignUp: (email: String) -> Unit,
     navigateToSignIn: (email: String) -> Unit
 ) {
     val context = LocalContext.current
-    val signInOrUpScreenState by viewModel.signInOrUpScreenState.collectAsState()
     var email by remember { mutableStateOf(TextFieldValue("")) }
 
     LaunchedEffect(signInOrUpScreenState) {

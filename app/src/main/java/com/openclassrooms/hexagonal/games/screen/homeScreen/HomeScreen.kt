@@ -26,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -49,24 +48,23 @@ import com.openclassrooms.hexagonal.games.domain.model.User
 import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
 import kotlin.random.Random
 
-
 /**
- * Home screen displaying a list of posts. Allows users to navigate to different screens such as post details,
- * settings, user account, or add a new post.
+ * Home screen displaying a list of posts. This screen allows users to navigate to different sections such as
+ * post details, settings, user account, or the screen to add a new post.
  *
- * @param modifier Modifier to apply to the root element.
- * @param viewModel The ViewModel that provides the state of the home screen.
- * @param navigateToPostDetails Function to navigate to the post details screen, takes the post ID as a parameter.
- * @param navigateToSettings Function to navigate to the settings screen.
- * @param navigateToAdd Function to navigate to the add post screen.
- * @param navigateToUserAccount Function to navigate to the user account screen.
- * @param navigateToSplash Function to navigate to the splash screen.
+ * @param modifier Modifier to apply to the root element of the composable.
+ * @param homeScreenState The [HomeScreenState] that holds the current state of the home screen.
+ * @param navigateToPostDetails A lambda function to navigate to the post details screen, taking the post ID as a parameter.
+ * @param navigateToSettings A lambda function to navigate to the settings screen.
+ * @param navigateToAdd A lambda function to navigate to the add post screen.
+ * @param navigateToUserAccount A lambda function to navigate to the user account screen.
+ * @param navigateToSplash A lambda function to navigate to the splash screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    viewModel: HomeScreenViewModel,
+    homeScreenState: HomeScreenState,
     navigateToPostDetails: (String) -> Unit = {},
     navigateToSettings: () -> Unit = {},
     navigateToAdd: () -> Unit = {},
@@ -75,7 +73,6 @@ fun HomeScreen(
 ) {
 
     val context = LocalContext.current
-    val homeScreenState by viewModel.homeScreenState.collectAsState()
     var showMenu by rememberSaveable { mutableStateOf(false) }
 
     // Show toast messages based on the state of the home screen
@@ -266,7 +263,7 @@ private fun FeedCell(
             }
             if (!post.description.isNullOrEmpty()) {
                 Text(
-                    text = post.description,
+                    text = post.description!!,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -327,3 +324,42 @@ private fun FeedCellImagePreview() {
         )
     }
 }
+
+@Preview
+@Composable
+fun HomeScreenPreview() {
+    val dummyPosts = listOf(
+        Post(
+            id = "1",
+            title = "Sample Post 1",
+            description = "This is a sample description for post 1.",
+            photoUrl = "https://picsum.photos/200/300",
+            timestamp = generateValidTimestamp().seconds,
+            author = User(
+                id = "1",
+                firstname = "John",
+                lastname = "Doe",
+                email = "john.doe@example.com"
+            )
+        ),
+        Post(
+            id = "2",
+            title = "Sample Post 2",
+            description = "This is a sample description for post 2.",
+            photoUrl = "",
+            timestamp = generateValidTimestamp().seconds,
+            author = User(
+                id = "2",
+                firstname = "Jane",
+                lastname = "Smith",
+                email = "jane.smith@example.com"
+            )
+        )
+    )
+
+
+    HexagonalGamesTheme {
+        HomeScreen(homeScreenState = HomeScreenState.DisplayPosts(dummyPosts, true))
+    }
+}
+
