@@ -176,7 +176,7 @@ fun HomeScreen(
         }
     ) { contentPadding ->
         val posts = when (homeScreenState) {
-            is HomeScreenState.DisplayPosts -> (homeScreenState as HomeScreenState.DisplayPosts).posts
+            is HomeScreenState.DisplayPosts -> homeScreenState.posts
             else -> emptyList()
         }
 
@@ -261,9 +261,9 @@ private fun FeedCell(
                     contentScale = ContentScale.Crop,
                 )
             }
-            if (!post.description.isNullOrEmpty()) {
+            if (post.description.isNotEmpty()) {
                 Text(
-                    text = post.description!!,
+                    text = post.description,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -310,7 +310,7 @@ private fun FeedCellImagePreview() {
             post = Post(
                 id = "1",
                 title = "title",
-                description = null,
+                description = "description",
                 photoUrl = "https://picsum.photos/id/85/1080/",
                 timestamp = generateValidTimestamp().seconds,
                 author = User(

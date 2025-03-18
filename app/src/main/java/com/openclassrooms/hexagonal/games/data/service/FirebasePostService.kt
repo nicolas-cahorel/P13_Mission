@@ -8,7 +8,9 @@ import com.google.firebase.firestore.snapshots
 import com.google.firebase.storage.FirebaseStorage
 import com.openclassrooms.hexagonal.games.data.repository.PostResult
 import com.openclassrooms.hexagonal.games.domain.model.Post
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 
@@ -20,16 +22,7 @@ class FirebasePostService : PostApi {
 
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    //        .apply {
-//        firestoreSettings = FirebaseFirestoreSettings.Builder()
-//            .setPersistenceEnabled(false)  // Disable offline cache
-//            .build()
-//    }
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
-
-    init {
-        firestore.clearPersistence() // Ensures no offline caching for fresh data
-    }
 
     /**
      * Retrieves all posts ordered by their creation date in descending order.
@@ -38,7 +31,8 @@ class FirebasePostService : PostApi {
      */
     override fun getPostsOrderByCreationDate(): Flow<PostResult> = flow {
         try {
-            firestore.collection("posts")
+            firestore
+                .collection("posts")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .snapshots()
                 .collect { querySnapshot ->
@@ -74,62 +68,41 @@ class FirebasePostService : PostApi {
     }
 
     /**
-     * Adds a post to Firebase Firestore.
+     * Adds a new post to Firebase Firestore.
      *
-     * @param post The post to be added.
-     * @return A Flow emitting [PostResult] indicating success or failure.
+     * This function uses Firestore's `add` method to store the post data. The post is first converted
+     * into a HashMap using `toHashmap()`, then added to the "posts" collection. The result is emitted
+     * as a `Flow` of `PostResult`, indicating either success or failure.
+     *
+     * The function operates asynchronously and returns a `callbackFlow` to handle Firestore's
+     * asynchronous listeners.
+     *
+     * @param post The post to be added, containing details such as title, description, and author.
+     * @return A [Flow] emitting [PostResult.AddPostSuccess] if the post is successfully added,
+     *         or [PostResult.AddPostError] in case of failure.
      */
-    override fun addPost(post: Post): Flow<PostResult> = flow {
-        val postToSave = hashMapOf(
-            "id" to post.id,
-//            "title" to post.title,
-//            "description" to post.description,
-//            "photoUrl" to post.photoUrl,
-//            "timestamp" to post.timestamp,
-//            "authorId" to post.author?.id,
-//            "authorEmail" to post.author?.email,
-//            "authorFirstname" to post.author?.firstname,
-//            "authorLastname" to post.author?.lastname
-        )
+    override fun addPost(post: Post): Flow<PostResult> {
+        Log.d("Nicolas", "Saving post to Firestore: $post")
 
+        return callbackFlow {
 
-        try {
-            Log.d("Nicolas", "Saving post to Firestore: $post")
+            firestore
+                .collection("posts")
+                .add(post.toHashmap())
 
-            testFirestoreConnection()
-
-            firestore.collection("posts").add(postToSave)
-                .addOnSuccessListener {
-                    Log.d("Nicolas", "addonsuccesslistener.")
-                }
-                .addOnFailureListener {
-                    Log.d("Nicolas", "addonfailurelistener.")
-                }
-                .addOnCanceledListener {
-                    Log.d("Nicolas", "addoncancellistener.")
-                }
-                .addOnCompleteListener {
-                    Log.d("Nicolas", "addoncompletelistener.")
+                .addOnSuccessListener { document ->
+                    Log.d("Nicolas", "post added in firestoreDB with id : ${document.id}")
+                    trySend(PostResult.AddPostSuccess)
                 }
 
-//            firestore.collection("posts").document(post.id).set(postToSave)
-//                .addOnSuccessListener {
-//                    Log.d("Nicolas", "addonsuccesslistener.")
-//                }
-//                .addOnFailureListener {
-//                    Log.d("Nicolas", "addonfailurelistener.")
-//                }
-//                .addOnCanceledListener {
-//                    Log.d("Nicolas", "addoncancellistener.")
-//                }
-//                .addOnCompleteListener {
-//                    Log.d("Nicolas", "addoncompletelistener.")
-//                }
-            Log.d("Nicolas", "Post successfully saved.")
-            emit(PostResult.AddPostSuccess)
-        } catch (exception: Exception) {
-            Log.e("Nicolas", "Error adding post", exception)
-            emit(PostResult.AddPostError(exception))
+                .addOnFailureListener { e ->
+                    e.printStackTrace()
+                    Log.d("Nicolas", "exception while adding post to firestoreDB : ${e.message}")
+                    trySend(PostResult.AddPostError(e))
+                }
+
+            awaitClose { }
+
         }
     }
 
@@ -143,15 +116,29 @@ class FirebasePostService : PostApi {
     }
 
     /**
-     * Tests the Firestore connection by writing a test document.
+     * Converts a [Post] object into a [HashMap] representation for Firestore storage.
+     *
+     * This function transforms the [Post] instance into a key-value structure that can be
+     * directly stored in Firestore. The `author` field is also converted into a nested HashMap
+     * to maintain the structured relationship between the post and its author.
+     *
+     * @receiver The [Post] instance to be converted.
+     * @return A [HashMap] containing all the post's fields, including a nested author object.
      */
-    private fun testFirestoreConnection() {
-        firestore.collection("test").document("connection_test").set(hashMapOf("status" to "ok"))
-            .addOnSuccessListener {
-                Log.d("Nicolas", "Firestore connection test: SUCCESS")
-            }
-            .addOnFailureListener { exception ->
-                Log.e("Nicolas", "Firestore connection test: FAILED", exception)
-            }
+    private fun Post.toHashmap(): HashMap<String, Any> {
+        return hashMapOf(
+            "id" to id,
+            "title" to title,
+            "description" to description,
+            "photoUrl" to photoUrl,
+            "timestamp" to timestamp,
+            "author" to hashMapOf(
+                "id" to author!!.id,
+                "email" to author.email,
+                "firstname" to author.firstname,
+                "lastname" to author.lastname
+            )
+        )
     }
+
 }

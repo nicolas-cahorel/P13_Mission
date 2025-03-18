@@ -11,26 +11,26 @@ data class User(
     /**
      * Unique identifier for the User.
      */
-    var id: String = "",
+    val id: String = "",
 
     /**
      * User's first name.
      */
-    var firstname: String = "",
+    val firstname: String = "",
 
     /**
      * User's last name.
      */
-    var lastname: String = "",
+    val lastname: String = "",
 
     /**
      * User's email address.
      */
-    var email: String = "",
+    val email: String = "",
 
     /**
      * User's password.
      */
-    var password: String = ""
+    val password: String = ""
 
 ) : Serializable

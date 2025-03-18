@@ -134,10 +134,6 @@ class AddPostScreenViewModel @Inject constructor(
                         is PostResult.AddPhotoSuccess -> {
                             _post.value =
                                 _post.value.copy(photoUrl = postResult.downloadUri)
-                            Log.d(
-                                "Nicolas",
-                                "photo added to Firebase Storage, new url added to the post"
-                            )
 
                             // Fetch the user details and add the user as the post author
                             userRepository.readUser().collect { userResult ->
@@ -145,7 +141,6 @@ class AddPostScreenViewModel @Inject constructor(
                                     is UserResult.ReadUserSuccess -> {
                                         _post.value =
                                             _post.value.copy(author = userResult.user)
-                                        Log.d("Nicolas", "user fetched and added to post as author")
 
                                         // Attempt to add the post to Firestore
                                         postRepository.addPost(_post.value).collect { postResult ->
@@ -155,20 +150,12 @@ class AddPostScreenViewModel @Inject constructor(
                                                 is PostResult.AddPostSuccess -> {
                                                     _addPostScreenState.value =
                                                         AddPostScreenState.AddPostSuccess
-                                                    Log.d(
-                                                        "Nicolas",
-                                                        "post added to Firestore Database"
-                                                    )
                                                 }
 
                                                 // Error while adding the post
                                                 else -> {
                                                     _addPostScreenState.value =
                                                         AddPostScreenState.AddPostError
-                                                    Log.d(
-                                                        "Nicolas",
-                                                        "error while adding post to Firestore Database"
-                                                    )
                                                 }
                                             }
                                         }
@@ -177,10 +164,6 @@ class AddPostScreenViewModel @Inject constructor(
                                     // Error fetching user
                                     else -> {
                                         _addPostScreenState.value = AddPostScreenState.AddPostError
-                                        Log.d(
-                                            "Nicolas",
-                                            "user could not be fetched and added to post as author"
-                                        )
                                     }
 
                                 }
@@ -190,16 +173,14 @@ class AddPostScreenViewModel @Inject constructor(
                         // Error adding photo to Firebase Storage
                         else -> {
                             _addPostScreenState.value = AddPostScreenState.AddPostError
-                            Log.d("Nicolas", "photo could not be added to Firebase Storage")
                         }
                     }
                 }
             }
 
-            // No internet connection available
+        // No internet connection available
         } else {
             _addPostScreenState.value = AddPostScreenState.AddPostNoInternet
-            Log.d("Nicolas", "no network available")
         }
     }
 }

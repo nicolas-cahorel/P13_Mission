@@ -43,6 +43,7 @@ import coil.compose.AsyncImage
 import com.openclassrooms.hexagonal.games.R
 import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
 
+
 /**
  * Displays the AddPost screen, allowing users to create a new post.
  *
@@ -276,6 +277,37 @@ private fun CreatePost(
 
 
 // PREVIEWS
+
+//@Preview
+//@Composable
+//private fun AddPostScreenPreview() {
+//    val fakePost = remember { mutableStateOf(Post("", "", "")) }
+//    val fakeError = remember { mutableStateOf<FormError?>(null) }
+//
+//    // Fake ViewModel Simulation
+//    val fakeViewModel = object {
+//        val post: State<Post> = fakePost
+//        val error: State<FormError?> = fakeError
+//
+//        fun onAction(action: FormEvent) {}
+//        fun addPost() {}
+//    }
+//
+//    HexagonalGamesTheme {
+//        AddPostScreen(
+//            viewModel = null, // On ne passe pas de ViewModel réel !
+//            addPostScreenState = AddPostScreenState.InvalidInput(
+//                titleTextFieldLabel = stringResource(R.string.error_title),
+//                descriptionTextFieldLabel = stringResource(R.string.error_description),
+//                isTitleValid = false,
+//                isDescriptionValid = false
+//            ),
+//            navigateToHome = {}
+//        )
+//    }
+//}
+
+
 
 @Preview
 @Composable

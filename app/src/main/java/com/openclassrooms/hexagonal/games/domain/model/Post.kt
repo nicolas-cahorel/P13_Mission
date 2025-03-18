@@ -11,31 +11,31 @@ data class Post(
     /**
      * Unique identifier for the Post.
      */
-    var id: String = "",
+    val id: String = "",
 
     /**
      * Title of the Post.
      */
-    var title: String = "",
+    val title: String = "",
 
     /**
      * Optional description for the Post.
      */
-    var description: String? = null,
+    val description: String = "",
 
     /**
      * URL of an image associated with the Post, if any.
      */
-    var photoUrl: String = "",
+    val photoUrl: String = "",
 
     /**
      * Timestamp representing the creation date and time of the Post in milliseconds since epoch.
      */
-    var timestamp: Long = 0,
+    val timestamp: Long = 0,
 
     /**
      * User object representing the author of the Post.
      */
-    var author: User? = null
+    val author: User? = null
 
 ) : Serializable

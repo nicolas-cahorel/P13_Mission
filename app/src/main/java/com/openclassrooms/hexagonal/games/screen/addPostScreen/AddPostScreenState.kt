@@ -11,15 +11,15 @@ sealed interface AddPostScreenState {
      * This includes validation errors for both the title and password fields.
      *
      * @property titleTextFieldLabel Label for the title text field.
-     * @property passwordTextFieldLabel Label for the password text field.
+     * @property descriptionTextFieldLabel Label for the description text field.
      * @property isTitleValid Boolean indicating whether the title field is valid.
-     * @property isPasswordValid Boolean indicating whether the password field is valid.
+     * @property isDescriptionValid Boolean indicating whether the description field is valid.
      */
     data class InvalidInput(
         val titleTextFieldLabel: String,
-        val passwordTextFieldLabel: String,
+        val descriptionTextFieldLabel: String,
         val isTitleValid: Boolean,
-        val isPasswordValid: Boolean
+        val isDescriptionValid: Boolean
     ) : AddPostScreenState
 
     /**
