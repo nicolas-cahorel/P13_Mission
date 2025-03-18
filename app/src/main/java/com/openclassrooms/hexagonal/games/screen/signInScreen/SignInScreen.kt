@@ -16,9 +16,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -37,6 +37,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.hexagonal.games.R
 
@@ -44,28 +45,35 @@ import com.openclassrooms.hexagonal.games.R
  * Displays the sign-in screen UI.
  *
  * This composable function allows users to input their email and password to sign in.
- * It manages user interactions such as toggling password visibility and navigating
+ * It handles user interactions such as toggling password visibility and navigating
  * to other screens, including password recovery and the splash screen. Additionally,
- * it displays the sign-in state (success or error).
+ * it displays the current sign-in state (success or error).
  *
- * @param viewModel The ViewModel managing the state and logic of the sign-in screen.
  * @param signInScreenState The current state of the sign-in screen, including UI state and authentication status.
- * @param navigateToHome Lambda function invoked to navigate to the home screen upon successful sign-in.
- * @param navigateToPasswordRecovery Lambda function invoked to navigate to the password recovery screen.
- * @param navigateToSplash Lambda function invoked to navigate back to the splash screen.
  * @param email The user's email address, displayed in the welcome message.
+ * @param onPasswordChanged A lambda function invoked when the user changes the password.
+ * @param onButtonClicked A lambda function invoked when the sign-in button is clicked, passing the email and password.
+ * @param navigateToHome A lambda function invoked to navigate to the home screen upon successful sign-in.
+ * @param navigateToPasswordRecovery A lambda function invoked to navigate to the password recovery screen.
+ * @param navigateToSplash A lambda function invoked to navigate back to the splash screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(
-    viewModel: SignInScreenViewModel,
     signInScreenState: SignInScreenState,
+    email: String,
+    onPasswordChanged: (password: String) -> Unit,
+    onButtonClicked: (email: String, password: String) -> Unit,
     navigateToHome: () -> Unit,
     navigateToPasswordRecovery: () -> Unit,
     navigateToSplash: () -> Unit,
-    email: String
-) {
+
+    ) {
     val context = LocalContext.current
+    val labelPasswordText = when (signInScreenState) {
+        is SignInScreenState.InvalidInput -> stringResource(R.string.error_password_empty)
+        else -> stringResource(R.string.title_label_password)
+    }
     var password by remember { mutableStateOf(TextFieldValue("")) }
     var isPasswordVisible by remember { mutableStateOf(false) }
 
@@ -121,25 +129,17 @@ fun SignInScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextField(
+            OutlinedTextField(
                 value = password,
                 onValueChange = { newValue ->
                     password = newValue
-                    viewModel.onPasswordChanged(newValue.text)
+                    onPasswordChanged(newValue.text)
                 },
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(
-                        text = when (signInScreenState) {
-                            is SignInScreenState.InvalidInput -> stringResource(R.string.error_password_empty)
-                            else -> stringResource(R.string.title_label_password)
-                        }
-                    )
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedLabelColor = if (signInScreenState is SignInScreenState.InvalidInput) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-                ),
+                isError = signInScreenState is SignInScreenState.InvalidInput,
+                label = { Text(text = labelPasswordText) },
+                colors = TextFieldDefaults.colors(focusedLabelColor = MaterialTheme.colorScheme.primary),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                singleLine = true,
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
@@ -148,13 +148,14 @@ fun SignInScreen(
                             contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
                         )
                     }
-                }
+                },
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { viewModel.onButtonClicked(email, password.text) },
+                onClick = { onButtonClicked(email, password.text) },
                 enabled = signInScreenState is SignInScreenState.ValidInput,
                 modifier = Modifier.align(Alignment.End)
             ) {
@@ -176,4 +177,36 @@ fun SignInScreen(
     }
 }
 
-//PREVIEW A FAIRE
+/**
+ * Preview for [SignInScreen].
+ */
+@Preview(showBackground = true)
+@Composable
+fun SignInScreenPreview() {
+     SignInScreen(
+        signInScreenState = SignInScreenState.ValidInput,
+        email = "test@example.com",
+        onPasswordChanged = {  },
+        onButtonClicked = { _, _ -> },
+        navigateToHome = {  },
+        navigateToPasswordRecovery = {  },
+        navigateToSplash = {  }
+    )
+}
+
+/**
+ * Preview for [SignInScreen].
+ */
+@Preview(showBackground = true)
+@Composable
+fun SignInScreenPreviewInvalidInput() {
+    SignInScreen(
+        signInScreenState = SignInScreenState.InvalidInput,
+        email = "test@example.com",
+        onPasswordChanged = {  },
+        onButtonClicked = { _, _ -> },
+        navigateToHome = {  },
+        navigateToPasswordRecovery = {  },
+        navigateToSplash = {  }
+    )
+}

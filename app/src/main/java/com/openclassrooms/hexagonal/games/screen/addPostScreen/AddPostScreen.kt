@@ -24,10 +24,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,30 +39,38 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.openclassrooms.hexagonal.games.R
+import com.openclassrooms.hexagonal.games.domain.model.Post
 import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
 
-
 /**
- * Displays the AddPost screen, allowing users to create a new post.
+ * Displays the screen for adding a new post.
  *
- * This composable function manages the UI state, interacts with the ViewModel, and handles
- * navigation based on the outcome of user actions. It manages various scenarios, including
- * no internet connection, error states, and successful post creation.
+ * This composable allows users to create a new post by providing a title, description, and an optional photo.
+ * It handles form validation, user interactions, and navigation events.
  *
- * @param modifier The modifier for customizing the layout appearance and behavior.
- * @param viewModel The ViewModel managing the logic and state of the AddPost screen.
- * @param addPostScreenState The current state of the AddPost screen, including UI state and action status.
- * @param navigateToHome Lambda function invoked to navigate to the home screen after a successful post creation.
+ * @param modifier Modifier to customize the layout appearance and behavior.
+ * @param addPostScreenState The current UI state of the AddPost screen.
+ * @param post The post object containing the current title, description, and photo URL.
+ * @param error The form validation error, if any.
+ * @param onPhotoChanged Callback invoked when the user selects a new photo.
+ * @param onTitleChanged Callback invoked when the title input changes.
+ * @param onDescriptionChanged Callback invoked when the description input changes.
+ * @param onSaveClicked Callback invoked when the user clicks the save button.
+ * @param navigateToHome Callback invoked to navigate back to the home screen after successful post creation.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddPostScreen(
     modifier: Modifier = Modifier,
-    viewModel: AddPostScreenViewModel,
     addPostScreenState: AddPostScreenState,
+    post: Post,
+    error: FormError?,
+    onPhotoChanged: (String) -> Unit,
+    onTitleChanged: (String) -> Unit,
+    onDescriptionChanged: (String) -> Unit,
+    onSaveClicked: () -> Unit,
     navigateToHome: () -> Unit
 ) {
 
@@ -101,22 +110,24 @@ fun AddPostScreen(
                 title = {
                     Text(stringResource(id = R.string.title_addScreen))
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
                 navigationIcon = {
                     IconButton(onClick = {
                         navigateToHome()
                     }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(id = R.string.contentDescription_go_back)
+                            contentDescription = stringResource(id = R.string.contentDescription_go_back),
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
             )
         }
     ) { contentPadding ->
-        val post by viewModel.post.collectAsStateWithLifecycle()
-        val error by viewModel.error.collectAsStateWithLifecycle()
-
 
         /// Check if the Photo Picker is available for Android 13 and later
         val isPhotoPickerAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
@@ -126,8 +137,7 @@ fun AddPostScreen(
             contract = ActivityResultContracts.PickVisualMedia()
         ) { uri ->
             uri?.let {
-                Log.d("PhotoPicker", "Selected URI: $uri")
-                viewModel.onAction(FormEvent.PhotoChanged(uri.toString()))
+                onPhotoChanged(uri.toString())
             } ?: Log.d("PhotoPicker", "No media selected")
         }
 
@@ -136,8 +146,7 @@ fun AddPostScreen(
             contract = ActivityResultContracts.GetContent()
         ) { uri ->
             uri?.let {
-                Log.d("PhotoPicker", "Selected URI: $uri")
-                viewModel.onAction(FormEvent.PhotoChanged(uri.toString()))
+                onPhotoChanged(uri.toString())
             } ?: Log.d("PhotoPicker", "No media selected")
         }
 
@@ -145,10 +154,10 @@ fun AddPostScreen(
             modifier = Modifier.padding(contentPadding),
             error = error,
             title = post.title,
-            onTitleChanged = { viewModel.onAction(FormEvent.TitleChanged(it)) },
-            description = post.description ?: "",
-            onDescriptionChanged = { viewModel.onAction(FormEvent.DescriptionChanged(it)) },
-            onSaveClicked = { viewModel.addPost() },
+            onTitleChanged = { onTitleChanged(it) },
+            description = post.description,
+            onDescriptionChanged = { onDescriptionChanged(it) },
+            onSaveClicked = { onSaveClicked() },
             onSelectPhotoClicked = {
                 if (isPhotoPickerAvailable) {
                     pickVisualMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -194,15 +203,16 @@ private fun CreatePost(
         ) {
 
             OutlinedTextField(
+                value = title,
+                onValueChange = { onTitleChanged(it) },
+                isError = error is FormError.TitleError,
+                label = { Text(stringResource(id = R.string.hint_title)) },
+                colors = TextFieldDefaults.colors(focusedLabelColor = MaterialTheme.colorScheme.primary),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                singleLine = true,
                 modifier = Modifier
                     .padding(top = 16.dp)
                     .fillMaxWidth(),
-                value = title,
-                isError = error is FormError.TitleError,
-                onValueChange = { onTitleChanged(it) },
-                label = { Text(stringResource(id = R.string.hint_title)) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                singleLine = true
             )
             if (error is FormError.TitleError) {
                 Text(
@@ -212,21 +222,24 @@ private fun CreatePost(
             }
 
             OutlinedTextField(
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .fillMaxWidth(),
                 value = description,
-                isError = error is FormError.DescriptionError,
                 onValueChange = { onDescriptionChanged(it) },
+                isError = error is FormError.DescriptionError,
                 label = { Text(stringResource(id = R.string.hint_description)) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+                colors = TextFieldDefaults.colors(focusedLabelColor = MaterialTheme.colorScheme.primary),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
             )
+
             if (error is FormError.DescriptionError) {
                 Text(
                     text = stringResource(id = error.messageRes),
                     color = MaterialTheme.colorScheme.error,
                 )
             }
+
 
             AsyncImage(
                 model = photoUrl.takeIf { it.isNotEmpty() } ?: R.drawable.ic_launcher_background,
@@ -261,7 +274,6 @@ private fun CreatePost(
                 )
             }
 
-
         }
         Button(
             enabled = error == null,
@@ -275,70 +287,52 @@ private fun CreatePost(
     }
 }
 
-
-// PREVIEWS
-
-//@Preview
-//@Composable
-//private fun AddPostScreenPreview() {
-//    val fakePost = remember { mutableStateOf(Post("", "", "")) }
-//    val fakeError = remember { mutableStateOf<FormError?>(null) }
-//
-//    // Fake ViewModel Simulation
-//    val fakeViewModel = object {
-//        val post: State<Post> = fakePost
-//        val error: State<FormError?> = fakeError
-//
-//        fun onAction(action: FormEvent) {}
-//        fun addPost() {}
-//    }
-//
-//    HexagonalGamesTheme {
-//        AddPostScreen(
-//            viewModel = null, // On ne passe pas de ViewModel réel !
-//            addPostScreenState = AddPostScreenState.InvalidInput(
-//                titleTextFieldLabel = stringResource(R.string.error_title),
-//                descriptionTextFieldLabel = stringResource(R.string.error_description),
-//                isTitleValid = false,
-//                isDescriptionValid = false
-//            ),
-//            navigateToHome = {}
-//        )
-//    }
-//}
-
-
-
-@Preview
+/**
+ * Preview for [AddPostScreen].
+ */
+@Preview(showBackground = true)
 @Composable
-private fun CreatePostPreview() {
+private fun AddPostScreenPreview() {
     HexagonalGamesTheme {
-        CreatePost(
-            title = "test",
-            onTitleChanged = { },
-            description = "description",
-            onDescriptionChanged = { },
-            onSaveClicked = { },
+        AddPostScreen(
+            addPostScreenState = AddPostScreenState.AddPostSuccess,
+            post = Post(
+                title = "",
+                description = "",
+                photoUrl = ""
+            ),
             error = null,
-            onSelectPhotoClicked = { },
-            photoUrl = ""
+            onPhotoChanged = {},
+            onTitleChanged = {},
+            onDescriptionChanged = {},
+            onSaveClicked = {},
+            navigateToHome = {}
         )
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-private fun CreatePostErrorPreview() {
+private fun AddPostScreenInvalidInputPreview() {
     HexagonalGamesTheme {
-        CreatePost(
-            title = "test",
-            onTitleChanged = { },
-            description = "description",
-            onDescriptionChanged = { },
-            onSaveClicked = { },
+        AddPostScreen(
+            addPostScreenState = AddPostScreenState.InvalidInput(
+                titleTextFieldLabel = stringResource(R.string.error_title),
+                descriptionTextFieldLabel = "",
+                isTitleValid = false,
+                isDescriptionValid = true
+            ),
+            post = Post(
+                title = "",
+                description = "",
+                photoUrl = ""
+            ),
             error = FormError.TitleError,
-            onSelectPhotoClicked = { },
-            photoUrl = ""
+            onPhotoChanged = {},
+            onTitleChanged = {},
+            onDescriptionChanged = {},
+            onSaveClicked = {},
+            navigateToHome = {}
         )
     }
 }

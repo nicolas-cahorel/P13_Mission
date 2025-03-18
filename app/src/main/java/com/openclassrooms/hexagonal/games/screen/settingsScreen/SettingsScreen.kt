@@ -23,7 +23,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -31,21 +30,24 @@ import com.openclassrooms.hexagonal.games.R
 import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
 
 /**
- * SettingsScreen composable that displays the settings screen of the app.
+ * Displays the settings screen of the app.
  *
- * This screen consists of a top app bar with a back navigation icon, and settings options
- * for enabling or disabling notifications.
+ * This screen includes a top app bar with a back navigation icon and options
+ * to enable or disable notifications.
  *
- * @param modifier The modifier to be applied to the screen.
- * @param viewModel The view model for managing settings logic.
- * @param navigateToPrevious Function to navigate to the previous screen.
+ * @param modifier Modifier to be applied to the screen layout.
+ * @param onNotificationDisabledClicked Callback invoked when the user disables notifications.
+ * @param onNotificationEnabledClicked Callback invoked when the user enables notifications.
+ * @param navigateToPrevious Callback to navigate back to the previous screen.
  */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    modifier: Modifier = Modifier,
-    viewModel: SettingsViewModel = hiltViewModel(),
-    navigateToPrevious: () -> Unit
+  modifier: Modifier = Modifier,
+  onNotificationDisabledClicked: () -> Unit,
+  onNotificationEnabledClicked: () -> Unit,
+  navigateToPrevious: () -> Unit
 ) {
   Scaffold(
     modifier = modifier,
@@ -69,9 +71,9 @@ fun SettingsScreen(
   ) { contentPadding ->
     Settings(
       modifier = Modifier.padding(contentPadding),
-      onNotificationDisabledClicked = { viewModel.disableNotifications() },
+      onNotificationDisabledClicked = { onNotificationDisabledClicked() },
       onNotificationEnabledClicked = {
-        viewModel.enableNotifications()
+        onNotificationEnabledClicked()
       }
     )
   }

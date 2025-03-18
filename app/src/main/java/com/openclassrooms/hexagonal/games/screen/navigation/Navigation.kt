@@ -4,17 +4,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.openclassrooms.hexagonal.games.screen.addPostScreen.AddPostScreen
 import com.openclassrooms.hexagonal.games.screen.addPostScreen.AddPostScreenViewModel
+import com.openclassrooms.hexagonal.games.screen.addPostScreen.FormEvent
 import com.openclassrooms.hexagonal.games.screen.homeScreen.HomeScreen
-import com.openclassrooms.hexagonal.games.screen.homeScreen.HomeScreenState
 import com.openclassrooms.hexagonal.games.screen.homeScreen.HomeScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.passwordRecoveryScreen.PasswordRecoveryScreen
 import com.openclassrooms.hexagonal.games.screen.passwordRecoveryScreen.PasswordRecoveryScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.settingsScreen.SettingsScreen
+import com.openclassrooms.hexagonal.games.screen.settingsScreen.SettingsScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.signInOrUpScreen.SignInOrUpScreen
 import com.openclassrooms.hexagonal.games.screen.signInOrUpScreen.SignInOrUpScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.signInScreen.SignInScreen
@@ -57,8 +59,13 @@ fun Navigation(navController: NavHostController) {
             val signInOrUpScreenViewModel: SignInOrUpScreenViewModel = hiltViewModel()
             val signInOrUpScreenState by signInOrUpScreenViewModel.signInOrUpScreenState.collectAsState()
             SignInOrUpScreen(
-                viewModel = signInOrUpScreenViewModel,
                 signInOrUpScreenState = signInOrUpScreenState,
+                onEmailChanged = { email ->
+                    signInOrUpScreenViewModel.onEmailChanged(email)
+                },
+                onButtonClicked = { email ->
+                    signInOrUpScreenViewModel.onButtonClicked(email)
+                },
                 navigateToSignIn = { email ->
                     navController.navigate("SignInScreen/$email")
                 },
@@ -75,9 +82,14 @@ fun Navigation(navController: NavHostController) {
             val signInScreenState by signInScreenViewModel.signInScreenState.collectAsState()
             if (!email.isNullOrEmpty()) {
                 SignInScreen(
-                    viewModel = signInScreenViewModel,
                     signInScreenState = signInScreenState,
                     email = email,
+                    onPasswordChanged = { password ->
+                        signInScreenViewModel.onPasswordChanged(password)
+                    },
+                    onButtonClicked = { userEmail, password ->
+                        signInScreenViewModel.onButtonClicked(userEmail, password)
+                    },
                     navigateToHome = {
                         navController.navigate(Routes.HomeScreen.route)
                     },
@@ -98,9 +110,17 @@ fun Navigation(navController: NavHostController) {
             val signUpScreenState by signUpScreenViewModel.signUpScreenState.collectAsState()
             if (!email.isNullOrEmpty()) {
                 SignUpScreen(
-                    viewModel = signUpScreenViewModel,
                     signUpScreenState = signUpScreenState,
                     email = email,
+                    onNameChanged = { name ->
+                        signUpScreenViewModel.onNameChanged(name)
+                    },
+                    onPasswordChanged = { password ->
+                        signUpScreenViewModel.onPasswordChanged(password)
+                    },
+                    onButtonClicked = { userEmail ->
+                        signUpScreenViewModel.onButtonClicked(userEmail)
+                    },
                     navigateToHome = {
                         navController.navigate(Routes.HomeScreen.route)
                     },
@@ -115,8 +135,16 @@ fun Navigation(navController: NavHostController) {
             val passwordRecoveryScreenViewModel: PasswordRecoveryScreenViewModel = hiltViewModel()
             val passwordRecoveryScreenState by passwordRecoveryScreenViewModel.passwordRecoveryScreenState.collectAsState()
             PasswordRecoveryScreen(
-                viewModel = passwordRecoveryScreenViewModel,
                 passwordRecoveryScreenState = passwordRecoveryScreenState,
+                onEmailChanged = { email ->
+                    passwordRecoveryScreenViewModel.onEmailChanged(email)
+                },
+                onButtonClicked = { email ->
+                    passwordRecoveryScreenViewModel.onButtonClicked(email)
+                },
+                onDialogButtonClicked = {
+                    passwordRecoveryScreenViewModel.onDialogButtonClicked()
+                },
                 navigateToSplash = {
                     navController.navigate(Routes.SplashScreen.route)
                 }
@@ -127,9 +155,16 @@ fun Navigation(navController: NavHostController) {
             val userAccountScreenViewModel: UserAccountScreenViewModel = hiltViewModel()
             val userAccountScreenState by userAccountScreenViewModel.userAccountScreenState.collectAsState()
             UserAccountScreen(
-                viewModel = userAccountScreenViewModel,
                 userAccountScreenState = userAccountScreenState,
-                navigateToPrevious = { navController.navigateUp() },
+                onSignOutButtonClicked = {
+                    userAccountScreenViewModel.onSignOutButtonClicked()
+                },
+                onDeleteButtonClicked = {
+                    userAccountScreenViewModel.onDeleteButtonClicked()
+                },
+                navigateToPrevious = {
+                    navController.navigateUp()
+                },
                 navigateToSplash = {
                     navController.navigate(Routes.SplashScreen.route)
                 }
@@ -162,9 +197,24 @@ fun Navigation(navController: NavHostController) {
         composable(route = Routes.AddPostScreen.route) {
             val addPostScreenViewModel: AddPostScreenViewModel = hiltViewModel()
             val addPostScreenState by addPostScreenViewModel.addPostScreenState.collectAsState()
+            val post by addPostScreenViewModel.post.collectAsStateWithLifecycle()
+            val error by addPostScreenViewModel.error.collectAsStateWithLifecycle()
             AddPostScreen(
-                viewModel = addPostScreenViewModel,
                 addPostScreenState = addPostScreenState,
+                post = post,
+                error = error,
+                onPhotoChanged = { uri ->
+                    addPostScreenViewModel.onAction(FormEvent.PhotoChanged(uri))
+                },
+                onTitleChanged = { title ->
+                    addPostScreenViewModel.onAction(FormEvent.TitleChanged(title))
+                },
+                onDescriptionChanged = { description ->
+                    addPostScreenViewModel.onAction(FormEvent.DescriptionChanged(description))
+                },
+                onSaveClicked = {
+                    addPostScreenViewModel.addPost()
+                },
                 navigateToHome = {
                     navController.navigate(Routes.HomeScreen.route)
                 }
@@ -172,7 +222,14 @@ fun Navigation(navController: NavHostController) {
         }
 
         composable(route = Routes.SettingsScreen.route) {
+            val settingsScreenViewModel: SettingsScreenViewModel = hiltViewModel()
             SettingsScreen(
+                onNotificationEnabledClicked = {
+                    settingsScreenViewModel.enableNotifications()
+                },
+                onNotificationDisabledClicked = {
+                    settingsScreenViewModel.disableNotifications()
+                },
                 navigateToPrevious = { navController.navigateUp() }
             )
         }

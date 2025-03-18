@@ -1,6 +1,5 @@
 package com.openclassrooms.hexagonal.games.screen.addPostScreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Timestamp
@@ -83,7 +82,7 @@ class AddPostScreenViewModel @Inject constructor(
     private fun verifyPost(): FormError? {
         return when {
             _post.value.title.isEmpty() -> FormError.TitleError
-            _post.value.description.isNullOrEmpty() -> FormError.DescriptionError
+            _post.value.description.isEmpty() -> FormError.DescriptionError
             _post.value.photoUrl.isEmpty() -> FormError.PhotoError
             else -> null
         }

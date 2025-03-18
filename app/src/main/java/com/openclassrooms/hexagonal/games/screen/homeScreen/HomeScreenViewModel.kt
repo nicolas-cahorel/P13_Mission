@@ -1,6 +1,5 @@
 package com.openclassrooms.hexagonal.games.screen.homeScreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.hexagonal.games.data.repository.PostRepository
@@ -57,7 +56,6 @@ class HomeScreenViewModel @Inject constructor(
                                     is PostResult.GetPostsSuccess -> {
                                         _homeScreenState.value =
                                             HomeScreenState.DisplayPosts(postResult.posts, true)
-                                        Log.d("Nicolas", "posts : ${postResult.posts}")
                                     }
                                     // No posts available, update UI state
                                     else -> _homeScreenState.value =

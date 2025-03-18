@@ -81,30 +81,57 @@ class FirebasePostService : PostApi {
      * @return A [Flow] emitting [PostResult.AddPostSuccess] if the post is successfully added,
      *         or [PostResult.AddPostError] in case of failure.
      */
-    override fun addPost(post: Post): Flow<PostResult> {
-        Log.d("Nicolas", "Saving post to Firestore: $post")
+    override fun addPost(post: Post): Flow<PostResult> = flow {
+        try {
+            Log.d("Nicolas", "Saving post to Firestore: $post")
 
-        return callbackFlow {
-
-            firestore
-                .collection("posts")
-                .add(post.toHashmap())
-
-                .addOnSuccessListener { document ->
-                    Log.d("Nicolas", "post added in firestoreDB with id : ${document.id}")
-                    trySend(PostResult.AddPostSuccess)
+            firestore.collection("posts").add(post.toHashmap())
+                .addOnSuccessListener {
+                    Log.d("Nicolas", "addonsuccesslistener.")
+                }
+                .addOnFailureListener {
+                    Log.d("Nicolas", "addonfailurelistener.")
+                }
+                .addOnCanceledListener {
+                    Log.d("Nicolas", "addoncancellistener.")
+                }
+                .addOnCompleteListener {
+                    Log.d("Nicolas", "addoncompletelistener.")
                 }
 
-                .addOnFailureListener { e ->
-                    e.printStackTrace()
-                    Log.d("Nicolas", "exception while adding post to firestoreDB : ${e.message}")
-                    trySend(PostResult.AddPostError(e))
-                }
-
-            awaitClose { }
-
+            Log.d("Nicolas", "Post successfully saved.")
+            emit(PostResult.AddPostSuccess)
+        } catch (exception: Exception) {
+            Log.e("Nicolas", "Error adding post", exception)
+            emit(PostResult.AddPostError(exception))
         }
     }
+
+
+//    override fun addPost(post: Post): Flow<PostResult> {
+//        Log.d("Nicolas", "Saving post to Firestore: $post")
+//
+//        return callbackFlow {
+//
+//            firestore
+//                .collection("posts")
+//                .add(post.toHashmap())
+//
+//                .addOnSuccessListener { document ->
+//                    Log.d("Nicolas", "post added in firestoreDB with id : ${document.id}")
+//                    trySend(PostResult.AddPostSuccess)
+//                }
+//
+//                .addOnFailureListener { e ->
+//                    e.printStackTrace()
+//                    Log.d("Nicolas", "exception while adding post to firestoreDB : ${e.message}")
+//                    trySend(PostResult.AddPostError(e))
+//                }
+//
+//            awaitClose { }
+//
+//        }
+//    }
 
     /**
      * Retrieves a specific post.

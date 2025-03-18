@@ -24,6 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,12 +42,10 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.imageLoader
 import coil.util.DebugLogger
-import com.google.firebase.Timestamp
 import com.openclassrooms.hexagonal.games.R
 import com.openclassrooms.hexagonal.games.domain.model.Post
 import com.openclassrooms.hexagonal.games.domain.model.User
 import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
-import kotlin.random.Random
 
 /**
  * Home screen displaying a list of posts. This screen allows users to navigate to different sections such as
@@ -107,12 +106,17 @@ fun HomeScreen(
                 title = {
                     Text(stringResource(id = R.string.title_homeScreen))
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
                 actions = {
 
                     IconButton(onClick = { showMenu = !showMenu }) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
-                            contentDescription = stringResource(id = R.string.contentDescription_more)
+                            contentDescription = stringResource(id = R.string.contentDescription_more),
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
 
@@ -166,11 +170,13 @@ fun HomeScreen(
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                }
+                },
+                containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
-                    contentDescription = stringResource(id = R.string.description_button_add)
+                    contentDescription = stringResource(id = R.string.description_button_add),
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
@@ -271,60 +277,9 @@ private fun FeedCell(
     }
 }
 
-// A helper function to generate a valid random timestamp
-fun generateValidTimestamp(): Timestamp {
-    val validSeconds = Random.nextLong(-62135596800, 253402300799)
-    return Timestamp(validSeconds, 0)
-}
-
-// PREVIEWS
-
-@Preview
-@Composable
-private fun FeedCellPreview() {
-    HexagonalGamesTheme {
-        FeedCell(
-            post = Post(
-                id = "1",
-                title = "title",
-                description = "description",
-                photoUrl = "",
-                timestamp = generateValidTimestamp().seconds,
-                author = User(
-                    id = "1",
-                    firstname = "firstname",
-                    lastname = "lastname",
-                    email = ""
-                )
-            ),
-            onPostClick = {}
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun FeedCellImagePreview() {
-    HexagonalGamesTheme {
-        FeedCell(
-            post = Post(
-                id = "1",
-                title = "title",
-                description = "description",
-                photoUrl = "https://picsum.photos/id/85/1080/",
-                timestamp = generateValidTimestamp().seconds,
-                author = User(
-                    id = "1",
-                    firstname = "firstname",
-                    lastname = "lastname",
-                    email = ""
-                )
-            ),
-            onPostClick = {}
-        )
-    }
-}
-
+/**
+ * Preview for [HomeScreen].
+ */
 @Preview
 @Composable
 fun HomeScreenPreview() {
@@ -334,7 +289,7 @@ fun HomeScreenPreview() {
             title = "Sample Post 1",
             description = "This is a sample description for post 1.",
             photoUrl = "https://picsum.photos/200/300",
-            timestamp = generateValidTimestamp().seconds,
+            timestamp = 915148800, // Correspond à 1999-01-01T00:00:00Z
             author = User(
                 id = "1",
                 firstname = "John",
@@ -346,8 +301,8 @@ fun HomeScreenPreview() {
             id = "2",
             title = "Sample Post 2",
             description = "This is a sample description for post 2.",
-            photoUrl = "",
-            timestamp = generateValidTimestamp().seconds,
+            photoUrl = "https://picsum.photos/200/300",
+            timestamp = -30610224000, // Correspond à 1000-01-01T00:00:00Z
             author = User(
                 id = "2",
                 firstname = "Jane",
@@ -357,9 +312,18 @@ fun HomeScreenPreview() {
         )
     )
 
-
     HexagonalGamesTheme {
         HomeScreen(homeScreenState = HomeScreenState.DisplayPosts(dummyPosts, true))
     }
 }
 
+/**
+ * Preview for [HomeScreen].
+ */
+@Preview
+@Composable
+fun HomeScreenPreviewNoPosts() {
+    HexagonalGamesTheme {
+        HomeScreen(homeScreenState = HomeScreenState.NoPostToDisplay(true))
+    }
+}

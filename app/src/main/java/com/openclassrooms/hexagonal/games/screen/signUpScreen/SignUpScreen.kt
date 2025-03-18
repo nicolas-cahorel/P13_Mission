@@ -16,9 +16,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -37,6 +37,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.openclassrooms.hexagonal.games.R
 
@@ -48,22 +49,41 @@ import com.openclassrooms.hexagonal.games.R
  * Upon successful sign-up, the user is navigated to the home screen, while sign-up failures
  * trigger an error message.
  *
- * @param viewModel The ViewModel managing the state and actions of the sign-up process.
  * @param signUpScreenState The current state of the sign-up screen, including UI state and validation status.
- * @param navigateToHome Lambda function invoked to navigate to the home screen upon successful sign-up.
- * @param navigateToSplash Lambda function invoked to navigate back to the splash screen.
  * @param email The pre-entered email address, displayed in a non-editable TextField.
+ * @param onNameChanged A lambda function invoked when the user changes their name.
+ * @param onPasswordChanged A lambda function invoked when the user changes their password.
+ * @param onButtonClicked A lambda function invoked when the sign-up button is clicked, passing the email.
+ * @param navigateToHome A lambda function invoked to navigate to the home screen upon successful sign-up.
+ * @param navigateToSplash A lambda function invoked to navigate back to the splash screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
-    viewModel: SignUpScreenViewModel,
     signUpScreenState: SignUpScreenState,
+    email: String,
+    onNameChanged: (name: String) -> Unit,
+    onPasswordChanged: (password: String) -> Unit,
+    onButtonClicked: (userEmail: String) -> Unit,
     navigateToHome: () -> Unit,
-    navigateToSplash: () -> Unit,
-    email: String
+    navigateToSplash: () -> Unit
 ) {
     val context = LocalContext.current
+    val labelNameText = when {
+        signUpScreenState is SignUpScreenState.InvalidInput && signUpScreenState.isNameEmpty ->
+            stringResource(R.string.error_name_empty)
+
+        else -> ""
+    }
+    val labelPasswordText = when {
+        signUpScreenState is SignUpScreenState.InvalidInput && signUpScreenState.isPasswordEmpty ->
+            stringResource(R.string.error_password_empty)
+
+        signUpScreenState is SignUpScreenState.InvalidInput && !signUpScreenState.isPasswordFormatCorrect ->
+            stringResource(R.string.error_password_format)
+
+        else -> ""
+    }
     var name by remember { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
     var isPasswordVisible by remember { mutableStateOf(false) }
@@ -119,14 +139,14 @@ fun SignUpScreen(
                 text = stringResource(R.string.title_email),
                 style = MaterialTheme.typography.titleLarge
             )
-            TextField(
+
+            OutlinedTextField(
                 value = email,
                 onValueChange = {},
-                enabled = false,
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.colors(
-                    disabledIndicatorColor = Color.Transparent
-                )
+                label = { Text("") },
+                colors = TextFieldDefaults.colors(disabledIndicatorColor = Color.Transparent),
+                readOnly = true,
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -135,33 +155,19 @@ fun SignUpScreen(
                 text = stringResource(R.string.title_name),
                 style = MaterialTheme.typography.titleLarge
             )
-            TextField(
-                value = name,
 
+            OutlinedTextField(
+                value = name,
                 onValueChange = { newValue ->
                     name = newValue
-                    viewModel.onNameChanged(newValue.text)
+                    onNameChanged(newValue.text)
                 },
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(
-                        text = when {
-                            signUpScreenState is SignUpScreenState.InvalidInput && (signUpScreenState as SignUpScreenState.InvalidInput).isNameEmpty ->
-                                stringResource(R.string.error_name_empty)
-
-                            else -> ""
-                        }
-                    )
-                },
-
-                colors = TextFieldDefaults.colors(
-                    focusedLabelColor = when {
-                        signUpScreenState is SignUpScreenState.InvalidInput && (signUpScreenState as SignUpScreenState.InvalidInput).isNameEmpty ->
-                            MaterialTheme.colorScheme.error
-
-                        else -> MaterialTheme.colorScheme.primary
-                    }
-                )
+                label = { Text(text = labelNameText) },
+                isError = signUpScreenState is SignUpScreenState.InvalidInput && signUpScreenState.isNameEmpty,
+                colors = TextFieldDefaults.colors(focusedLabelColor = MaterialTheme.colorScheme.primary),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -170,41 +176,17 @@ fun SignUpScreen(
                 text = stringResource(R.string.title_password),
                 style = MaterialTheme.typography.titleLarge
             )
-            TextField(
+
+            OutlinedTextField(
                 value = password,
                 onValueChange = { newValue ->
                     password = newValue
-                    viewModel.onPasswordChanged(newValue.text)
+                    onPasswordChanged(newValue.text)
                 },
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text(
-                        text = when {
-                            signUpScreenState is SignUpScreenState.InvalidInput && (signUpScreenState as SignUpScreenState.InvalidInput).isPasswordEmpty ->
-                                stringResource(R.string.error_password_empty)
-
-                            signUpScreenState is SignUpScreenState.InvalidInput && !(signUpScreenState as SignUpScreenState.InvalidInput).isPasswordFormatCorrect ->
-                                stringResource(R.string.error_password_format)
-
-                            else -> ""
-                        }
-                    )
-                },
-                colors = TextFieldDefaults.colors(
-
-
-                    focusedLabelColor = when (signUpScreenState) {
-                        is SignUpScreenState.InvalidInput ->
-                            when {
-                                (signUpScreenState as SignUpScreenState.InvalidInput).isPasswordEmpty -> MaterialTheme.colorScheme.error
-                                !(signUpScreenState as SignUpScreenState.InvalidInput).isPasswordFormatCorrect -> MaterialTheme.colorScheme.error
-                                else -> MaterialTheme.colorScheme.primary
-                            }
-
-                        else -> MaterialTheme.colorScheme.primary
-                    }
-                ),
-
+                isError = signUpScreenState is SignUpScreenState.InvalidInput &&
+                        (signUpScreenState.isPasswordEmpty || !signUpScreenState.isPasswordFormatCorrect),
+                label = { Text(text = labelPasswordText) },
+                colors = TextFieldDefaults.colors(focusedLabelColor = MaterialTheme.colorScheme.primary),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -214,13 +196,14 @@ fun SignUpScreen(
                             contentDescription = if (isPasswordVisible) "Hide password" else "Show password"
                         )
                     }
-                }
+                },
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
-                onClick = { viewModel.onButtonClicked(email) },
+                onClick = { onButtonClicked(email) },
                 enabled = signUpScreenState is SignUpScreenState.ValidInput,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -230,4 +213,40 @@ fun SignUpScreen(
     }
 }
 
-//PREVIEW A FAIRE
+/**
+ * Preview for [SignUpScreen].
+ */
+@Preview(showBackground = true)
+@Composable
+fun PreviewSignUpScreen() {
+    SignUpScreen(
+        signUpScreenState = SignUpScreenState.ValidInput,
+        email = "test@example.com",
+        onNameChanged = { },
+        onPasswordChanged = { },
+        onButtonClicked = { },
+        navigateToHome = { },
+        navigateToSplash = { }
+    )
+}
+
+/**
+ * Preview for [SignUpScreen].
+ */
+@Preview(showBackground = true)
+@Composable
+fun PreviewSignUpScreenInvalidInput() {
+    SignUpScreen(
+        signUpScreenState = SignUpScreenState.InvalidInput(
+            isNameEmpty = false,
+            isPasswordEmpty = true,
+            isPasswordFormatCorrect = false
+        ),
+        email = "test@example.com",
+        onNameChanged = { },
+        onPasswordChanged = { },
+        onButtonClicked = { },
+        navigateToHome = { },
+        navigateToSplash = { }
+    )
+}

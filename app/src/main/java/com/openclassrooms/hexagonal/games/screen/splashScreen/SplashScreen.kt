@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.openclassrooms.hexagonal.games.R
@@ -76,4 +77,15 @@ fun SplashScreen(
     }
 }
 
-//PREVIEW A FAIRE
+/**
+ * Preview for [SplashScreen].
+ */
+@Preview(showBackground = true)
+@Composable
+fun PreviewSplashScreen() {
+    SplashScreen(
+        splashScreenState = SplashScreenState.UserIsLoggedIn,
+        navigateToLoginOrSignUp = { },
+        navigateToHome = { }
+    )
+}
