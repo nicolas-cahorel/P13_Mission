@@ -38,6 +38,6 @@ interface PostApi {
      * @return A [Flow] emitting a [PostResult] containing the requested post or an error.
      * @note This method might need a parameter like `postId` to specify which post to retrieve.
      */
-    fun getPost(): Flow<PostResult>
+    fun getPost(postId: String): Flow<PostResult>
 
 }

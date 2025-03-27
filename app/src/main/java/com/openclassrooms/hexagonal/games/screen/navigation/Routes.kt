@@ -1,5 +1,7 @@
 package com.openclassrooms.hexagonal.games.screen.navigation
 
+import com.openclassrooms.hexagonal.games.screen.navigation.Routes.SignUpScreen.ARGUMENT
+
 /**
  * Sealed class representing the different navigation routes in the application.
  * Each route is defined as an object with its corresponding path.
@@ -44,16 +46,25 @@ sealed class Routes(val route: String) {
   /** Represents the screen for adding a new post. */
   data object AddPostScreen : Routes("AddPostScreen")
 
-  /** Represents the settings screen route. */
-  data object SettingsScreen : Routes("SettingsScreen")
-
   /**
-   * Represents the post details screen route with a post ID argument.
+   * Represents the post details screen route with an postId argument.
    *
-   * @property ARGUMENT The argument name for the post ID parameter.
+   * @property ARGUMENT The argument name for the postId parameter.
    */
   data object PostDetailsScreen : Routes("PostDetailsScreen/{postId}"){
     const val ARGUMENT = "postId"
   }
+
+  /**
+   * Represents the add comment screen route with an postId argument.
+   *
+   * @property ARGUMENT The argument name for the postId parameter.
+   */
+  data object AddCommentScreen : Routes("AddCommentScreen/{postId}"){
+    const val ARGUMENT = "postId"
+  }
+
+  /** Represents the settings screen route. */
+  data object SettingsScreen : Routes("SettingsScreen")
 
 }

@@ -1,4 +1,4 @@
-package com.openclassrooms.hexagonal.games.screen.addPostScreen
+package com.openclassrooms.hexagonal.games.screen.addCommentScreen
 
 import android.os.Build
 import android.util.Log
@@ -62,11 +62,10 @@ import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddPostScreen(
+fun AddCommentScreen(
     modifier: Modifier = Modifier,
-    addPostScreenState: AddPostScreenState,
+    addCommentScreenState: AddCommentScreenState,
     post: Post,
-    error: FormError?,
     onPhotoChanged: (String) -> Unit,
     onTitleChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
@@ -77,9 +76,9 @@ fun AddPostScreen(
     val context = LocalContext.current
 
     // Effect to show toast messages or navigate based on the post state.
-    LaunchedEffect(addPostScreenState) {
-        when (addPostScreenState) {
-            is AddPostScreenState.AddPostNoInternet -> {
+    LaunchedEffect(addCommentScreenState) {
+        when (addCommentScreenState) {
+            is AddCommentScreenState.AddCommentNoInternet -> {
                 Toast.makeText(
                     context,
                     R.string.toast_no_network,
@@ -87,7 +86,7 @@ fun AddPostScreen(
                 ).show()
             }
 
-            is AddPostScreenState.AddPostError -> {
+            is AddCommentScreenState.AddCommentError -> {
                 Toast.makeText(
                     context,
                     R.string.toast_add_post_error,
@@ -95,7 +94,7 @@ fun AddPostScreen(
                 ).show()
             }
 
-            is AddPostScreenState.AddPostSuccess -> {
+            is AddCommentScreenState.AddCommentSuccess -> {
                 navigateToHome()
             }
 
@@ -108,7 +107,7 @@ fun AddPostScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(stringResource(id = R.string.title_addPostScreen))
+                    Text(stringResource(id = R.string.title_addCommentScreen))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -152,7 +151,6 @@ fun AddPostScreen(
 
         CreatePost(
             modifier = Modifier.padding(contentPadding),
-            error = error,
             title = post.title,
             onTitleChanged = { onTitleChanged(it) },
             description = post.description,
@@ -183,7 +181,6 @@ private fun CreatePost(
     onDescriptionChanged: (String) -> Unit,
     onSaveClicked: () -> Unit,
     onSelectPhotoClicked: () -> Unit,
-    error: FormError?,
     photoUrl: String
 ) {
     val scrollState = rememberScrollState()
@@ -205,7 +202,7 @@ private fun CreatePost(
             OutlinedTextField(
                 value = title,
                 onValueChange = { onTitleChanged(it) },
-                isError = error is FormError.TitleError,
+                isError = false,
                 label = { Text(stringResource(id = R.string.hint_title)) },
                 colors = TextFieldDefaults.colors(focusedLabelColor = MaterialTheme.colorScheme.primary),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -214,9 +211,9 @@ private fun CreatePost(
                     .padding(top = 16.dp)
                     .fillMaxWidth(),
             )
-            if (error is FormError.TitleError) {
+            if (false) {
                 Text(
-                    text = stringResource(id = error.messageRes),
+                    text = "",
                     color = MaterialTheme.colorScheme.error,
                 )
             }
@@ -224,7 +221,7 @@ private fun CreatePost(
             OutlinedTextField(
                 value = description,
                 onValueChange = { onDescriptionChanged(it) },
-                isError = error is FormError.DescriptionError,
+                isError = false,
                 label = { Text(stringResource(id = R.string.hint_description)) },
                 colors = TextFieldDefaults.colors(focusedLabelColor = MaterialTheme.colorScheme.primary),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
@@ -233,9 +230,9 @@ private fun CreatePost(
                     .padding(top = 16.dp)
             )
 
-            if (error is FormError.DescriptionError) {
+            if (false) {
                 Text(
-                    text = stringResource(id = error.messageRes),
+                    text = "",
                     color = MaterialTheme.colorScheme.error,
                 )
             }
@@ -252,12 +249,12 @@ private fun CreatePost(
                 contentScale = ContentScale.Crop,
                 placeholder = painterResource(id = R.drawable.ic_launcher_background)
             )
-            if (error is FormError.PhotoError) {
+            if (false) {
                 Text(
                     modifier = Modifier
                         .align(Alignment.End)
                         .padding(end = 40.dp),
-                    text = stringResource(id = error.messageRes),
+                    text = "",
                     color = MaterialTheme.colorScheme.error,
                 )
             }
@@ -276,7 +273,7 @@ private fun CreatePost(
 
         }
         Button(
-            enabled = error == null,
+            enabled = true,
             onClick = { onSaveClicked() }
         ) {
             Text(
@@ -288,21 +285,19 @@ private fun CreatePost(
 }
 
 /**
- * Preview for [AddPostScreen].
+ * Preview for [AddCommentScreen].
  */
 @Preview(showBackground = true)
 @Composable
-private fun AddPostScreenPreview() {
+private fun AddCommentScreenPreview() {
     HexagonalGamesTheme {
-        AddPostScreen(
-            modifier = Modifier,
-            addPostScreenState = AddPostScreenState.AddPostSuccess,
+        AddCommentScreen(
+            addCommentScreenState = AddCommentScreenState.AddCommentSuccess,
             post = Post(
                 title = "",
                 description = "",
                 photoUrl = ""
             ),
-            error = null,
             onPhotoChanged = {},
             onTitleChanged = {},
             onDescriptionChanged = {},
@@ -313,15 +308,14 @@ private fun AddPostScreenPreview() {
 }
 
 /**
- * Preview for [AddPostScreen].
+ * Preview for [AddCommentScreen].
  */
 @Preview(showBackground = true)
 @Composable
-private fun AddPostScreenInvalidInputPreview() {
+private fun AddCommentScreenInvalidInputPreview() {
     HexagonalGamesTheme {
-        AddPostScreen(
-            modifier = Modifier,
-            addPostScreenState = AddPostScreenState.InvalidInput(
+        AddCommentScreen(
+            addCommentScreenState = AddCommentScreenState.InvalidInput(
                 titleTextFieldLabel = stringResource(R.string.error_title),
                 descriptionTextFieldLabel = "",
                 isTitleValid = false,
@@ -332,7 +326,6 @@ private fun AddPostScreenInvalidInputPreview() {
                 description = "",
                 photoUrl = ""
             ),
-            error = FormError.TitleError,
             onPhotoChanged = {},
             onTitleChanged = {},
             onDescriptionChanged = {},

@@ -61,6 +61,11 @@ sealed class PostResult {
     data class GetPostSuccess(val post: Post) : PostResult()
 
     /**
+     * Represents the case where the post was found.
+     */
+    data object GetPostNotFound : PostResult()
+
+    /**
      * Represents an error that occurred while fetching a single post.
      *
      * @property exception The exception containing error details.

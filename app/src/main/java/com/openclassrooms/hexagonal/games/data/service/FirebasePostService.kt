@@ -8,9 +8,7 @@ import com.google.firebase.firestore.snapshots
 import com.google.firebase.storage.FirebaseStorage
 import com.openclassrooms.hexagonal.games.data.repository.PostResult
 import com.openclassrooms.hexagonal.games.domain.model.Post
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 
@@ -85,7 +83,10 @@ class FirebasePostService : PostApi {
         try {
             Log.d("Nicolas", "Saving post to Firestore: $post")
 
-            firestore.collection("posts").add(post.toHashmap())
+            firestore
+                .collection("posts")
+                .document(post.id)
+                .set(post.toHashmap())
                 .addOnSuccessListener {
                     Log.d("Nicolas", "addonsuccesslistener.")
                 }
@@ -138,8 +139,22 @@ class FirebasePostService : PostApi {
      *
      * @return A Flow emitting [PostResult] with the requested post.
      */
-    override fun getPost(): Flow<PostResult> {
-        TODO("Not yet implemented")
+    override fun getPost(postId: String): Flow<PostResult> = flow {
+        try {
+            val snapshot = firestore
+                .collection("posts")
+                .document(postId)
+                .get()
+                .await()
+            val post = snapshot.toObject(Post::class.java)
+            if (post == null) {
+                emit(PostResult.GetPostNotFound)
+            } else {
+                emit(PostResult.GetPostSuccess(post))
+            }
+        } catch (exception: Exception) {
+            emit(PostResult.GetPostError(exception))
+        }
     }
 
     /**

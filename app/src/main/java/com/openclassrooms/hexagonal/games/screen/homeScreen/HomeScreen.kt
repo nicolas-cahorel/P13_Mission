@@ -3,8 +3,10 @@ package com.openclassrooms.hexagonal.games.screen.homeScreen
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -55,7 +57,7 @@ import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
  * @param homeScreenState The [HomeScreenState] that holds the current state of the home screen.
  * @param navigateToPostDetails A lambda function to navigate to the post details screen, taking the post ID as a parameter.
  * @param navigateToSettings A lambda function to navigate to the settings screen.
- * @param navigateToAdd A lambda function to navigate to the add post screen.
+ * @param navigateToAddPost A lambda function to navigate to the add post screen.
  * @param navigateToUserAccount A lambda function to navigate to the user account screen.
  * @param navigateToSplash A lambda function to navigate to the splash screen.
  */
@@ -64,11 +66,11 @@ import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
 fun HomeScreen(
     modifier: Modifier = Modifier,
     homeScreenState: HomeScreenState,
-    navigateToPostDetails: (String) -> Unit = {},
-    navigateToSettings: () -> Unit = {},
-    navigateToAdd: () -> Unit = {},
-    navigateToUserAccount: () -> Unit = {},
-    navigateToSplash: () -> Unit = {}
+    navigateToPostDetails: (String) -> Unit,
+    navigateToSettings: () -> Unit,
+    navigateToAddPost: () -> Unit,
+    navigateToUserAccount: () -> Unit,
+    navigateToSplash: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -111,7 +113,6 @@ fun HomeScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 actions = {
-
                     IconButton(onClick = { showMenu = !showMenu }) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
@@ -124,7 +125,6 @@ fun HomeScreen(
                         expanded = showMenu,
                         onDismissRequest = { showMenu = false }
                     ) {
-
                         DropdownMenuItem(
                             onClick = {
                                 navigateToSettings()
@@ -136,7 +136,6 @@ fun HomeScreen(
                                 )
                             }
                         )
-
                         DropdownMenuItem(
                             onClick = {
                                 showMenu = false
@@ -152,7 +151,6 @@ fun HomeScreen(
                                 )
                             }
                         )
-
                     }
                 }
             )
@@ -162,11 +160,11 @@ fun HomeScreen(
             FloatingActionButton(
                 onClick = {
                     if (homeScreenState.isUserLoggedIn) {
-                        navigateToAdd()
+                        navigateToAddPost()
                     } else {
                         Toast.makeText(
                             context,
-                            R.string.toast_user_not_logged_in,
+                            R.string.toast_user_not_logged_in_post,
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -181,6 +179,7 @@ fun HomeScreen(
             }
         }
     ) { contentPadding ->
+
         val posts = when (homeScreenState) {
             is HomeScreenState.DisplayPosts -> homeScreenState.posts
             else -> emptyList()
@@ -251,6 +250,7 @@ private fun FeedCell(
                 text = post.title,
                 style = MaterialTheme.typography.titleLarge
             )
+
             if (post.photoUrl.isNotEmpty()) {
                 AsyncImage(
                     modifier = Modifier
@@ -267,6 +267,9 @@ private fun FeedCell(
                     contentScale = ContentScale.Crop,
                 )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             if (post.description.isNotEmpty()) {
                 Text(
                     text = post.description,
@@ -313,7 +316,14 @@ fun HomeScreenPreview() {
     )
 
     HexagonalGamesTheme {
-        HomeScreen(homeScreenState = HomeScreenState.DisplayPosts(dummyPosts, true))
+        HomeScreen(
+            homeScreenState = HomeScreenState.DisplayPosts(dummyPosts, isUserLoggedIn = true,),
+            navigateToPostDetails = {},
+            navigateToSettings = {},
+            navigateToAddPost = {},
+            navigateToUserAccount = {},
+            navigateToSplash = {}
+        )
     }
 }
 
@@ -324,6 +334,13 @@ fun HomeScreenPreview() {
 @Composable
 fun HomeScreenPreviewNoPosts() {
     HexagonalGamesTheme {
-        HomeScreen(homeScreenState = HomeScreenState.NoPostToDisplay(true))
+        HomeScreen(
+            homeScreenState = HomeScreenState.NoPostToDisplay(true),
+            navigateToPostDetails = {},
+            navigateToSettings = {},
+            navigateToAddPost = {},
+            navigateToUserAccount = {},
+            navigateToSplash = {}
+            )
     }
 }

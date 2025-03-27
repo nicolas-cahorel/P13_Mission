@@ -8,6 +8,7 @@ import java.io.Serializable
  * serialization needs.
  */
 data class User(
+
     /**
      * Unique identifier for the User.
      */

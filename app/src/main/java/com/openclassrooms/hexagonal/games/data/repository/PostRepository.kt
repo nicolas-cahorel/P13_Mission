@@ -40,4 +40,12 @@ class PostRepository @Inject constructor(
      */
     fun addPhoto(post: Post): Flow<PostResult> = postApi.addPhoto(post)
 
+    /**
+     * Retrieves a specific post by its unique identifier.
+     *
+     * @param postId The unique identifier of the post to retrieve.
+     * @return A Flow emitting the result of the fetch operation.
+     */
+    fun getPost(postId: String) : Flow<PostResult> = postApi.getPost(postId)
+
 }

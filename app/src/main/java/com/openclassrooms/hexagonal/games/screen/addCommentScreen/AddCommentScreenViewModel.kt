@@ -1,4 +1,4 @@
-package com.openclassrooms.hexagonal.games.screen.addPostScreen
+package com.openclassrooms.hexagonal.games.screen.addCommentScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,23 +25,23 @@ import javax.inject.Inject
  * It also uses the InternetUtils to check for network availability before attempting the post creation.
  */
 @HiltViewModel
-class AddPostScreenViewModel @Inject constructor(
+class AddCommentScreenViewModel @Inject constructor(
     private val internetUtils: InternetUtils,
     private val userRepository: UserRepository,
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
 ) : ViewModel() {
 
     /**
      * MutableStateFlow that represents the current state of the Add Post screen.
      * It holds information about input validation and post creation status.
      */
-    private val _addPostScreenState =
-        MutableStateFlow<AddPostScreenState>(AddPostScreenState.InvalidInput("", "", false, false))
+    private val _addCommentScreenState =
+        MutableStateFlow<AddCommentScreenState>(AddCommentScreenState.InvalidInput("", "", false, false))
 
     /**
      * Exposed immutable StateFlow that reflects the Add Post screen state.
      */
-    val addPostScreenState: StateFlow<AddPostScreenState> get() = _addPostScreenState
+    val addCommentScreenState: StateFlow<AddCommentScreenState> get() = _addCommentScreenState
 
     /**
      * MutableStateFlow that holds the current post object.
@@ -67,11 +67,11 @@ class AddPostScreenViewModel @Inject constructor(
      * StateFlow derived from the post that emits a FormError if the title is empty, or null if valid.
      * It is used to validate the form fields.
      */
-    val error = post.map { verifyPost() }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = null,
-    )
+//    val error = post.map { verifyPost() }.stateIn(
+//        scope = viewModelScope,
+//        started = SharingStarted.WhileSubscribed(5_000),
+//        initialValue = null,
+//    )
 
     /**
      * Verifies mandatory fields of the post
@@ -79,35 +79,35 @@ class AddPostScreenViewModel @Inject constructor(
      *
      * @return A FormError.TitleError if title is empty, null otherwise.
      */
-    private fun verifyPost(): FormError? {
-        return when {
-            _post.value.title.isEmpty() -> FormError.TitleError
-            _post.value.description.isEmpty() -> FormError.DescriptionError
-            _post.value.photoUrl.isEmpty() -> FormError.PhotoError
-            else -> null
-        }
-    }
+//    private fun verifyPost(): FormError? {
+//        return when {
+//            _post.value.title.isEmpty() -> FormError.TitleError
+//            _post.value.description.isEmpty() -> FormError.DescriptionError
+//            _post.value.photoUrl.isEmpty() -> FormError.PhotoError
+//            else -> null
+//        }
+//    }
 
     /**
      * Handles form events like title and description changes.
      *
      * @param formEvent The form event to be processed.
      */
-    fun onAction(formEvent: FormEvent) {
-        when (formEvent) {
-            is FormEvent.DescriptionChanged -> {
-                _post.value = _post.value.copy(description = formEvent.description)
-            }
-
-            is FormEvent.TitleChanged -> {
-                _post.value = _post.value.copy(title = formEvent.title)
-            }
-
-            is FormEvent.PhotoChanged -> {
-                _post.value = _post.value.copy(photoUrl = formEvent.photoUrl)
-            }
-        }
-    }
+//    fun onAction(formEvent: FormEvent) {
+//        when (formEvent) {
+//            is FormEvent.DescriptionChanged -> {
+//                _post.value = _post.value.copy(description = formEvent.description)
+//            }
+//
+//            is FormEvent.TitleChanged -> {
+//                _post.value = _post.value.copy(title = formEvent.title)
+//            }
+//
+//            is FormEvent.PhotoChanged -> {
+//                _post.value = _post.value.copy(photoUrl = formEvent.photoUrl)
+//            }
+//        }
+//    }
 
     /**
      * Attempts to add the current post to the repository after assigning the author to the post.
@@ -147,14 +147,14 @@ class AddPostScreenViewModel @Inject constructor(
 
                                                 // Post successfully added to Firestore
                                                 is PostResult.AddPostSuccess -> {
-                                                    _addPostScreenState.value =
-                                                        AddPostScreenState.AddPostSuccess
+                                                    _addCommentScreenState.value =
+                                                        AddCommentScreenState.AddCommentSuccess
                                                 }
 
                                                 // Error while adding the post
                                                 else -> {
-                                                    _addPostScreenState.value =
-                                                        AddPostScreenState.AddPostError
+                                                    _addCommentScreenState.value =
+                                                        AddCommentScreenState.AddCommentError
                                                 }
                                             }
                                         }
@@ -162,7 +162,7 @@ class AddPostScreenViewModel @Inject constructor(
 
                                     // Error fetching user
                                     else -> {
-                                        _addPostScreenState.value = AddPostScreenState.AddPostError
+                                        _addCommentScreenState.value = AddCommentScreenState.AddCommentError
                                     }
 
                                 }
@@ -171,7 +171,7 @@ class AddPostScreenViewModel @Inject constructor(
 
                         // Error adding photo to Firebase Storage
                         else -> {
-                            _addPostScreenState.value = AddPostScreenState.AddPostError
+                            _addCommentScreenState.value = AddCommentScreenState.AddCommentError
                         }
                     }
                 }
@@ -179,7 +179,7 @@ class AddPostScreenViewModel @Inject constructor(
 
         // No internet connection available
         } else {
-            _addPostScreenState.value = AddPostScreenState.AddPostNoInternet
+            _addCommentScreenState.value = AddCommentScreenState.AddCommentNoInternet
         }
     }
 }

@@ -59,10 +59,10 @@
     <string name="contentDescription_more">More</string>
     <string name="title_my_account">My account</string>
     <string name="toast_no_posts">No posts</string>
-    <string name="toast_user_not_logged_in">An account is mandatory in order to add a post</string>
+    <string name="toast_user_not_logged_in_post">An account is mandatory in order to add a post</string>
 
-    <!-- AddScreen -->
-    <string name="title_addScreen">Add a post</string>
+    <!-- AddPostScreen -->
+    <string name="title_addPostScreen">Add a post</string>
     <string name="hint_title">Title</string>
     <string name="hint_description">Description</string>
     <string name="title_save_button">Save</string>
@@ -72,6 +72,14 @@
     <string name="error_photo">Invalid photo</string>
     <string name="toast_add_post_error">An issue occurred</string>
 
+    <!-- PostDetailsScreen -->
+    <string name="title_postDetailsScreen">Details of the post</string>
+    <string name="post_details_screen_error">An error has occurred</string>
+    <string name="post_details_screen_no_comment">Be the first to add a comment on this post by clicking on + button below!</string>
+    <string name="toast_user_not_logged_in_comment">An account is mandatory in order to add a comment</string>
+
+    <!-- AddCommentScreen -->
+    <string name="title_addCommentScreen">Add a comment</string>
 
     <!-- SettingsScreen -->
     <string name="title_settingsScreen">Settings</string>

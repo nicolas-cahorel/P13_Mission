@@ -8,6 +8,7 @@ import java.io.Serializable
  * The class implements Serializable to allow for potential serialization needs.
  */
 data class Post(
+
     /**
      * Unique identifier for the Post.
      */

@@ -30,10 +30,6 @@ class HomeScreenViewModel @Inject constructor(
     // Holds the current state of the home screen
     private val _homeScreenState =
         MutableStateFlow<HomeScreenState>(HomeScreenState.Loading(false))
-
-    /**
-     * Exposes the home screen state as an immutable StateFlow to be observed by the UI.
-     */
     val homeScreenState: StateFlow<HomeScreenState> get() = _homeScreenState
 
     /**

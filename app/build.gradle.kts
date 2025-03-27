@@ -86,6 +86,7 @@ android {
 
         //Firebase
         implementation(platform(libs.firebase.bom))
+        implementation(libs.firebase.appcheck.debug)
 
         //Analytics
         implementation(libs.firebase.analytics)
@@ -102,36 +103,11 @@ android {
         implementation(libs.firebase.ui.storage)
 
         //Firestore
-        implementation(libs.firebase.ui.firestore)
+//        implementation(libs.firebase.ui.firestore)
         implementation(libs.firebase.firestore)
 
         //App Check
         implementation(libs.firebase.appcheck)
 
-//        implementation(libs.firestore.database)
-//        implementation(libs.firebase.auth)
-//        implementation(libs.firebase.common)
-
-
-        //Google Play Services
-//  implementation(libs.google.play.services.measurement)
-//  implementation(libs.google.play.services.measurement.base)
-//  implementation(libs.google.play.services.measurement.api)
-//  implementation(libs.google.play.services.measurement.impl)
-
     }
-
-// Ajouter une stratégie de résolution pour forcer les versions spécifiées
-//configurations.all {
-//  resolutionStrategy {
-//    force(
-//      "com.google.android.gms:play-services-measurement:${libs.versions.playServices.get()}",
-//      "com.google.android.gms:play-services-measurement-base:${libs.versions.playServices.get()}",
-//      "com.google.android.gms:play-services-measurement-api:${libs.versions.playServices.get()}",
-//      "com.google.android.gms:play-services-measurement-impl:${libs.versions.playServices.get()}"
-//    )
-//  }
-}
-dependencies {
-    implementation(libs.firebase.appcheck.debug)
 }

@@ -19,7 +19,9 @@ sealed class HomeScreenState {
      *
      * @property isUserLoggedIn Indicates if the user is logged in.
      */
-    data class Loading(override val isUserLoggedIn: Boolean) : HomeScreenState()
+    data class Loading(
+        override val isUserLoggedIn: Boolean
+    ) : HomeScreenState()
 
     /**
      * Represents the state when posts are successfully loaded and displayed.
@@ -27,21 +29,27 @@ sealed class HomeScreenState {
      * @property posts The list of posts to be displayed.
      * @property isUserLoggedIn Indicates if the user is logged in.
      */
-    data class DisplayPosts(val posts: List<Post>, override val isUserLoggedIn: Boolean) :
-        HomeScreenState()
+    data class DisplayPosts(
+        val posts: List<Post>,
+        override val isUserLoggedIn: Boolean
+    ) : HomeScreenState()
 
     /**
      * Represents the state when there are no posts available to display.
      *
      * @property isUserLoggedIn Indicates if the user is logged in.
      */
-    data class NoPostToDisplay(override val isUserLoggedIn: Boolean) : HomeScreenState()
+    data class NoPostToDisplay(
+        override val isUserLoggedIn: Boolean
+    ) : HomeScreenState()
 
     /**
      * Represents the state when the internet connection is unavailable.
      *
      * @property isUserLoggedIn Indicates if the user is logged in.
      */
-    data class InternetUnavailable(override val isUserLoggedIn: Boolean) : HomeScreenState()
+    data class InternetUnavailable(
+        override val isUserLoggedIn: Boolean
+    ) : HomeScreenState()
 
 }
