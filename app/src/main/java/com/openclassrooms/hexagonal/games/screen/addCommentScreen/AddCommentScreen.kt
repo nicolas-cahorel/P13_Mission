@@ -1,19 +1,13 @@
 package com.openclassrooms.hexagonal.games.screen.addCommentScreen
 
-import android.os.Build
-import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -31,46 +25,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.openclassrooms.hexagonal.games.R
-import com.openclassrooms.hexagonal.games.domain.model.Post
-import com.openclassrooms.hexagonal.games.ui.theme.HexagonalGamesTheme
+import com.openclassrooms.hexagonal.games.domain.model.Comment
 
 /**
- * Displays the screen for adding a new post.
+ * Displays the screen for adding a new comment.
  *
- * This composable allows users to create a new post by providing a title, description, and an optional photo.
- * It handles form validation, user interactions, and navigation events.
+ * This composable allows users to create a new comment by providing text input.
+ * It manages form validation, user interactions, and navigation events.
  *
  * @param modifier Modifier to customize the layout appearance and behavior.
- * @param addPostScreenState The current UI state of the AddPost screen.
- * @param post The post object containing the current title, description, and photo URL.
- * @param error The form validation error, if any.
- * @param onPhotoChanged Callback invoked when the user selects a new photo.
- * @param onTitleChanged Callback invoked when the title input changes.
- * @param onDescriptionChanged Callback invoked when the description input changes.
+ * @param addCommentScreenState The current UI state of the AddComment screen.
+ * @param comment The comment object containing the current text input.
+ * @param onCommentChanged Callback invoked when the comment input changes.
  * @param onSaveClicked Callback invoked when the user clicks the save button.
- * @param navigateToHome Callback invoked to navigate back to the home screen after successful post creation.
+ * @param navigateToPostDetails Callback invoked to navigate back to the post details screen after successful comment creation.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddCommentScreen(
     modifier: Modifier = Modifier,
     addCommentScreenState: AddCommentScreenState,
-    post: Post,
-    onPhotoChanged: (String) -> Unit,
-    onTitleChanged: (String) -> Unit,
-    onDescriptionChanged: (String) -> Unit,
+    comment: Comment,
+    onCommentChanged: (String) -> Unit,
     onSaveClicked: () -> Unit,
-    navigateToHome: () -> Unit
+    navigateToPostDetails: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -95,7 +79,7 @@ fun AddCommentScreen(
             }
 
             is AddCommentScreenState.AddCommentSuccess -> {
-                navigateToHome()
+                navigateToPostDetails()
             }
 
             else -> Unit
@@ -115,7 +99,7 @@ fun AddCommentScreen(
                 ),
                 navigationIcon = {
                     IconButton(onClick = {
-                        navigateToHome()
+                        navigateToPostDetails()
                     }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -128,62 +112,34 @@ fun AddCommentScreen(
         }
     ) { contentPadding ->
 
-        /// Check if the Photo Picker is available for Android 13 and later
-        val isPhotoPickerAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-
-        // Image Picker for Android 13 and later (API 33+)
-        val pickVisualMediaLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.PickVisualMedia()
-        ) { uri ->
-            uri?.let {
-                onPhotoChanged(uri.toString())
-            } ?: Log.d("PhotoPicker", "No media selected")
-        }
-
-        // Image Picker for Android 12 and earlier (API 32-)
-        val getContentLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.GetContent()
-        ) { uri ->
-            uri?.let {
-                onPhotoChanged(uri.toString())
-            } ?: Log.d("PhotoPicker", "No media selected")
-        }
-
-        CreatePost(
+        CreateComment(
             modifier = Modifier.padding(contentPadding),
-            title = post.title,
-            onTitleChanged = { onTitleChanged(it) },
-            description = post.description,
-            onDescriptionChanged = { onDescriptionChanged(it) },
-            onSaveClicked = { onSaveClicked() },
-            onSelectPhotoClicked = {
-                if (isPhotoPickerAvailable) {
-                    pickVisualMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                } else {
-                    getContentLauncher.launch("image/*")
-                }
-            },
-            photoUrl = post.photoUrl
+            addCommentScreenState = addCommentScreenState,
+            content = comment.content,
+            onCommentChanged = { onCommentChanged(it) },
+            onSaveClicked = { onSaveClicked() }
         )
     }
 }
 
 /**
- * Composable that represents the form for creating a post.
- * It includes input fields for title and description, an image picker, and a save button.
+ * Composable that represents the form for creating a comment.
+ * It includes an input field for the comment text and a save button.
+ *
+ * @param modifier Modifier to customize the layout.
+ * @param addCommentScreenState The current UI state affecting input validation.
+ * @param content The current text of the comment.
+ * @param onCommentChanged Callback invoked when the comment input changes.
+ * @param onSaveClicked Callback invoked when the save button is clicked.
  */
 @Composable
-private fun CreatePost(
+private fun CreateComment(
     modifier: Modifier = Modifier,
-    title: String,
-    onTitleChanged: (String) -> Unit,
-    description: String,
-    onDescriptionChanged: (String) -> Unit,
-    onSaveClicked: () -> Unit,
-    onSelectPhotoClicked: () -> Unit,
-    photoUrl: String
+    addCommentScreenState: AddCommentScreenState,
+    content: String,
+    onCommentChanged: (String) -> Unit,
+    onSaveClicked: () -> Unit
 ) {
-    val scrollState = rememberScrollState()
 
     Column(
         modifier = modifier
@@ -191,89 +147,35 @@ private fun CreatePost(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .weight(1f)
-                .verticalScroll(scrollState)
-        ) {
-
-            OutlinedTextField(
-                value = title,
-                onValueChange = { onTitleChanged(it) },
-                isError = false,
-                label = { Text(stringResource(id = R.string.hint_title)) },
-                colors = TextFieldDefaults.colors(focusedLabelColor = MaterialTheme.colorScheme.primary),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                singleLine = true,
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .fillMaxWidth(),
-            )
-            if (false) {
+        OutlinedTextField(
+            value = content,
+            onValueChange = { onCommentChanged(it) },
+            isError = addCommentScreenState is AddCommentScreenState.InvalidInput,
+            label = {
                 Text(
-                    text = "",
-                    color = MaterialTheme.colorScheme.error,
+                    stringResource(
+                        id = if (addCommentScreenState is AddCommentScreenState.InvalidInput)
+                            R.string.error_content_invalid
+                        else
+                            R.string.hint_comment
+                    )
                 )
-            }
+            },
+            colors = TextFieldDefaults.colors(focusedLabelColor = MaterialTheme.colorScheme.primary),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            singleLine = false,
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .fillMaxWidth(),
+        )
 
-            OutlinedTextField(
-                value = description,
-                onValueChange = { onDescriptionChanged(it) },
-                isError = false,
-                label = { Text(stringResource(id = R.string.hint_description)) },
-                colors = TextFieldDefaults.colors(focusedLabelColor = MaterialTheme.colorScheme.primary),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-            )
+        Spacer(modifier = modifier.height(8.dp))
 
-            if (false) {
-                Text(
-                    text = "",
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-
-
-            AsyncImage(
-                model = photoUrl.takeIf { it.isNotEmpty() } ?: R.drawable.ic_launcher_background,
-                contentDescription = "Image selected by user",
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .size(300.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .align(Alignment.CenterHorizontally),
-                contentScale = ContentScale.Crop,
-                placeholder = painterResource(id = R.drawable.ic_launcher_background)
-            )
-            if (false) {
-                Text(
-                    modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(end = 40.dp),
-                    text = "",
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-
-            Button(
-                onClick = { onSelectPhotoClicked() },
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = 4.dp)
-            ) {
-                Text(
-                    modifier = Modifier.padding(8.dp),
-                    text = stringResource(id = R.string.title_select_photo_button)
-                )
-            }
-
-        }
         Button(
-            enabled = true,
+            enabled = when (addCommentScreenState) {
+                is AddCommentScreenState.ValidInput -> true
+                else -> false
+            },
             onClick = { onSaveClicked() }
         ) {
             Text(
@@ -289,22 +191,14 @@ private fun CreatePost(
  */
 @Preview(showBackground = true)
 @Composable
-private fun AddCommentScreenPreview() {
-    HexagonalGamesTheme {
-        AddCommentScreen(
-            addCommentScreenState = AddCommentScreenState.AddCommentSuccess,
-            post = Post(
-                title = "",
-                description = "",
-                photoUrl = ""
-            ),
-            onPhotoChanged = {},
-            onTitleChanged = {},
-            onDescriptionChanged = {},
-            onSaveClicked = {},
-            navigateToHome = {}
-        )
-    }
+fun AddCommentScreenPreview() {
+    AddCommentScreen(
+        addCommentScreenState = AddCommentScreenState.ValidInput,
+        comment = Comment(id = "1", content = "This is a sample comment."),
+        onCommentChanged = {},
+        onSaveClicked = {},
+        navigateToPostDetails = {}
+    )
 }
 
 /**
@@ -312,25 +206,12 @@ private fun AddCommentScreenPreview() {
  */
 @Preview(showBackground = true)
 @Composable
-private fun AddCommentScreenInvalidInputPreview() {
-    HexagonalGamesTheme {
-        AddCommentScreen(
-            addCommentScreenState = AddCommentScreenState.InvalidInput(
-                titleTextFieldLabel = stringResource(R.string.error_title),
-                descriptionTextFieldLabel = "",
-                isTitleValid = false,
-                isDescriptionValid = true
-            ),
-            post = Post(
-                title = "",
-                description = "",
-                photoUrl = ""
-            ),
-            onPhotoChanged = {},
-            onTitleChanged = {},
-            onDescriptionChanged = {},
-            onSaveClicked = {},
-            navigateToHome = {}
-        )
-    }
+fun AddCommentScreenPreviewInvalidInput() {
+    AddCommentScreen(
+        addCommentScreenState = AddCommentScreenState.InvalidInput,
+        comment = Comment(id = "1", content = " "),
+        onCommentChanged = {},
+        onSaveClicked = {},
+        navigateToPostDetails = {}
+    )
 }

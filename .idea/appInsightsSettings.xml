@@ -9,9 +9,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.openclassrooms.hexagonal.games" />
-                  <option name="mobileSdkAppId" value="1:321307726947:android:26bc69b981a12035745456" />
-                  <option name="projectId" value="p13-hexagonalgames" />
-                  <option name="projectNumber" value="321307726947" />
+                  <option name="mobileSdkAppId" value="1:1058790407939:android:0f3d0dc603bfecb960b336" />
+                  <option name="projectId" value="hexagonal-games-f235d" />
+                  <option name="projectNumber" value="1058790407939" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

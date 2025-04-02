@@ -35,13 +35,17 @@ class FirebasePostService : PostApi {
                 .snapshots()
                 .collect { querySnapshot ->
                     val posts = querySnapshot.toObjects(Post::class.java)
+
                     if (posts.isEmpty()) {
+                        Log.d("Nicolas", "FirebasePostService - getPostsOrderByCreationDate() : No posts found in Firestore DB.")
                         emit(PostResult.GetPostsEmpty)
                     } else {
+                        Log.d("Nicolas", "FirebasePostService - getPostsOrderByCreationDate() : Successfully retrieved ${posts.size} post(s) from Firestore DB.")
                         emit(PostResult.GetPostsSuccess(posts))
                     }
                 }
         } catch (exception: Exception) {
+            Log.e("Nicolas", "FirebasePostService - getPostsOrderByCreationDate() : Error occurred while fetching posts from Firestore DB.", exception)
             emit(PostResult.GetPostsError(exception))
         }
     }
@@ -58,9 +62,11 @@ class FirebasePostService : PostApi {
             imageRef.putFile(post.photoUrl.toUri()).await()
 
             val downloadUri = imageRef.downloadUrl.await().toString()
+
+            Log.d("Nicolas", "FirebasePostService - addPhoto() : Post photo successfully uploaded to Firebase Storage.")
             emit(PostResult.AddPhotoSuccess(downloadUri))
         } catch (exception: Exception) {
-            Log.e("Nicolas", "Error adding photo", exception)
+            Log.e("Nicolas", "FirebasePostService - addPhoto() : Error occurred while uploading photo in Firebase Storage.", exception)
             emit(PostResult.AddPhotoError(exception))
         }
     }
@@ -81,58 +87,18 @@ class FirebasePostService : PostApi {
      */
     override fun addPost(post: Post): Flow<PostResult> = flow {
         try {
-            Log.d("Nicolas", "Saving post to Firestore: $post")
-
             firestore
                 .collection("posts")
                 .document(post.id)
                 .set(post.toHashmap())
-                .addOnSuccessListener {
-                    Log.d("Nicolas", "addonsuccesslistener.")
-                }
-                .addOnFailureListener {
-                    Log.d("Nicolas", "addonfailurelistener.")
-                }
-                .addOnCanceledListener {
-                    Log.d("Nicolas", "addoncancellistener.")
-                }
-                .addOnCompleteListener {
-                    Log.d("Nicolas", "addoncompletelistener.")
-                }
 
-            Log.d("Nicolas", "Post successfully saved.")
+            Log.d("Nicolas", "FirebasePostService - addPost() : Post successfully uploaded to Firestore DB.")
             emit(PostResult.AddPostSuccess)
         } catch (exception: Exception) {
-            Log.e("Nicolas", "Error adding post", exception)
+            Log.e("Nicolas", "FirebasePostService - addPost() : Error occurred while uploading post in Firestore DB.", exception)
             emit(PostResult.AddPostError(exception))
         }
     }
-
-
-//    override fun addPost(post: Post): Flow<PostResult> {
-//        Log.d("Nicolas", "Saving post to Firestore: $post")
-//
-//        return callbackFlow {
-//
-//            firestore
-//                .collection("posts")
-//                .add(post.toHashmap())
-//
-//                .addOnSuccessListener { document ->
-//                    Log.d("Nicolas", "post added in firestoreDB with id : ${document.id}")
-//                    trySend(PostResult.AddPostSuccess)
-//                }
-//
-//                .addOnFailureListener { e ->
-//                    e.printStackTrace()
-//                    Log.d("Nicolas", "exception while adding post to firestoreDB : ${e.message}")
-//                    trySend(PostResult.AddPostError(e))
-//                }
-//
-//            awaitClose { }
-//
-//        }
-//    }
 
     /**
      * Retrieves a specific post.
@@ -147,12 +113,16 @@ class FirebasePostService : PostApi {
                 .get()
                 .await()
             val post = snapshot.toObject(Post::class.java)
+
             if (post == null) {
+                Log.d("Nicolas", "FirebasePostService - getPost() : No post found in Firestore DB.")
                 emit(PostResult.GetPostNotFound)
             } else {
+                Log.d("Nicolas", "FirebasePostService - getPost() : Successfully retrieved post from Firestore DB.")
                 emit(PostResult.GetPostSuccess(post))
             }
         } catch (exception: Exception) {
+            Log.e("Nicolas", "FirebasePostService - getPost() : Error occurred while fetching post from Firestore DB.", exception)
             emit(PostResult.GetPostError(exception))
         }
     }

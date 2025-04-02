@@ -6,6 +6,7 @@
   <string name="toast_no_internet">Erreur de réseau, vérifiez votre connexion Internet</string>
   <string name="backButton_topAppBar_description">Retour</string>
   <string name="default_notification_channel_id">Notification Hexagonal Games</string>
+  <string name="title_save_button">Sauvegarder</string>
 
   <!-- LoginScreen -->
   <string name="title_signIn_button">Se connecter avec une adresse e-mail</string>
@@ -64,7 +65,6 @@
   <string name="title_addPostScreen">Ajout d\'une publication</string>
   <string name="hint_title">Titre</string>
   <string name="hint_description">Description</string>
-  <string name="title_save_button">Sauvegarder</string>
   <string name="error_title">Titre non valide</string>
   <string name="title_select_photo_button">Sélectionner une photo</string>
   <string name="error_description">Description non valide</string>
@@ -79,11 +79,15 @@
 
   <!-- AddCommentScreen -->
   <string name="title_addCommentScreen">Ajout d\'un commentaire</string>
+  <string name="hint_comment">Commentaire</string>
+  <string name="error_content_invalid">Commentaire non valide</string>
 
   <!-- SettingsScreen -->
   <string name="title_settingsScreen">Paramètres</string>
   <string name="title_notification_enable">Activer les notifications</string>
   <string name="title_notification_disable">Désactiver les notifications</string>
-  <string name="contentDescription_notification_icon">Notification icon</string>
+  <string name="contentDescription_notification_icon">Icone de notification</string>
+  <string name="toast_notification_enabled">Notifications activées</string>
+  <string name="toast_notification_disabled">Notifications désactivées</string>
 
 </resources>

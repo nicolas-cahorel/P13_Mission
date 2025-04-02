@@ -7,7 +7,7 @@ import java.io.Serializable
  * ID, the associated post ID, content, timestamp, and the author (User object).
  * The class implements [Serializable] to allow potential serialization and deserialization.
  */
-class Comment(
+data class Comment(
 
     /**
      * Unique identifier for the Comment.

@@ -7,7 +7,7 @@
     <string name="backButton_topAppBar_description">Back</string>
     <string name="default_notification_channel_id">Hexagonal Games notification</string>
     <string name="toast_no_network">No network</string>
-
+    <string name="title_save_button">Save</string>
 
     <!-- LoginScreen -->
     <string name="title_signIn_button">Sign in with email</string>
@@ -65,7 +65,6 @@
     <string name="title_addPostScreen">Add a post</string>
     <string name="hint_title">Title</string>
     <string name="hint_description">Description</string>
-    <string name="title_save_button">Save</string>
     <string name="error_title">Title not valid</string>
     <string name="title_select_photo_button">Select a photo</string>
     <string name="error_description">Invalid description</string>
@@ -80,11 +79,15 @@
 
     <!-- AddCommentScreen -->
     <string name="title_addCommentScreen">Add a comment</string>
+    <string name="hint_comment">Comment</string>
+    <string name="error_content_invalid">Comment not valid</string>
 
     <!-- SettingsScreen -->
     <string name="title_settingsScreen">Settings</string>
     <string name="title_notification_enable">Enable notifications</string>
     <string name="title_notification_disable">Disable notifications</string>
-    <string name="contentDescription_notification_icon">Icone de notification</string>
+    <string name="contentDescription_notification_icon">Notification icon</string>
+    <string name="toast_notification_enabled">Notifications enabled</string>
+    <string name="toast_notification_disabled">Notifications disabled</string>
 
 </resources>

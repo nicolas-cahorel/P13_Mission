@@ -33,12 +33,11 @@ class FirebaseUserService : UserApi {
                     .build()
             )?.await()
 
+            Log.d("Nicolas", "FirebaseUserService - createUser() : User successfully created in Firebase.")
             emit(UserResult.CreateUserSuccess)
-            Log.d("Nicolas", "User successfully created in Firebase and Firestore")
-
         } catch (exception: Exception) {
+            Log.d("Nicolas", "FirebaseUserService - createUser() : Error occurred while uploading user in Firebase.", exception)
             emit(UserResult.CreateUserError(exception))
-            Log.d("Nicolas", "User could not be created in Firebase and Firestore")
         }
     }
 
@@ -50,6 +49,7 @@ class FirebaseUserService : UserApi {
     override fun readUser(): Flow<UserResult> = flow {
         try {
             val currentUser = FirebaseAuth.getInstance().currentUser
+
             if (currentUser != null) {
                 val user = User(
                     id = currentUser.uid,
@@ -58,17 +58,15 @@ class FirebaseUserService : UserApi {
                     email = currentUser.email ?: "",
                     password = ""
                 )
+                Log.d("Nicolas", "FirebaseUserService - readUser() : Successfully retrieved user from Firebase.")
                 emit(UserResult.ReadUserSuccess(user))
             } else {
+                Log.d("Nicolas", "FirebaseUserService - readUser() : No user found in Firebase.")
                 emit(UserResult.ReadUserNotFound)
             }
-
         } catch (exception: Exception) {
+            Log.e("Nicolas", "FirebaseUserService - readUser() : Error occurred while fetching user from Firebase.", exception)
             emit(UserResult.ReadUserError(exception))
-            Log.d(
-                "Nicolas",
-                "exception caught while fetching users data from Firebase and Firestore"
-            )
         }
     }
 
@@ -83,11 +81,15 @@ class FirebaseUserService : UserApi {
             try {
                 user.delete().await()
                 signOut()
+
+                Log.d("Nicolas", "FirebaseUserService - deleteUser() : Successfully deleted user from Firebase.")
                 emit(UserResult.DeleteUserSuccess)
             } catch (exception: Exception) {
+                Log.e("Nicolas", "FirebaseUserService - deleteUser() : Error occurred while deleting user from Firebase.", exception)
                 emit(UserResult.DeleteUserError(exception))
             }
         } else {
+            Log.d("Nicolas", "FirebaseUserService - deleteUser() : No user found in Firebase.")
             emit(UserResult.DeleteUserNotFound)
         }
     }
@@ -102,8 +104,11 @@ class FirebaseUserService : UserApi {
     override fun signIn(email: String, password: String): Flow<UserResult> = flow {
         try {
             auth.signInWithEmailAndPassword(email, password).await()
+
+            Log.d("Nicolas", "FirebaseUserService - signIn() : Successfully signed in with Firebase.")
             emit(UserResult.SignInSuccess)
         } catch (exception: Exception) {
+            Log.e("Nicolas", "FirebaseUserService - signIn() : Error occurred while signing in with Firebase.", exception)
             emit(UserResult.SignInError(exception))
         }
     }
@@ -116,8 +121,11 @@ class FirebaseUserService : UserApi {
     override fun signOut(): Flow<UserResult> = flow {
         try {
             auth.signOut()
+
+            Log.d("Nicolas", "FirebaseUserService - signOut() : Successfully signed out with Firebase.")
             emit(UserResult.SignOutSuccess)
         } catch (exception: Exception) {
+            Log.e("Nicolas", "FirebaseUserService - signOut() : Error occurred while signing out with Firebase.", exception)
             emit(UserResult.SignOutError(exception))
         }
     }
@@ -132,11 +140,14 @@ class FirebaseUserService : UserApi {
         try {
             val signInMethods = auth.fetchSignInMethodsForEmail(email).await().signInMethods
             if (signInMethods.isNullOrEmpty()) {
+                Log.d("Nicolas", "FirebaseUserService - doUserExistInFirebase() : No user account found in Firebase.")
                 emit(UserResult.UserInFirebaseNotFound)
             } else {
+                Log.d("Nicolas", "FirebaseUserService - doUserExistInFirebase() : User account found in Firebase.")
                 emit(UserResult.UserInFirebaseFound)
             }
         } catch (exception: Exception) {
+            Log.e("Nicolas", "FirebaseUserService - doUserExistInFirebase() : Error checking user existence in Firebase.", exception)
             emit(UserResult.UserInFirebaseError(exception))
         }
     }
@@ -150,8 +161,11 @@ class FirebaseUserService : UserApi {
     override fun recoverPassword(email: String): Flow<UserResult> = flow {
         try {
             auth.sendPasswordResetEmail(email).await()
+
+            Log.d("Nicolas", "FirebaseUserService - recoverPassword() : Successfully send email for password recovery.")
             emit(UserResult.RecoverPasswordSuccess)
         } catch (exception: Exception) {
+            Log.e("Nicolas", "FirebaseUserService - recoverPassword() : Error sending email for password recovery.", exception)
             emit(UserResult.RecoverPasswordError(exception))
         }
     }

@@ -1,5 +1,6 @@
 package com.openclassrooms.hexagonal.games.screen.postDetailsScreen
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,8 +27,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class PostDetailsScreenViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
-    private val internetUtils: InternetUtils,
+    savedStateHandle: SavedStateHandle,
+    internetUtils: InternetUtils,
     private val postRepository: PostRepository,
     private val userRepository: UserRepository,
     private val commentRepository: CommentRepository
@@ -50,8 +51,9 @@ class PostDetailsScreenViewModel @Inject constructor(
      */
     init {
 
-        // Récupération du postId depuis les arguments de la navigation (a traduire en anglais)
+        // Retrieving the postId from the navigation arguments
         val postId: String? = savedStateHandle["postId"]
+        Log.d("Nicolas", "postId in PostDetailsScreenViewModel : $postId")
         if (!postId.isNullOrEmpty()) {
 
             if (internetUtils.isInternetAvailable()) {

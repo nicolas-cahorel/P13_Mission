@@ -1,6 +1,7 @@
 package com.openclassrooms.hexagonal.games.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import com.openclassrooms.hexagonal.games.data.service.CommentApi
 import com.openclassrooms.hexagonal.games.data.service.FirebaseCommentService
 import com.openclassrooms.hexagonal.games.data.service.FirebasePostService
@@ -35,6 +36,19 @@ class AppModule {
     @Singleton
     fun provideInternetUtils(@ApplicationContext context: Context): InternetUtils {
         return InternetUtils(context)
+    }
+
+    /**
+     * Provides an instance of [SharedPreferences].
+     * This is used to store and retrieve application preferences.
+     *
+     * @param context The application context, passed as a parameter.
+     * @return A singleton instance of [SharedPreferences].
+     */
+    @Provides
+    @Singleton
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+        return context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     }
 
     /**

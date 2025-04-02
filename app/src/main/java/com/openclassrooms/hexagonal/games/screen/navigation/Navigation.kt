@@ -1,5 +1,7 @@
 package com.openclassrooms.hexagonal.games.screen.navigation
 
+import android.Manifest
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -8,6 +10,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
+import com.openclassrooms.hexagonal.games.screen.addCommentScreen.AddCommentScreen
 import com.openclassrooms.hexagonal.games.screen.addCommentScreen.AddCommentScreenViewModel
 import com.openclassrooms.hexagonal.games.screen.addPostScreen.AddPostScreen
 import com.openclassrooms.hexagonal.games.screen.addPostScreen.AddPostScreenViewModel
@@ -37,6 +42,7 @@ import com.openclassrooms.hexagonal.games.screen.userAccountScreen.UserAccountSc
  *
  * @param navController The navigation controller that manages the app navigation stack.
  */
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun Navigation(navController: NavHostController) {
     NavHost(
@@ -160,14 +166,14 @@ fun Navigation(navController: NavHostController) {
         }
 
         composable(route = Routes.PostDetailsScreen.route) {
-//            backStackEntry ->
-//            val postId = backStackEntry.arguments?.getString(Routes.PostDetailsScreen.ARGUMENT)
+            backStackEntry ->
+            val postId = backStackEntry.arguments?.getString(Routes.PostDetailsScreen.ARGUMENT)
             val postDetailsScreenViewModel: PostDetailsScreenViewModel = hiltViewModel()
             val postDetailsScreenState by postDetailsScreenViewModel.postDetailsScreenState.collectAsState()
             PostDetailsScreen(
                 postDetailsScreenState = postDetailsScreenState,
                 navigateToHome = { navController.navigate(Routes.HomeScreen.route) },
-                navigateToAddComment = {navController.navigate(Routes.AddCommentScreen.route)}
+                navigateToAddComment = {navController.navigate("AddCommentScreen/$postId")}
             )
         }
 
@@ -176,26 +182,35 @@ fun Navigation(navController: NavHostController) {
                 backStackEntry.arguments?.getString(Routes.AddCommentScreen.ARGUMENT)
             val addCommentScreenViewModel: AddCommentScreenViewModel = hiltViewModel()
             val addCommentScreenState by addCommentScreenViewModel.addCommentScreenState.collectAsState()
+            val comment by addCommentScreenViewModel.comment.collectAsStateWithLifecycle()
+            AddCommentScreen(
+                addCommentScreenState = addCommentScreenState,
+                comment = comment,
+                onCommentChanged = { content -> addCommentScreenViewModel.onContentChanged(content)},
+                onSaveClicked = { addCommentScreenViewModel.addComment()},
+                navigateToPostDetails = { navController.navigate("PostDetailsScreen/$postId") },
+            )
 
         }
-
-
-
-
-
-
 
         composable(route = Routes.SettingsScreen.route) {
             val settingsScreenViewModel: SettingsScreenViewModel = hiltViewModel()
+            val settingsScreenState by settingsScreenViewModel.settingsScreenState.collectAsState()
+            val notificationsPermissionState = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                rememberPermissionState(
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
+            } else {
+                null
+            }
             SettingsScreen(
-                onNotificationEnabledClicked = { settingsScreenViewModel.enableNotifications() },
+                settingsScreenState = settingsScreenState,
+                onNotificationEnabledClicked = { settingsScreenViewModel.enableNotifications(notificationsPermissionState) },
                 onNotificationDisabledClicked = { settingsScreenViewModel.disableNotifications() },
-                navigateToPrevious = { navController.navigateUp() }
+                navigateToHome = { navController.navigate(Routes.HomeScreen.route) }
+
             )
         }
-
-
-
 
     }
 }
