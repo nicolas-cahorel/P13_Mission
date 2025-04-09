@@ -2,7 +2,6 @@ package com.openclassrooms.hexagonal.games.screen.settingsScreen
 
 import android.content.SharedPreferences
 import android.os.Build
-import android.util.Log
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -33,10 +32,6 @@ class SettingsScreenViewModel @Inject constructor(
         } else {
             SettingsScreenState.NotificationAreDisabled
         }
-        Log.d(
-            "Nicolas",
-            "SettingsScreenViewModel - init() : settingsScreenState = ${_settingsScreenState.value}"
-        )
     }
 
     /**
@@ -56,10 +51,6 @@ class SettingsScreenViewModel @Inject constructor(
 
         sharedPreferences.edit { putBoolean("notifications_enabled", true) }
         _settingsScreenState.value = SettingsScreenState.NotificationsAreEnabled
-        Log.d(
-            "Nicolas",
-            "SettingsScreenViewModel - enableNotifications() : settingsScreenState = ${_settingsScreenState.value}"
-        )
     }
 
 
@@ -70,9 +61,5 @@ class SettingsScreenViewModel @Inject constructor(
     fun disableNotifications() {
         sharedPreferences.edit { putBoolean("notifications_enabled", false) }
         _settingsScreenState.value = SettingsScreenState.NotificationAreDisabled
-        Log.d(
-            "Nicolas",
-            "SettingsScreenViewModel - disableNotifications() : settingsScreenState = ${_settingsScreenState.value}"
-        )
     }
 }

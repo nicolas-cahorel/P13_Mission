@@ -1,6 +1,5 @@
 package com.openclassrooms.hexagonal.games.screen.splashScreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.hexagonal.games.data.repository.UserRepository
@@ -36,7 +35,6 @@ class SplashScreenViewModel @Inject constructor(
                 when (userResult) {
                     is UserResult.ReadUserSuccess -> {
                         _splashScreenState.value = SplashScreenState.UserIsLoggedIn
-                        Log.d("Nicolas", "UserResult: ${userResult.user}")
                     }
 
                     is UserResult.ReadUserError ->

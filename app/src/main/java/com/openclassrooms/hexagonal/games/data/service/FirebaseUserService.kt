@@ -1,6 +1,5 @@
 package com.openclassrooms.hexagonal.games.data.service
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.openclassrooms.hexagonal.games.data.repository.UserResult
@@ -33,10 +32,8 @@ class FirebaseUserService : UserApi {
                     .build()
             )?.await()
 
-            Log.d("Nicolas", "FirebaseUserService - createUser() : User successfully created in Firebase.")
             emit(UserResult.CreateUserSuccess)
         } catch (exception: Exception) {
-            Log.d("Nicolas", "FirebaseUserService - createUser() : Error occurred while uploading user in Firebase.", exception)
             emit(UserResult.CreateUserError(exception))
         }
     }
@@ -58,14 +55,11 @@ class FirebaseUserService : UserApi {
                     email = currentUser.email ?: "",
                     password = ""
                 )
-                Log.d("Nicolas", "FirebaseUserService - readUser() : Successfully retrieved user from Firebase.")
                 emit(UserResult.ReadUserSuccess(user))
             } else {
-                Log.d("Nicolas", "FirebaseUserService - readUser() : No user found in Firebase.")
                 emit(UserResult.ReadUserNotFound)
             }
         } catch (exception: Exception) {
-            Log.e("Nicolas", "FirebaseUserService - readUser() : Error occurred while fetching user from Firebase.", exception)
             emit(UserResult.ReadUserError(exception))
         }
     }
@@ -82,14 +76,11 @@ class FirebaseUserService : UserApi {
                 user.delete().await()
                 signOut()
 
-                Log.d("Nicolas", "FirebaseUserService - deleteUser() : Successfully deleted user from Firebase.")
                 emit(UserResult.DeleteUserSuccess)
             } catch (exception: Exception) {
-                Log.e("Nicolas", "FirebaseUserService - deleteUser() : Error occurred while deleting user from Firebase.", exception)
                 emit(UserResult.DeleteUserError(exception))
             }
         } else {
-            Log.d("Nicolas", "FirebaseUserService - deleteUser() : No user found in Firebase.")
             emit(UserResult.DeleteUserNotFound)
         }
     }
@@ -105,10 +96,8 @@ class FirebaseUserService : UserApi {
         try {
             auth.signInWithEmailAndPassword(email, password).await()
 
-            Log.d("Nicolas", "FirebaseUserService - signIn() : Successfully signed in with Firebase.")
             emit(UserResult.SignInSuccess)
         } catch (exception: Exception) {
-            Log.e("Nicolas", "FirebaseUserService - signIn() : Error occurred while signing in with Firebase.", exception)
             emit(UserResult.SignInError(exception))
         }
     }
@@ -122,10 +111,8 @@ class FirebaseUserService : UserApi {
         try {
             auth.signOut()
 
-            Log.d("Nicolas", "FirebaseUserService - signOut() : Successfully signed out with Firebase.")
             emit(UserResult.SignOutSuccess)
         } catch (exception: Exception) {
-            Log.e("Nicolas", "FirebaseUserService - signOut() : Error occurred while signing out with Firebase.", exception)
             emit(UserResult.SignOutError(exception))
         }
     }
@@ -140,14 +127,11 @@ class FirebaseUserService : UserApi {
         try {
             val signInMethods = auth.fetchSignInMethodsForEmail(email).await().signInMethods
             if (signInMethods.isNullOrEmpty()) {
-                Log.d("Nicolas", "FirebaseUserService - doUserExistInFirebase() : No user account found in Firebase.")
                 emit(UserResult.UserInFirebaseNotFound)
             } else {
-                Log.d("Nicolas", "FirebaseUserService - doUserExistInFirebase() : User account found in Firebase.")
                 emit(UserResult.UserInFirebaseFound)
             }
         } catch (exception: Exception) {
-            Log.e("Nicolas", "FirebaseUserService - doUserExistInFirebase() : Error checking user existence in Firebase.", exception)
             emit(UserResult.UserInFirebaseError(exception))
         }
     }
@@ -162,10 +146,8 @@ class FirebaseUserService : UserApi {
         try {
             auth.sendPasswordResetEmail(email).await()
 
-            Log.d("Nicolas", "FirebaseUserService - recoverPassword() : Successfully send email for password recovery.")
             emit(UserResult.RecoverPasswordSuccess)
         } catch (exception: Exception) {
-            Log.e("Nicolas", "FirebaseUserService - recoverPassword() : Error sending email for password recovery.", exception)
             emit(UserResult.RecoverPasswordError(exception))
         }
     }

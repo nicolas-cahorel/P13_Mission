@@ -1,6 +1,5 @@
 package com.openclassrooms.hexagonal.games.screen.signUpScreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.openclassrooms.hexagonal.games.data.repository.UserRepository
@@ -27,7 +26,13 @@ class SignUpScreenViewModel @Inject constructor(
 
     // StateFlow representing the current state of the sign-up screen.
     private val _signUpScreenState =
-        MutableStateFlow<SignUpScreenState>(SignUpScreenState.InvalidInput(true, true, false))
+        MutableStateFlow<SignUpScreenState>(
+            SignUpScreenState.InvalidInput(
+                isNameEmpty = true,
+                isPasswordEmpty = true,
+                isPasswordFormatCorrect = false
+            )
+        )
     val signUpScreenState: StateFlow<SignUpScreenState> get() = _signUpScreenState
 
     // StateFlow for storing the user's information during sign-up.
@@ -80,14 +85,12 @@ class SignUpScreenViewModel @Inject constructor(
         validatePassword()
         if (!isNameEmpty && !isPasswordEmpty && isPasswordFormatCorrect) {
             _signUpScreenState.value = SignUpScreenState.ValidInput
-            Log.d("Nicolas", "SignUpScreenState is now : ${_signUpScreenState.value}")
         } else {
             _signUpScreenState.value = SignUpScreenState.InvalidInput(
                 isNameEmpty,
                 isPasswordEmpty,
                 isPasswordFormatCorrect
             )
-            Log.d("Nicolas", "SignUpScreenState is now : ${_signUpScreenState.value}")
         }
     }
 

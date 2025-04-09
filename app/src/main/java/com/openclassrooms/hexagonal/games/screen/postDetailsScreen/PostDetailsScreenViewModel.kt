@@ -1,6 +1,5 @@
 package com.openclassrooms.hexagonal.games.screen.postDetailsScreen
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -53,7 +52,6 @@ class PostDetailsScreenViewModel @Inject constructor(
 
         // Retrieving the postId from the navigation arguments
         val postId: String? = savedStateHandle["postId"]
-        Log.d("Nicolas", "postId in PostDetailsScreenViewModel : $postId")
         if (!postId.isNullOrEmpty()) {
 
             if (internetUtils.isInternetAvailable()) {

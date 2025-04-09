@@ -1,7 +1,6 @@
 package com.openclassrooms.hexagonal.games.screen.addPostScreen
 
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -138,7 +137,7 @@ fun AddPostScreen(
         ) { uri ->
             uri?.let {
                 onPhotoChanged(uri.toString())
-            } ?: Log.d("PhotoPicker", "No media selected")
+            }
         }
 
         // Image Picker for Android 12 and earlier (API 32-)
@@ -147,7 +146,7 @@ fun AddPostScreen(
         ) { uri ->
             uri?.let {
                 onPhotoChanged(uri.toString())
-            } ?: Log.d("PhotoPicker", "No media selected")
+            }
         }
 
         CreatePost(

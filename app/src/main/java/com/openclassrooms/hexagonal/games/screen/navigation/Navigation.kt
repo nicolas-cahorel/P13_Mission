@@ -190,7 +190,6 @@ fun Navigation(navController: NavHostController) {
                 onSaveClicked = { addCommentScreenViewModel.addComment()},
                 navigateToPostDetails = { navController.navigate("PostDetailsScreen/$postId") },
             )
-
         }
 
         composable(route = Routes.SettingsScreen.route) {
@@ -208,7 +207,6 @@ fun Navigation(navController: NavHostController) {
                 onNotificationEnabledClicked = { settingsScreenViewModel.enableNotifications(notificationsPermissionState) },
                 onNotificationDisabledClicked = { settingsScreenViewModel.disableNotifications() },
                 navigateToHome = { navController.navigate(Routes.HomeScreen.route) }
-
             )
         }
 

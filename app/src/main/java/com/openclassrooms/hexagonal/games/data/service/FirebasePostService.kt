@@ -1,6 +1,5 @@
 package com.openclassrooms.hexagonal.games.data.service
 
-import android.util.Log
 import androidx.core.net.toUri
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -37,15 +36,12 @@ class FirebasePostService : PostApi {
                     val posts = querySnapshot.toObjects(Post::class.java)
 
                     if (posts.isEmpty()) {
-                        Log.d("Nicolas", "FirebasePostService - getPostsOrderByCreationDate() : No posts found in Firestore DB.")
                         emit(PostResult.GetPostsEmpty)
                     } else {
-                        Log.d("Nicolas", "FirebasePostService - getPostsOrderByCreationDate() : Successfully retrieved ${posts.size} post(s) from Firestore DB.")
                         emit(PostResult.GetPostsSuccess(posts))
                     }
                 }
         } catch (exception: Exception) {
-            Log.e("Nicolas", "FirebasePostService - getPostsOrderByCreationDate() : Error occurred while fetching posts from Firestore DB.", exception)
             emit(PostResult.GetPostsError(exception))
         }
     }
@@ -63,10 +59,8 @@ class FirebasePostService : PostApi {
 
             val downloadUri = imageRef.downloadUrl.await().toString()
 
-            Log.d("Nicolas", "FirebasePostService - addPhoto() : Post photo successfully uploaded to Firebase Storage.")
             emit(PostResult.AddPhotoSuccess(downloadUri))
         } catch (exception: Exception) {
-            Log.e("Nicolas", "FirebasePostService - addPhoto() : Error occurred while uploading photo in Firebase Storage.", exception)
             emit(PostResult.AddPhotoError(exception))
         }
     }
@@ -92,10 +86,8 @@ class FirebasePostService : PostApi {
                 .document(post.id)
                 .set(post.toHashmap())
 
-            Log.d("Nicolas", "FirebasePostService - addPost() : Post successfully uploaded to Firestore DB.")
             emit(PostResult.AddPostSuccess)
         } catch (exception: Exception) {
-            Log.e("Nicolas", "FirebasePostService - addPost() : Error occurred while uploading post in Firestore DB.", exception)
             emit(PostResult.AddPostError(exception))
         }
     }
@@ -115,14 +107,11 @@ class FirebasePostService : PostApi {
             val post = snapshot.toObject(Post::class.java)
 
             if (post == null) {
-                Log.d("Nicolas", "FirebasePostService - getPost() : No post found in Firestore DB.")
                 emit(PostResult.GetPostNotFound)
             } else {
-                Log.d("Nicolas", "FirebasePostService - getPost() : Successfully retrieved post from Firestore DB.")
                 emit(PostResult.GetPostSuccess(post))
             }
         } catch (exception: Exception) {
-            Log.e("Nicolas", "FirebasePostService - getPost() : Error occurred while fetching post from Firestore DB.", exception)
             emit(PostResult.GetPostError(exception))
         }
     }

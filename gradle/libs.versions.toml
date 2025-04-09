@@ -1,71 +1,124 @@
 [versions]
-accompanistPermissions = "0.34.0"
-agp = "8.3.2"
-coilCompose = "2.6.0"
-hiltNavigationCompose = "1.2.0"
-junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
-kotlinxCoroutinesAndroid = "1.8.0"
-material = "1.12.0"
-hilt = "2.51.1"
-kotlin = "2.1.0"
-compose = "2025.02.00"
-activityCompose = "1.9.0" # Conserver la version 1.9.0 pour compatibilité avec AGP 8.3.2
-navigationCompose = "2.8.8"
-ksp = "2.1.0-1.0.29"
-lifecycleRuntimeCompose = "2.8.7"
-googleServices = "4.4.2"
+# -------------------------- Android Plugin & Kotlin --------------------------
+agp = "8.7.3"                      # Android Gradle Plugin version
+kotlin = "2.1.0"                   # Kotlin version
 
-firebaseBom = "33.10.0"
-firebaseUi = "8.0.2"
-firebase-crashlytics = "3.0.3"
-firestore = "25.1.2"
-firebaseAppcheck = "18.0.0"
-firebaseAppcheckDebug = "18.0.0"
+# -------------------------- Android Libraries --------------------------
+coreKtx = "1.15.0"                 # Core KTX for Android extensions
+lifecycleRuntimeKtx = "2.8.7"      # Lifecycle KTX for lifecycle-aware components
+activityCompose = "1.10.1"          # Compose for Activity integration
+composeBOM = "2025.03.01"          # BOM for Compose dependencies
+navigationCompose = "2.8.9"        # Navigation for Compose
+espressoCore = "3.6.1"             # Espresso for UI testing
 
+# -------------------------- Networking & Serialization --------------------------
+
+# -------------------------- Dependency Injection (DI) with Hilt --------------------------
+hilt = "2.51.1"                    # Hilt for Dependency Injection
+hiltNavigationCompose = "1.2.0"    # Hilt Navigation for Compose
+
+# -------------------------- Coroutines & Testing --------------------------
+kotlinxCoroutinesAndroid = "1.8.0" # Coroutines for Android
+kotlinxCoroutinesTest = "1.8.0"    # Coroutines testing library
+mockitoCore = "5.11.0"             # Mockito for mocking dependencies
+mockitoKotlin = "5.1.0"            # Mockito for Kotlin
+
+# -------------------------- Image Loading --------------------------
+coilCompose = "2.6.0"              # Coil for image loading in Compose
+
+# -------------------------- Testing Libraries --------------------------
+junitVersion = "1.2.1"             # AndroidJUnit for Android instrumentation tests
+turbine = "1.0.0"                  # Turbine for testing flows
+junitJupiter = "5.10.0"
+
+# -------------------------- Plugins & Tools --------------------------
+ksp = "2.1.0-1.0.29"               # Kotlin Symbol Processing (KSP) plugin
+googleServices = "4.4.2"           # Google services plugin
+firebaseCrashlyticsPlugin = "3.0.3" # Firebase Crashlytics plugin
+
+# -------------------------- UI & Compose --------------------------
+material = "1.12.0"                # Material Design for Compose
+lifecycleRuntimeCompose = "2.8.7"  # Lifecycle Runtime for Compose
+accompanistPermissions = "0.34.0"  # Accompanist for permissions
+
+# -------------------------- Firebase --------------------------
+firebaseBom = "33.12.0"            # Firebase BOM (Bill of Materials)
+firebaseUi = "8.0.2"               # Firebase UI
+firestore = "25.1.3"               # Firestore
+firebaseAppcheck = "18.0.0"        # Firebase AppCheck
+firebaseAppcheckDebug = "18.0.0"   # Firebase AppCheck Debug
 
 
 [libraries]
-accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+# -------------------------- Core Android Libraries --------------------------
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+
+# -------------------------- Kotlin & Coroutines --------------------------
+kotlin-bom = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref = "kotlin" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+# -------------------------- Hilt --------------------------
 hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
-kotlin-bom = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref = "kotlin" }
-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose" }
+hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+
+# -------------------------- Jetpack Compose --------------------------
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBOM" }
 compose-ui = { group = "androidx.compose.ui", name = "ui" }
 compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 
-firebase-bom = {module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom"}
-firebase-analytics = {module = "com.google.firebase:firebase-analytics"}
+# -------------------------- UI & Images --------------------------
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
+
+# -------------------------- Firebase --------------------------
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
-firebase-messaging = {module = "com.google.firebase:firebase-messaging"}
+firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 firebase-messaging-directboot = { module = "com.google.firebase:firebase-messaging-directboot" }
-firebase-ui-auth = {module = "com.firebaseui:firebase-ui-auth", version.ref = "firebaseUi"}
-firebase-ui-storage = {module = "com.firebaseui:firebase-ui-storage", version.ref = "firebaseUi"}
-firebase-ui-firestore = {module = "com.firebaseui:firebase-ui-firestore", version.ref = "firebaseUi"}
-firebase-firestore = {module = "com.google.firebase:firebase-firestore", version.ref = "firestore"}
-firebase-appcheck = {module = "com.google.firebase:firebase-appcheck-playintegrity", version.ref = "firebaseAppcheck"}
+firebase-appcheck = { module = "com.google.firebase:firebase-appcheck-playintegrity", version.ref = "firebaseAppcheck" }
 firebase-appcheck-debug = { group = "com.google.firebase", name = "firebase-appcheck-debug", version.ref = "firebaseAppcheckDebug" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore", version.ref = "firestore" }
+
+# -------------------------- Firebase UI --------------------------
+firebase-ui-auth = { module = "com.firebaseui:firebase-ui-auth", version.ref = "firebaseUi" }
+firebase-ui-storage = { module = "com.firebaseui:firebase-ui-storage", version.ref = "firebaseUi" }
+
+# -------------------------- Tests --------------------------
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter"}
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter"}
+junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter"}
+
 
 [plugins]
-androidApplication = { id = "com.android.application", version.ref = "agp" }
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
-kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-googleServices = {id = "com.google.gms.google-services", version.ref = "googleServices"}
-composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics" }
+# -------------------------- Android-related plugins --------------------------
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+
+# -------------------------- Dependency Injection --------------------------
+dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+
+# -------------------------- Kotlin and Compose --------------------------
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+google-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
+# -------------------------- Crashlytics --------------------------
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }

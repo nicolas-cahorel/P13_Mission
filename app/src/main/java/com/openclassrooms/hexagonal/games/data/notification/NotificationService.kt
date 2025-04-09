@@ -7,7 +7,6 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.media.RingtoneManager
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -31,8 +30,6 @@ class NotificationService : FirebaseMessagingService() {
      */
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-
-        Log.d("Nicolas", "NotificationService - onMessageReceived() : New notification received")
 
         val sharedPreferences = applicationContext.getSharedPreferences(
             "app_prefs",

@@ -1,6 +1,5 @@
 package com.openclassrooms.hexagonal.games.screen.splashScreen
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -65,7 +64,6 @@ fun SplashScreen(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally),
                 onClick = {
-                    Log.d("Nicolas", "splashScreenState: $splashScreenState")
                     when (splashScreenState) {
                         is SplashScreenState.UserIsLoggedIn -> navigateToHome()
                         is SplashScreenState.UserIsNotLoggedIn -> navigateToLoginOrSignUp()

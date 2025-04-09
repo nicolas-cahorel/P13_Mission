@@ -1,6 +1,5 @@
 package com.openclassrooms.hexagonal.games.data.service
 
-import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.snapshots
@@ -29,7 +28,6 @@ class FirebaseCommentService : CommentApi {
      * @return A [Flow] emitting a [CommentResult] that contains either the list of comments or an error.
      */
     override fun getCommentsOrderByCreationDate(postId: String): Flow<CommentResult> = flow {
-        Log.d("Nicolas", "postId dans FirebaseCommentService : $postId")
         try {
             firestore
                 .collection("posts")
@@ -41,15 +39,12 @@ class FirebaseCommentService : CommentApi {
                     val comments = querySnapshot.toObjects(Comment::class.java)
 
                     if (comments.isEmpty()) {
-                        Log.d("Nicolas", "FirebaseCommentService - getCommentsOrderByCreationDate() : No comments found in Firestore DB.")
                         emit(CommentResult.GetCommentsEmpty)
                     } else {
-                        Log.d("Nicolas", "FirebaseCommentService - getCommentsOrderByCreationDate() : Successfully retrieved ${comments.size} comment(s) from Firestore DB.")
                         emit(CommentResult.GetCommentsSuccess(comments))
                     }
                 }
         } catch (exception: Exception) {
-            Log.d("Nicolas", "FirebaseCommentService - getCommentsOrderByCreationDate() : Error occurred while fetching comments from Firestore DB.", exception)
             emit(CommentResult.GetCommentsError(exception))
         }
     }
@@ -73,31 +68,11 @@ class FirebaseCommentService : CommentApi {
                 .document(comment.id)
                 .set(comment.toHashmap())
 
-            Log.d("Nicolas", "FirebaseCommentService - addComment() : Comment successfully uploaded to Firestore DB.")
             emit(CommentResult.AddCommentSuccess)
         } catch (exception: Exception) {
-            Log.e("Nicolas", "\"FirebaseCommentService - addComment() : Error occurred while uploading comment in Firestore DB.", exception)
             emit(CommentResult.AddCommentError(exception))
         }
     }
-
-//    override fun addComment(comment: Comment): Flow<CommentResult> {
-//        return callbackFlow {
-//            firestore
-//                .collection("posts")
-//                .document(comment.postId)
-//                .collection("comments")
-//                .document(comment.id)
-//                .add(comment.toHashmap())
-//                .addOnSuccessListener {
-//                    trySend(CommentResult.AddCommentSuccess)
-//                }
-//                .addOnFailureListener { exception ->
-//                    exception.printStackTrace()
-//                    trySend(CommentResult.AddCommentError(exception))
-//                }
-//        }
-//    }
 
     /**
      * Converts a [Comment] object into a [HashMap] representation for Firestore storage.

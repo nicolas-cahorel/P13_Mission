@@ -1,7 +1,6 @@
 package com.openclassrooms.hexagonal.games.ui
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
@@ -32,7 +31,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
-        Log.d("Nicolas", "Firebase initialized")
 
         // Initialize Firebase App Check based on the build type
         val appCheck = FirebaseAppCheck.getInstance()
@@ -74,7 +72,6 @@ class MainActivity : ComponentActivity() {
                     val appCheck = FirebaseAppCheck.getInstance()
                     val token: AppCheckToken =
                         appCheck.getAppCheckToken(true).await() // Wait for the token asynchronously
-                    Log.d("AppCheck", "Token: ${token.token}")
 
                     // Token retrieved successfully
                     break
@@ -85,7 +82,6 @@ class MainActivity : ComponentActivity() {
                         delayTime *= 2  // Increase delay time between attempts
                     } else {
                         // Handle failure after several attempts
-                        Log.e("AppCheck", "Failed to retrieve token after $maxAttempts attempts")
                     }
                 }
             }

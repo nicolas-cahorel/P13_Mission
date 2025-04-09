@@ -1,6 +1,5 @@
 package com.openclassrooms.hexagonal.games.screen.addCommentScreen
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -105,36 +104,28 @@ class AddCommentScreenViewModel @Inject constructor(
                                 _comment.value = _comment.value.copy(author = userResult.user)
 
                                 // Attempt to add the comment to Firestore DB
-                                commentRepository.addComment(_comment.value).collect { commentResult ->
+                                commentRepository.addComment(_comment.value)
+                                    .collect { commentResult ->
                                         when (commentResult) {
 
                                             // Comment successfully added to Firestore DB
                                             is CommentResult.AddCommentSuccess -> {
                                                 _addCommentScreenState.value =
                                                     AddCommentScreenState.AddCommentSuccess
-                                                Log.d(
-                                                    "Nicolas",
-                                                    "comment successfully added to Firestore DB"
-                                                )
                                             }
 
                                             // Error while adding the comment to Firestore DB
                                             else -> {
                                                 _addCommentScreenState.value =
                                                     AddCommentScreenState.AddCommentError
-                                                Log.d(
-                                                    "Nicolas",
-                                                    "Error while adding the comment to Firestore DB"
-                                                )
                                             }
                                         }
-                                }
+                                    }
                             }
 
                             // Error fetching user
                             else -> {
                                 _addCommentScreenState.value = AddCommentScreenState.AddCommentError
-                                Log.d("Nicolas", "could not fetch user to add comments author")
                             }
                         }
                     }
@@ -143,30 +134,26 @@ class AddCommentScreenViewModel @Inject constructor(
                 // Error while retrieving postId from navigation argument
             } else {
                 _addCommentScreenState.value = AddCommentScreenState.AddCommentError
-                Log.d("Nicolas", "Error while retrieving postId from navigation argument")
             }
 
             // No internet connection available
         } else {
             _addCommentScreenState.value = AddCommentScreenState.AddCommentNoInternet
-            Log.d("Nicolas", "No internet connection available")
         }
     }
 
     /**
      * Refactored version of [addComment] for improved error handling and state management.
      */
-    fun addCommentRefactorized() {
+    fun addCommentRefactored() {
         if (!internetUtils.isInternetAvailable()) {
             _addCommentScreenState.value = AddCommentScreenState.AddCommentNoInternet
-            Log.d("Nicolas", "No internet connection available")
             return
         }
 
         val postId: String? = savedStateHandle["postId"]
         if (postId.isNullOrEmpty()) {
             _addCommentScreenState.value = AddCommentScreenState.AddCommentError
-            Log.d("Nicolas", "Error while retrieving postId from navigation argument")
             return
         }
 
@@ -181,7 +168,6 @@ class AddCommentScreenViewModel @Inject constructor(
             }
 
             if (user == null) {
-                Log.d("Nicolas", "FirebaseCommentService - addComment(): No user retrieved after collecting.")
                 _addCommentScreenState.value = AddCommentScreenState.AddCommentError
                 return@launch
             }
@@ -199,19 +185,11 @@ class AddCommentScreenViewModel @Inject constructor(
                     is CommentResult.AddCommentSuccess -> {
                         _addCommentScreenState.value =
                             AddCommentScreenState.AddCommentSuccess
-                        Log.d(
-                            "Nicolas",
-                            "comment successfully added to Firestore DB"
-                        )
                     }
 
                     else -> {
                         _addCommentScreenState.value =
                             AddCommentScreenState.AddCommentError
-                        Log.d(
-                            "Nicolas",
-                            "Error while adding the comment to Firestore DB"
-                        )
                     }
                 }
             }

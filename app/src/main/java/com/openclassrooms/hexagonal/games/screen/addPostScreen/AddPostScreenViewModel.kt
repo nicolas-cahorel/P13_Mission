@@ -177,7 +177,7 @@ class AddPostScreenViewModel @Inject constructor(
                 }
             }
 
-        // No internet connection available
+            // No internet connection available
         } else {
             _addPostScreenState.value = AddPostScreenState.AddPostNoInternet
         }
